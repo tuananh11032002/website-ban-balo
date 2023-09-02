@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Header from "../Header";
 import Footer from "../Footer";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { styled } from "styled-components";
 import {
   AddProductIntoOrder,
@@ -11,11 +11,29 @@ import {
 
 import { useStateProvider } from "../../StateProvider/StateProvider";
 import { reducerCases } from "../../StateProvider/reducer";
+import { useLocation } from "react-router-dom";
+import ProductAddedMessage from "./ProductAddedMessage";
+
 const ProductDetail = () => {
   const [count, setCount] = useState(1);
-  const [{ productdetail, quantity, cart }, dispatch] = useStateProvider();
-
+  const [{ productdetail, quantity, cart, user }, dispatch] =
+    useStateProvider();
+  const navigate = useNavigate();
   const params = useParams();
+  const { pathname } = useLocation();
+  const [showProductAdded, setShowProductAdded] = useState(false);
+  console.log("productdetail", user);
+
+  const handleAddToCart = () => {
+    setShowProductAdded(true);
+  };
+
+  const handleCloseMessage = () => {
+    setShowProductAdded(false);
+  };
+  useEffect(() => {
+    window.scrollTo(0, 100);
+  }, [pathname]);
   useEffect(() => {
     const fetchdata = async () => {
       const data = await getProductApi(params.productId);
@@ -26,40 +44,98 @@ const ProductDetail = () => {
   const handlerClick = () => {
     const SaveData = async (productdetail) => {
       const datafilter = cart.filter((cart) => {
-        return cart?.product.id === productdetail.id;
+        return cart?.product.id == productdetail.id;
       });
-      if (datafilter.length > 0) {
-        const response = await AddProductIntoOrder(params.productId, 1, {
-          Price: productdetail.price,
-          Quantity: datafilter[0].quantity + count,
-        });
+      let response;
+      if (user) {
+        if (datafilter.length > 0) {
+          response = await AddProductIntoOrder(
+            params.productId,
+
+            {
+              Price: productdetail.price,
+              Quantity: datafilter[0].quantity + count,
+            },
+            user.token.accessToken
+          );
+        } else {
+          response = await AddProductIntoOrder(
+            params.productId,
+            {
+              Price: productdetail.price,
+              Quantity: count,
+            },
+            user.token.accessToken
+          );
+        }
       } else {
-        const response = await AddProductIntoOrder(params.productId, 1, {
-          Price: productdetail.price,
-          Quantity: count,
-        });
+        var cartTemp = localStorage.getItem("webbanbalo_cart");
+
+        if (datafilter.length > 0) {
+          const result = JSON.stringify(
+            JSON.parse(cartTemp)?.map((pro) =>
+              datafilter[0].product.id == pro.product.id
+                ? {
+                    quantity: count + pro.quantity,
+                    product: productdetail,
+                    price: pro.price,
+                  }
+                : pro
+            )
+          );
+          localStorage.setItem("webbanbalo_cart", result);
+          dispatch({
+            type: reducerCases.SET_CART,
+            cart: JSON.parse(localStorage.getItem("webbanbalo_cart")),
+          });
+        } else {
+          localStorage.setItem(
+            "webbanbalo_cart",
+            JSON.stringify([
+              ...JSON.parse(cartTemp),
+              {
+                price: productdetail.price,
+                quantity: count,
+                product: productdetail,
+              },
+            ])
+          );
+          dispatch({
+            type: reducerCases.SET_CART,
+            cart: JSON.parse(localStorage.getItem("webbanbalo_cart")),
+          });
+        }
       }
-      dispatch({ type: reducerCases.SET_PRODUCTDETAIL, productdetail });
-    };
-    const getCart = async () => {
-      const response = await GetProductIntoOrder();
-      dispatch({ type: reducerCases.SET_CART, cart: response });
-      dispatch({ type: reducerCases.SET_QUANTITY, quantity: response.length });
+
+      handleAddToCart();
+      if (response) {
+        dispatch({ type: reducerCases.SET_LOADING, loading: true });
+
+        setTimeout(() => {
+          dispatch({ type: reducerCases.SET_LOADING, loading: false });
+        }, 400);
+        dispatch({ type: reducerCases.SET_PRODUCTDETAIL, productdetail });
+      }
     };
 
     SaveData(productdetail);
-    getCart();
   };
-  console.log("productdetail");
   return (
     <div>
       <Header />
       <Container>
+        <ProductAddedMessage
+          show={showProductAdded}
+          onClose={handleCloseMessage}
+        />
+
         <div className="productdetail__image">
           <img src={productdetail?.image || null} />
         </div>
         <div className="productdetail__infor">
-          <div style={{ fontSize: "2rem" }}>{productdetail?.name}</div>
+          <div style={{ fontSize: "2rem", borderBottom: "1px solid black" }}>
+            {productdetail?.name}
+          </div>
           <div style={{ color: "red", fontSize: "1.5rem" }}>
             {productdetail?.price.toLocaleString()}đ
           </div>
@@ -85,39 +161,81 @@ const ProductDetail = () => {
             <span className="color"></span>
             <span className="color"></span>
           </div>
-          <div className="total">
-            <button
-              className="add"
-              onClick={() => {
-                setCount((pre) => {
-                  if (pre > 0) {
-                    setCount(pre - 1);
-                  } else {
-                    setCount(0);
-                  }
-                });
-              }}
-            >
-              -
-            </button>
-            <div>{count}</div>
-            <button
-              className="add"
-              onClick={() => {
-                setCount(count + 1);
-              }}
-            >
-              +
-            </button>
+          <div style={{ display: "flex" }}>
+            Số lượng: &nbsp;
+            <div className="total">
+              <button
+                className="add"
+                onClick={() => {
+                  setCount((pre) => {
+                    if (pre > 0) {
+                      setCount(pre - 1);
+                    } else {
+                      setCount(0);
+                    }
+                  });
+                }}
+              >
+                -
+              </button>
+              <div>{count}</div>
+              <button
+                className="add"
+                onClick={() => {
+                  setCount(count + 1);
+                }}
+              >
+                +
+              </button>
+            </div>
+          </div>
+          <div className="button-parent">
+            <>
+              <div
+                className="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handlerClick();
+                }}
+              >
+                Thêm vào giỏ hàng
+              </div>
+              <div
+                className="button red"
+                onClick={() => {
+                  navigate("/pay");
+                }}
+              >
+                Mua ngay
+              </div>
+            </>
           </div>
 
-          <button
-            onClick={() => {
-              handlerClick();
-            }}
-          >
-            Thêm vào giỏ hàng
-          </button>
+          {/* <div className="button-parent">
+            {productdetail?.soluong != 0 ? (
+              <>
+                <div
+                  className="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handlerClick();
+                  }}
+                >
+                  Thêm vào giỏ hàng
+                </div>
+                <div
+                  className="button red"
+                  onClick={() => {
+                    navigate("/pay");
+                  }}
+                >
+                  Mua ngay
+                </div>
+              </>
+            ) : (
+              <div className="button">Hàng tạm hết</div>
+            )}
+          </div> */}
         </div>
       </Container>
       <div>
@@ -127,27 +245,53 @@ const ProductDetail = () => {
   );
 };
 const Container = styled.div`
-  margin-bottom: 20vh;
-  .color {
+  padding: 0 80px;
+  max-width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  background-color: #ededed;
+  overflow: hidden;
+  .red {
     background-color: red;
+    color: white;
+  }
+  .color {
     display: inline-block;
     height: 2.5rem;
-    width: 2.5rema;
+    width: 2.5rem;
     border-radius: 50%;
   }
-  button {
+  .button-parent {
+    display: flex;
+    justify-content: flex-start;
+    margin-top: 20px;
+    .button {
+      border: 1px solid;
+      width: 176px;
+      height: 47px;
+      border-color: red;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      font-weight: bold;
+
+      justify-content: center;
+      &:first-child {
+        margin-right: 20px;
+      }
+      flex: 1;
+    }
   }
-  width: 100%;
-  height: 100%;
-  display: grid;
-  grid-template-columns: 2fr 1fr;
-  background-color: #ededed;
+
   .productdetail__infor {
+    flex: 0.5;
   }
   .productdetail__image {
+    flex: 1;
     display: flex;
     justify-content: center;
     align-items: center;
+    max-width: 70%;
   }
   .total {
     width: 9rem;
@@ -169,6 +313,21 @@ const Container = styled.div`
     &:hover {
       cursor: pointer;
       color: red;
+    }
+  }
+  @media screen and (max-width: 756px) {
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    .productdetail__image {
+      flex: none;
+      width: 100%;
+      img {
+        object-fit: cover;
+      }
+    }
+    .productdetail__infor {
+      flex: 1;
     }
   }
 `;

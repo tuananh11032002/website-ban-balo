@@ -5,21 +5,42 @@ export const reducerCases = {
   SET_QUANTITY: "SET_QUANTITY",
   SET_ID: "SET_ID",
   SET_CART: "SET_CART",
+  SET_USER: "SET_USER",
+  SET_LISTUSER: "SET_LISTUSER",
+  SET_LOADING: "SET_LOADING",
 };
 export const initialValues = {
+  user: null,
+  listUser: null,
   cart: [],
   product: [],
   category: [],
   productdetail: null,
   quantity: 0,
   idTofindProductFromCategory: null,
+  loading: false,
 };
 const reducer = (state, action) => {
   switch (action.type) {
+    case reducerCases.SET_LOADING:
+      return {
+        ...state,
+        loading: action.loading,
+      };
+    case reducerCases.SET_USER:
+      return {
+        ...state,
+        user: action.user,
+      };
     case reducerCases.SET_ID:
       return {
         ...state,
         idTofindProductFromCategory: action.id,
+      };
+    case reducerCases.SET_LISTUSER:
+      return {
+        ...state,
+        listUser: action.listUser,
       };
     case reducerCases.SET_CART:
       return {

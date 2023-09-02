@@ -4,10 +4,12 @@ import Footer from "../Component/Footer";
 import Body from "../Component/Body";
 import { Outlet } from "react-router-dom";
 import { styled } from "styled-components";
+import Logo from "../Assets/Image/Logo";
 const Home = () => {
   return (
     <Container>
       <Header />
+      <Logo />
       <Body />
       <Outlet />
       <div className="footer__home">
@@ -18,7 +20,7 @@ const Home = () => {
 };
 const Container = styled.div`
   position: relative;
-  width: 100vw;
+  width: 100%;
   height: 100vh;
 
   .footer__home {

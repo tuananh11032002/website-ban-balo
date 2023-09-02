@@ -1,13 +1,15 @@
-import Carousel from "./Body/Carousel";
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import { getCATEGORYAPI } from "../Axios/web";
-import axios from "axios";
+
 import Product from "./Body/Product";
+import MyCarousel from "./Body/Carousel";
+import BootstrapStyledCarousel from "./Body/Carousel";
+import { useLocation } from "react-router-dom";
 const Body = () => {
+  const { pathname } = useLocation();
   return (
     <Container>
-      <Carousel />
+      {pathname == "/" ? <BootstrapStyledCarousel /> : null}
       <Product />
     </Container>
   );
@@ -18,7 +20,7 @@ const Container = styled.main`
   margin: 0;
   background-color: #eeeeee;
   overflow: hidden;
-  margin-bottom: 20vh;
   width: 100%;
+  z-index: 1;
 `;
 export default Body;

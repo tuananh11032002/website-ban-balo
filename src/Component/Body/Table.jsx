@@ -3,10 +3,21 @@ import { styled } from "styled-components";
 import { useStateProvider } from "../../StateProvider/StateProvider";
 import { AddProductIntoOrder } from "../../Axios/web";
 import { reducerCases } from "../../StateProvider/reducer";
+import { Link, useNavigate } from "react-router-dom";
+import ProductAddedMessage from "./ProductAddedMessage";
 const Table = () => {
-  console.log("table");
-  const [{ cart }, dispatch] = useStateProvider();
+  const navigate = useNavigate();
+
+  const [{ cart, loading }, dispatch] = useStateProvider();
   const [count, setCount] = useState(cart);
+  const [showProductAdded, setShowProductAdded] = useState(false);
+  const handleCloseMessage = () => {
+    setShowProductAdded(false);
+  };
+  const handleAddToCart = () => {
+    setShowProductAdded(true);
+  };
+
   useEffect(() => {
     setCount(cart);
   }, [cart]);
@@ -33,16 +44,25 @@ const Table = () => {
       });
     };
     cart?.forEach((element, index) => {
-      console.log(element.quantity, "element.quantity");
-      console.log(count[index].quantity, "count");
       if (element.quantity != count[index].quantity) {
         SaveData(element.product, count[index].quantity);
         dispatch({ type: reducerCases.SET_CART, cart: count });
       }
     });
+    setShowProductAdded(true);
+    dispatch({ type: reducerCases.SET_LOADING, loading: true });
+
+    setTimeout(() => {
+      dispatch({ type: reducerCases.SET_LOADING, loading: false });
+    }, 400);
   };
   return (
     <>
+      <ProductAddedMessage
+        show={showProductAdded}
+        onClose={handleCloseMessage}
+        child="Cập nhật thành công"
+      />
       <Container>
         <thead>
           <tr>
@@ -94,11 +114,21 @@ const Table = () => {
         >
           Cập nhật
         </div>
-        <div>Thanh toán</div>
+        <div
+          onClick={() => {
+            navigate("/pay");
+          }}
+        >
+          Thanh toán
+        </div>
       </DivContainer>
     </>
   );
 };
+const LinkCustome = styled(Link)`
+  text-decoration: none;
+  color: black;
+`;
 const DivContainer = styled.div`
   display: flex;
   flex-direction: row-reverse;
@@ -108,7 +138,7 @@ const DivContainer = styled.div`
     margin-right: 2%;
     height: 2rem;
     width: 6rem;
-    border: 1px solid;
+    border: 2px solid;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -125,13 +155,14 @@ const Container = styled.table`
         width: 20vw;
         background-color: black;
         color: white;
+        text-align: center;
       }
     }
   }
   tbody {
     tr {
       td {
-        border: 1px solid #ddd;
+        border: 2px solid #ddd;
         text-align: center;
         div {
           margin: 0 10%;
@@ -141,7 +172,7 @@ const Container = styled.table`
             display: flex;
             align-items: center;
             justify-content: center;
-            border: 1px solid;
+            border: 2px solid;
             user-select: none;
           }
         }

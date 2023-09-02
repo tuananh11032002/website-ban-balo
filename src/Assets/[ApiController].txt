@@ -1,0 +1,72 @@
+[ApiController]
+[Route("api/[controller]")]
+[Authorize]
+public class ShoppingCartController : ControllerBase
+{
+    private readonly ICartRepository _cartRepository;
+    private readonly ICacheProvider _cacheProvider; // Ghi đè ICacheProvider bằng implement thực tế
+
+    public ShoppingCartController(ICartRepository cartRepository, ICacheProvider cacheProvider)
+    {
+        _cartRepository = cartRepository;
+        _cacheProvider = cacheProvider;
+    }
+
+    [HttpGet]
+    public IActionResult GetCart()
+    {
+        var userId = int.Parse(User.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value);
+
+        // Kiểm tra xem giỏ hàng đã có trong cache chưa
+        var userCart = _cacheProvider.GetCart(userId);
+        if (userCart == null)
+        {
+            userCart = _cartRepository.GetCartByUserId(userId);
+            _cacheProvider.SetCart(userId, userCart);
+        }
+
+        return Ok(userCart);
+    }
+
+    [HttpPost("add")]
+    public IActionResult AddToCart(Product product)
+    {
+        var userId = int.Parse(User.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value);
+
+        var userCart = _cacheProvider.GetCart(userId);
+        if (userCart == null)
+        {
+            userCart = _cartRepository.GetCartByUserId(userId);
+            _cacheProvider.SetCart(userId, userCart);
+        }
+
+        // Thêm sản phẩm vào giỏ hàng
+        userCart.AddProduct(product);
+
+        _cartRepository.UpdateCart(userCart);
+        _cacheProvider.SetCart(userId, userCart); // Cập nhật lại cache
+
+        return Ok();
+    }
+
+    [HttpDelete("remove/{productId}")]
+    public IActionResult RemoveFromCart(string productId)
+    {
+        var userId = int.Parse(User.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value);
+
+        var userCart = _cacheProvider.GetCart(userId);
+        if (userCart == null)
+        {
+            userCart = _cartRepository.GetCartByUserId(userId);
+            _cacheProvider.SetCart(userId, userCart);
+        }
+
+        // Xóa sản phẩm khỏi giỏ hàng
+        userCart.RemoveProduct(productId);
+
+        _cartRepository.UpdateCart(userCart);
+        _cacheProvider.SetCart(userId, userCart); // Cập nhật lại cache
+
+        return Ok();
+    }
+}

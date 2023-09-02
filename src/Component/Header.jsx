@@ -5,14 +5,17 @@ import {
   AiTwotonePhone,
   AiOutlineMail,
 } from "react-icons/ai";
+import { FaSpinner } from "react-icons/fa";
 import styled from "styled-components";
 import Information from "./Header/Information";
 import Controller from "./Header/Controller";
 import { useStateProvider } from "../StateProvider/StateProvider";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import { reducerCases } from "../StateProvider/reducer";
+import { BsSearch } from "react-icons/bs";
 import {
   DeleteProductIntoOrder,
+  GetOrder,
   GetProductIntoOrder,
   GetProductSearch,
 } from "../Axios/web";
@@ -20,21 +23,33 @@ import _ from "lodash";
 import SearchMini from "./Header/SearchMini";
 
 const Header = () => {
-  console.log("Header");
   const navigate = useNavigate();
-  const [{ quantity, cart }, dispatch] = useStateProvider();
+  const [{ quantity, cart, loading, user }, dispatch] = useStateProvider();
   const [showCart, setShowCart] = useState(false);
+  const [showAccount, setShowAccount] = useState(false);
+
   const vdRef = useRef(null);
   const inputRef = useRef(null);
   const searchRef = useRef(null);
   const [isFocused, setIsFocused] = useState(false);
   const [productSearch, setProductSearch] = useState([]);
+  const [order, setOrder] = useState(null);
 
+  console.log("header");
+  //get user
   const handlerClick = () => {
     setShowCart(!showCart);
   };
-  const handlerClickSearch = () => {
-    setIsFocused(!isFocused);
+  const handleLogout = () => {
+    dispatch({ type: reducerCases.SET_USER, user: null });
+    localStorage.setItem("webbanbalo_user", "null");
+  };
+  const handleAccountMouseOver = () => {
+    setShowAccount(true);
+  };
+
+  const handleAccountMouseOut = () => {
+    setShowAccount(false);
   };
   const handleInputFocus = () => {
     setIsFocused(true);
@@ -46,10 +61,7 @@ const Header = () => {
       setIsFocused(false);
     }, 500);
   };
-  const handlerRemove = async (productid) => {
-    const response = await DeleteProductIntoOrder(productid);
-    dispatch({ type: reducerCases.SET_CART, cart: [] });
-  };
+
   // Sử dụng debounce để giới hạn số lần gọi hàm GetProductSearch
   const debouncedHandlerChange = _.debounce(async (keyword) => {
     if (keyword != undefined && keyword != "") {
@@ -59,7 +71,6 @@ const Header = () => {
       setProductSearch([]);
     }
   }, 500); // Thay đổi số 500 thành khoảng thời gian chờ mong muốn (milliseconds)
-
   const handlerChange = () => {
     if (inputRef.current) {
       const keyword = inputRef.current.value;
@@ -67,20 +78,6 @@ const Header = () => {
       debouncedHandlerChange(keyword);
     }
   };
-  useEffect(() => {
-    const fetchCart = async () => {
-      const data = await GetProductIntoOrder();
-
-      if (JSON.stringify(data) !== JSON.stringify(cart)) {
-        dispatch({ type: reducerCases.SET_CART, cart: data });
-      }
-    };
-    fetchCart();
-  }, [cart]);
-
-  useEffect(() => {
-    dispatch({ quantity: cart?.length, type: reducerCases.SET_QUANTITY });
-  }, [cart]);
   useEffect(() => {
     // Thêm sự kiện "click" cho toàn bộ trang
     const handleClickOutside = (event) => {
@@ -98,21 +95,106 @@ const Header = () => {
     };
   }, []);
 
+  //remove product on order
+  const handlerRemove = async (productid) => {
+    if (user) {
+      const response = await DeleteProductIntoOrder(
+        productid,
+        user?.token.accessToken
+      );
+      if (response) dispatch({ type: reducerCases.SET_CART, cart: [] });
+    } else {
+      const cartTemp = JSON.parse(localStorage.getItem("webbanbalo_cart"));
+      let index;
+      for (let i = 0; i < cartTemp.length; i++) {
+        if (cartTemp[i].product.id === productid) {
+          index = i; // Gán chỉ mục của phần tử bằng i nếu tìm thấy
+          break; // Dừng vòng lặp sau khi tìm thấy phần tử đầu tiên
+        }
+      }
+      cartTemp.splice(index, 1);
+      localStorage.setItem("webbanbalo_cart", JSON.stringify(cartTemp));
+      dispatch({ type: reducerCases.SET_CART, cart: [] });
+    }
+  };
+
+  useEffect(() => {
+    const fetchCart = async () => {
+      if (user) {
+        const data = await GetProductIntoOrder(user?.token.accessToken);
+        if (JSON.stringify(data) != JSON.stringify(cart)) {
+          dispatch({ type: reducerCases.SET_CART, cart: data });
+          console.log("da set header 1");
+        }
+      } else {
+        var data = localStorage.getItem("webbanbalo_cart");
+        if (data == null) {
+          localStorage.setItem("webbanbalo_cart", JSON.stringify([]));
+          data = localStorage.getItem("webbanbalo_cart");
+          console.log(data, "data1");
+        }
+        console.log(JSON.stringify(data), "data");
+        console.log(cart, "cart");
+        if (data != JSON.stringify(cart)) {
+          dispatch({ type: reducerCases.SET_CART, cart: JSON.parse(data) });
+          console.log("da set header 2");
+        }
+      }
+    };
+    fetchCart();
+  });
+
+  useEffect(() => {
+    console.log("da set header 3", cart?.length, cart);
+
+    if (cart?.length != quantity) {
+      dispatch({ quantity: cart.length, type: reducerCases.SET_QUANTITY });
+    }
+    console.log("da set header 3");
+  });
+
+  useEffect(() => {
+    const fetchCart = async () => {
+      if (user) {
+        const orderAPi = await GetOrder(user?.token.accessToken);
+
+        if (JSON.stringify(orderAPi) != JSON.stringify(order)) {
+          setOrder(orderAPi);
+        }
+      } else {
+        let result = cart?.reduce((accumulator, currentValue) => {
+          return accumulator + currentValue.price * currentValue.quantity;
+        }, 0);
+        if (result != order?.totalAmount) {
+          setOrder({
+            totalAmount: result,
+          });
+        }
+      }
+    };
+    fetchCart();
+  });
+
   return (
     <Container>
+      {console.log(cart, "cart body")}
       <div className="container_nobo">
-        <div className="branch hover">
+        <div className="branch hover ">
           <LinkCustome to={"/"}>TuanAnh Brand ®</LinkCustome>
         </div>
         <div className="details">
-          <h3 className="space hover">
-            <AiTwotonePhone /> 0987654321
-          </h3>
-          <h3 className="space hover">
-            <AiOutlineMail />
+          <div className=" hover container_nobo-item1 details-child">
+            <AiTwotonePhone className="svg" />
+            0987654321
+          </div>
+          <div className=" hover hidden container_nobo-item2 details-child">
+            <AiOutlineMail className="svg" />
             ttuananh372@gmail.com
-          </h3>
-          <div className="search" ref={searchRef}>
+          </div>
+          <div
+            className="search  container_nobo-item3 details-child"
+            ref={searchRef}
+          >
             <input
               ref={inputRef}
               onFocus={handleInputFocus}
@@ -121,6 +203,9 @@ const Header = () => {
               type="text"
               placeholder="Nhập sản phẩm cần tìm"
             ></input>
+            <button>
+              <BsSearch />
+            </button>
             {isFocused && (
               <div className="searchmini">
                 <SearchMini
@@ -131,19 +216,18 @@ const Header = () => {
               </div>
             )}
           </div>
-          <div className="cart" ref={vdRef}>
+          <div className="cart container_nobo-item4 details-child" ref={vdRef}>
             <AiOutlineShoppingCart onClick={() => handlerClick()} />
-            <span className="cart-count">{quantity}</span>
+            <span className="cart-count">
+              {loading ? <FaSpinner className="loading-icon" /> : quantity}
+            </span>
             {showCart && (
               <div className="vd">
                 {cart?.length > 0 ? (
                   <>
                     <ul>
                       {cart?.map((cart, index) => (
-                        <li
-                          key={cart?.product.id}
-                          style={{ "--index": index + 1 }}
-                        >
+                        <li key={cart?.product.id}>
                           <img src={cart?.product.image} alt="" />
                           <div>
                             <div>{cart?.product.name}</div>
@@ -160,6 +244,12 @@ const Header = () => {
                         </li>
                       ))}
                     </ul>
+                    <div style={{ textAlign: "right" }}>
+                      Tổng tiền: &nbsp;
+                      {order
+                        ? `${order.totalAmount.toLocaleString()}đ`
+                        : "-----"}
+                    </div>
                     <div className="direction">
                       <div
                         onClick={() => {
@@ -170,7 +260,15 @@ const Header = () => {
                       >
                         Tuỳ chỉnh
                       </div>
-                      <div>Thanh toán</div>
+                      <divc
+                        onClick={() => {
+                          setShowCart(false);
+
+                          navigate("/pay");
+                        }}
+                      >
+                        Thanh toán
+                      </divc>
                     </div>
                   </>
                 ) : (
@@ -189,14 +287,42 @@ const Header = () => {
               </div>
             )}
           </div>
+          <div className="details-child ">
+            {user ? (
+              <>
+                <div
+                  className="account"
+                  onMouseOver={handleAccountMouseOver}
+                  onMouseOut={handleAccountMouseOut}
+                >
+                  <img src={require("../Assets/Image/nologin.jpg")} alt="" />
+                  <div>{user?.user.userName}</div>
+                  {showAccount && (
+                    <div className="account-child">
+                      <div>Thông tin cá nhân</div>
+                      <div onClick={handleLogout}>Đăng xuất</div>
+                    </div>
+                  )}
+                </div>
+              </>
+            ) : (
+              <div
+                onClick={() => {
+                  navigate("/login");
+                }}
+                style={{ cursor: "pointer" }}
+              >
+                Đăng nhập
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
       <div className="information">
         <Information />
-        <hr />
+
         <Controller />
-        <hr />
       </div>
     </Container>
   );
@@ -209,21 +335,22 @@ const LinkCustome = styled(Link)`
 `;
 const Container = styled.header`
   width: 100%;
-  /* position: relative; */
+  max-width: 100%;
+  overflow-x: hidden;
+  height: auto;
 
   .vd {
-    z-index: 4;
+    z-index: 2;
     width: 300px;
     height: auto;
     background-color: white;
     position: absolute;
-    top: 70px;
+    top: 40px;
     right: 0px;
     overflow: auto;
     ul {
       width: 100%;
       padding-inline-start: 0;
-      width: 100%;
       li {
         box-sizing: border-box;
         display: grid;
@@ -241,6 +368,7 @@ const Container = styled.header`
         }
       }
     }
+
     .direction {
       width: 100%;
       color: black;
@@ -261,96 +389,230 @@ const Container = styled.header`
       }
     }
   }
-  .sticky {
-    position: sticky;
-    width: 100%;
-  }
+
   .information {
+    max-width: 100%;
+    width: 100%;
     position: relative;
     box-sizing: border-box;
     padding-left: 5rem;
     padding-right: 5rem;
+    margin-top: 100px;
     hr {
       margin-top: 2rem;
     }
   }
-  .container_nobo {
-    font-size: 1rem;
-    top: 0;
-    position: sticky;
-    margin: 0;
 
-    padding-left: 6rem;
-    padding-right: 6rem;
+  .container_nobo {
+    max-width: 100%;
+    font-size: 12px;
+    top: 0;
+    position: fixed;
+    margin: 0;
+    padding-left: 10px;
+    padding-right: 10px;
     box-sizing: border-box;
     background-color: #f5f5f5;
     display: flex;
     justify-content: space-between;
     align-items: center;
     width: 100%;
-    height: 100%;
-    z-index: 100000000;
+    height: 80px;
+    z-index: 2;
+    .details,
+    .branch {
+      /* flex: 1; */
+    }
+    .account {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      img {
+        border-radius: 50%;
+        width: 32px;
+        height: 32px;
+      }
+      &:hover {
+        cursor: pointer;
+      }
+      .account-child {
+        /* z-index: 2;
+        position: absolute;
+        left: -150px;
+        top: 50px;
+        border: 1px solid;
+        width: 200px;
+        height: 200px; */
+      }
+    }
+    /* App.css */
+    .account-child {
+      display: none;
+      position: absolute;
+      top: 100%;
+      right: 20%;
+      background-color: white;
+      border: 1px solid gray;
+      padding: 8px;
+      box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.2);
+      width: 200px; /* Đặt chiều rộng cho menu */
+    }
+
+    .account:hover .account-child {
+      display: block;
+    }
+
+    .account-child div {
+      padding: 6px 10px;
+      cursor: pointer;
+    }
+
+    .account-child div:hover {
+      background-color: lightgray; /* Màu nền khi hover */
+    }
+
+    .account-child div:first-child {
+      border-bottom: 1px solid gray;
+    }
+
     .hover {
       &:hover {
         color: red;
         cursor: pointer;
       }
     }
+
     .details {
       display: flex;
-      justify-content: end;
-      .space {
-        margin: 2rem;
-        svg {
-          position: absolute;
-          left: -1.2rem;
-          bottom: 0.5rem;
+      justify-content: flex-end;
+      align-items: center;
+      flex-wrap: wrap;
+      width: auto;
+
+      .details-child {
+        display: flex;
+        align-items: center;
+
+        .svg {
+          margin-right: 5px;
+          color: red;
+        }
+        &:not(last-child) {
+          margin-right: 10px;
         }
       }
       .search {
         position: relative;
+        margin: auto;
 
         input {
-          margin: 1.8rem 1.5rem 0 0;
-          width: 90%;
+          width: 200px;
+
+          height: 30px;
         }
         button {
-          margin-right: 0.5rem;
+          width: auto;
+          height: 30px;
+          background-color: #6e7072;
+          color: white;
+          border: none;
+          padding: 5px 10px; /* Giảm khoảng cách đệm để nút trông nhỏ hơn */
+          border-radius: 5px;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
         }
-        .searchmini {
-          position: absolute;
-          z-index: 20;
-          top: 4rem;
-          width: 94%;
-          height: auto;
-          background-color: #f5f5f5;
+
+        button svg {
+          width: 20px;
+          height: 20px;
+          margin-right: 5px;
         }
       }
-      .cart {
-        position: relative;
-        display: inline-block;
+      .searchmini {
+        position: absolute;
+        z-index: 20;
+        top: 3.5rem;
+        width: 100%;
+        height: auto;
+        background-color: #f5f5f5;
+      }
+    }
+    .cart {
+      position: relative;
+      display: inline-block;
 
-        color: red;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        .cart-count {
-          position: absolute;
-          top: 5px;
-          right: -10px;
-          background-color: red;
-          color: white;
-          border-radius: 50%;
-          padding: 4px 8px;
+      color: red;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      .cart-count {
+        position: absolute;
+        top: -15px;
+        right: -8px;
+        background-color: red;
+        color: white;
+        border-radius: 50%;
+        padding: 4px 8px;
+        font-size: 12px;
+        .loading-icon {
           font-size: 12px;
+          color: #6e7072;
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
         }
+      }
+      svg {
+        width: 2rem;
+        height: 2rem;
+      }
+    }
+    @media (max-width: 768px) {
+      margin: 0;
+      padding: 0 25px;
+      box-sizing: border-box;
 
-        svg {
-          width: 2rem;
-          height: 2rem;
-        }
+      .hidden {
+        display: none;
       }
     }
   }
+
+  @media screen and (max-width: 756px) {
+    .information {
+      padding: 0 20px;
+    }
+  }
+  @media screen and (max-width: 1300px) {
+    .container_nobo {
+      height: auto;
+      padding-bottom: 10px;
+    }
+    .container_nobo .details .container_nobo-item1 {
+      order: 1;
+      margin-bottom: 22px;
+    }
+    .container_nobo .details .container_nobo-item2 {
+      order: 2;
+      margin-bottom: 22px;
+    }
+    .container_nobo .details .container_nobo-item3 {
+      order: 4;
+    }
+    .container_nobo .details .container_nobo-item4 {
+      order: 3;
+    }
+  }
+  @media screen and (max-width: 462px) {
+    .container_nobo .details .container_nobo-item1 {
+      flex: 1;
+      margin: 0;
+      padding: 22px 0 22px 0px;
+    }
+  }
 `;
+
 export default Header;

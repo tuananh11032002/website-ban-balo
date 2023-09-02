@@ -28,7 +28,7 @@ const SearchMini = ({ dataProduct, setProductSearch, inputRef }) => {
           </li>
         );
       })}
-      {dataProduct.length == 0 && <div>No Product With This Key</div>}
+      {dataProduct?.length == 0 && <div>No Product With This Key</div>}
     </Container>
   );
 };

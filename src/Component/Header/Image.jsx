@@ -25,20 +25,30 @@ const Image = ({ src, message, replace, key_name, id_image }) => {
           handlerClick(id_image, message);
         }}
       />
-      <span>{message}</span>
+      <div>{message}</div>
     </Container>
   );
 };
 
 const Container = styled.div`
-  margin-left: 2rem;
-  margin-right: 2rem;
-  height: 4rem;
-  width: 3.5rem;
+  height: 82px;
+  width: 200px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  cursor: pointer;
+  @media screen and (max-width: 756px) {
+    height: 4rem;
+  }
+  span {
+  }
 
   img {
-    height: 100%;
-    width: 100%;
+    height: 60px;
+
+    width: 60px;
   }
 `;
 

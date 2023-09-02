@@ -1,0 +1,22 @@
+/* AppTransition.css */
+.page-enter {
+  opacity: 0;
+  transform: translateY(20px); /* Di chuyển lên trên */
+}
+
+.page-enter-active {
+  opacity: 1;
+  transform: translateY(0); /* Trở lại vị trí ban đầu */
+  transition: opacity 300ms, transform 300ms;
+}
+
+.page-exit {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.page-exit-active {
+  opacity: 0;
+  transform: translateY(-20px); /* Di chuyển lên trên */
+  transition: opacity 300ms, transform 300ms;
+}
