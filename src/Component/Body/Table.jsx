@@ -1,14 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { styled } from "styled-components";
 import { useStateProvider } from "../../StateProvider/StateProvider";
-import { AddProductIntoOrder } from "../../Axios/web";
+import {
+  AddProductIntoOrder,
+  DeleteProductIntoOrder,
+  GetProductIntoOrder,
+} from "../../Axios/web";
 import { reducerCases } from "../../StateProvider/reducer";
 import { Link, useNavigate } from "react-router-dom";
 import ProductAddedMessage from "./ProductAddedMessage";
 const Table = () => {
   const navigate = useNavigate();
 
-  const [{ cart, loading }, dispatch] = useStateProvider();
+  const [{ cart, loading, user }, dispatch] = useStateProvider();
   const [count, setCount] = useState(cart);
   const [showProductAdded, setShowProductAdded] = useState(false);
   const handleCloseMessage = () => {
@@ -38,17 +42,52 @@ const Table = () => {
   };
   const handleClick = (cart, count) => {
     const SaveData = async (productdetail, dem) => {
-      const response = await AddProductIntoOrder(productdetail.id, 1, {
+      const response = await AddProductIntoOrder(productdetail.id, {
         Price: productdetail.price,
         Quantity: dem,
       });
     };
+    const DeleteData = async (productdetail) => {
+      const response = await DeleteProductIntoOrder(productdetail.id);
+    };
+    const fetchCart = async () => {
+      if (user) {
+        const data = await GetProductIntoOrder();
+        if (data) dispatch({ type: reducerCases.SET_CART, cart: data });
+      } else {
+        const data = localStorage.getItem("webbanbalo_cart");
+        if (data)
+          dispatch({ type: reducerCases.SET_CART, cart: JSON.parse(data) });
+      }
+    };
     cart?.forEach((element, index) => {
-      if (element.quantity != count[index].quantity) {
-        SaveData(element.product, count[index].quantity);
-        dispatch({ type: reducerCases.SET_CART, cart: count });
+      if (
+        element.quantity != count[index].quantity &&
+        count[index].quantity != 0 &&
+        console.log(count[0])
+      ) {
+        if (user) {
+          SaveData(element.product, count[index].quantity);
+          dispatch({ type: reducerCases.SET_CART, cart: count });
+        } else {
+          let cartTemp = JSON.parse(localStorage.getItem("webbanbalo_cart"));
+          cartTemp[index].quantity = count[index].quantity;
+          localStorage.setItem("webbanbalo_cart", JSON.stringify(cartTemp));
+          dispatch({ type: reducerCases.SET_CART, cart: count });
+        }
+      } else if (count[index].quantity == 0) {
+        if (user) {
+          DeleteData(element.product, user.token.accessToken);
+          fetchCart();
+        } else {
+          let cartTemp = JSON.parse(localStorage.getItem("webbanbalo_cart"));
+          cartTemp.splice(index, 1);
+          localStorage.setItem("webbanbalo_cart", JSON.stringify(cartTemp));
+          fetchCart();
+        }
       }
     });
+
     setShowProductAdded(true);
     dispatch({ type: reducerCases.SET_LOADING, loading: true });
 

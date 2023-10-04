@@ -16,7 +16,7 @@ const Users = () => {
       }
     };
     fetchData();
-  }, []);
+  }, [listUser]);
   return (
     <Container>
       <table>

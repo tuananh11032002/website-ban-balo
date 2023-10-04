@@ -1,13 +1,9 @@
 import React, { useState } from "react";
 import Header from "../Component/Header";
+import Footer from "../Component/Footer";
+import Profile from "../Component/Account/Profile";
 
-const Component1 = () => {
-  localStorage.setItem("tempa", JSON.stringify([]));
-  const result = localStorage.getItem("tempa");
-  console.log(result);
-  return <div></div>;
-};
-
+const Component1 = () => <Profile />;
 const Component2 = ({ closeComponent2 }) => {
   return (
     <div style={{ border: "1px solid #ccc", padding: "10px" }}>

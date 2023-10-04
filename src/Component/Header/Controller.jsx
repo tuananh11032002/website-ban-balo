@@ -11,15 +11,16 @@ const Controller = () => {
   useEffect(() => {
     const fetchData = async () => {
       const data = await getCATEGORYAPI();
-      setData(data);
-      dispatch({ type: reducerCases.SET_CATEGORY, category: data });
+      if (JSON.stringify(data) != JSON.stringify(category)) {
+        dispatch({ type: reducerCases.SET_CATEGORY, category: data });
+      }
     };
     fetchData();
-  }, []);
+  }, [category]);
 
   return (
     <Container>
-      {data?.map(({ image, imageReplace, name, id }, index) => (
+      {category?.map(({ image, imageReplace, name, id }, index) => (
         <div className="image" key={index}>
           <Image
             id_image={id}

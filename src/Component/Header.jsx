@@ -4,6 +4,7 @@ import {
   AiOutlineShoppingCart,
   AiTwotonePhone,
   AiOutlineMail,
+  AiOutlineBell,
 } from "react-icons/ai";
 import { FaSpinner } from "react-icons/fa";
 import styled from "styled-components";
@@ -21,12 +22,14 @@ import {
 } from "../Axios/web";
 import _ from "lodash";
 import SearchMini from "./Header/SearchMini";
+import Notification from "./Body/Notification";
 
 const Header = () => {
   const navigate = useNavigate();
   const [{ quantity, cart, loading, user }, dispatch] = useStateProvider();
   const [showCart, setShowCart] = useState(false);
   const [showAccount, setShowAccount] = useState(false);
+  const [isNotification, setIsNotification] = useState(false);
 
   const vdRef = useRef(null);
   const inputRef = useRef(null);
@@ -42,6 +45,8 @@ const Header = () => {
   };
   const handleLogout = () => {
     dispatch({ type: reducerCases.SET_USER, user: null });
+    dispatch({ type: reducerCases.SET_CART, cart: null });
+
     localStorage.setItem("webbanbalo_user", "null");
   };
   const handleAccountMouseOver = () => {
@@ -98,10 +103,7 @@ const Header = () => {
   //remove product on order
   const handlerRemove = async (productid) => {
     if (user) {
-      const response = await DeleteProductIntoOrder(
-        productid,
-        user?.token.accessToken
-      );
+      const response = await DeleteProductIntoOrder(productid);
       if (response) dispatch({ type: reducerCases.SET_CART, cart: [] });
     } else {
       const cartTemp = JSON.parse(localStorage.getItem("webbanbalo_cart"));
@@ -121,7 +123,7 @@ const Header = () => {
   useEffect(() => {
     const fetchCart = async () => {
       if (user) {
-        const data = await GetProductIntoOrder(user?.token.accessToken);
+        const data = await GetProductIntoOrder();
         if (JSON.stringify(data) != JSON.stringify(cart)) {
           dispatch({ type: reducerCases.SET_CART, cart: data });
           console.log("da set header 1");
@@ -142,23 +144,26 @@ const Header = () => {
       }
     };
     fetchCart();
-  });
+  }, [cart]);
 
   useEffect(() => {
     console.log("da set header 3", cart?.length, cart);
 
     if (cart?.length != quantity) {
-      dispatch({ quantity: cart.length, type: reducerCases.SET_QUANTITY });
+      dispatch({
+        quantity: cart ? cart.length : 0,
+        type: reducerCases.SET_QUANTITY,
+      });
     }
     console.log("da set header 3");
-  });
+  }, [cart]);
 
   useEffect(() => {
     const fetchCart = async () => {
       if (user) {
-        const orderAPi = await GetOrder(user?.token.accessToken);
+        const orderAPi = await GetOrder();
 
-        if (JSON.stringify(orderAPi) != JSON.stringify(order)) {
+        if (JSON.stringify(orderAPi) != JSON.stringify(order) && orderAPi) {
           setOrder(orderAPi);
         }
       } else {
@@ -173,11 +178,11 @@ const Header = () => {
       }
     };
     fetchCart();
-  });
+  }, [cart]);
 
   return (
     <Container>
-      {console.log(cart, "cart body")}
+      {console.log("cart", cart)}
       <div className="container_nobo">
         <div className="branch hover ">
           <LinkCustome to={"/"}>TuanAnh Brand ®</LinkCustome>
@@ -260,7 +265,7 @@ const Header = () => {
                       >
                         Tuỳ chỉnh
                       </div>
-                      <divc
+                      <div
                         onClick={() => {
                           setShowCart(false);
 
@@ -268,7 +273,7 @@ const Header = () => {
                         }}
                       >
                         Thanh toán
-                      </divc>
+                      </div>
                     </div>
                   </>
                 ) : (
@@ -287,6 +292,16 @@ const Header = () => {
               </div>
             )}
           </div>
+          <div
+            className="details-child notification"
+            onMouseEnter={() => setIsNotification(true)}
+            onMouseLeave={() => setIsNotification(false)}
+          >
+            <div className="notification-count">1</div>
+
+            <AiOutlineBell />
+            {isNotification && <Notification />}
+          </div>
           <div className="details-child ">
             {user ? (
               <>
@@ -296,10 +311,16 @@ const Header = () => {
                   onMouseOut={handleAccountMouseOut}
                 >
                   <img src={require("../Assets/Image/nologin.jpg")} alt="" />
-                  <div>{user?.user.userName}</div>
+                  <div>{user?.userName}</div>
                   {showAccount && (
                     <div className="account-child">
-                      <div>Thông tin cá nhân</div>
+                      <div
+                        onClick={() => {
+                          navigate("/account/profile");
+                        }}
+                      >
+                        Thông tin cá nhân
+                      </div>
                       <div onClick={handleLogout}>Đăng xuất</div>
                     </div>
                   )}
@@ -404,7 +425,7 @@ const Container = styled.header`
   }
 
   .container_nobo {
-    max-width: 100%;
+    width: 100%;
     font-size: 12px;
     top: 0;
     position: fixed;
@@ -416,9 +437,9 @@ const Container = styled.header`
     display: flex;
     justify-content: space-between;
     align-items: center;
-    width: 100%;
     height: 80px;
     z-index: 2;
+    box-sizing: border-box;
     .details,
     .branch {
       /* flex: 1; */
@@ -611,6 +632,25 @@ const Container = styled.header`
       flex: 1;
       margin: 0;
       padding: 22px 0 22px 0px;
+    }
+  }
+  .notification {
+    .notification-count {
+      border-radius: 50%;
+      height: 26px;
+      width: 26px;
+      background-color: red;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: absolute;
+      top: -14px;
+      left: 11px;
+    }
+    svg {
+      height: 26px;
+      width: 26px;
     }
   }
 `;

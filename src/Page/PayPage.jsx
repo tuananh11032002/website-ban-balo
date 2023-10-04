@@ -61,7 +61,7 @@ const PayPage = () => {
         if (JSON.stringify(data) !== JSON.stringify(cart)) {
           dispatch({ type: reducerCases.SET_CART, cart: data });
         }
-        const orderAPi = await GetOrder(user?.token.accessToken);
+        const orderAPi = await GetOrder();
         if (orderAPi) {
           setOrder(orderAPi);
         }

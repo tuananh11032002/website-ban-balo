@@ -6,16 +6,19 @@ import StateProvider from "./StateProvider/StateProvider";
 import { initialValues } from "./StateProvider/reducer";
 import reducer from "./StateProvider/reducer";
 import { BrowserRouter } from "react-router-dom";
+import AppSocket from "./AppSocket";
+import TestSocket from "./TestSocket";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
-  // <React.StrictMode>
-  <StateProvider initial={initialValues} reducer={reducer}>
-    <BrowserRouter>
-      <App />
-    </BrowserRouter>
-  </StateProvider>
-  // </React.StrictMode>
+  <React.StrictMode>
+    <StateProvider initial={initialValues} reducer={reducer}>
+      <BrowserRouter>
+        <App />
+      </BrowserRouter>
+    </StateProvider>
+  </React.StrictMode>
+  // <TestSocket />
 );
 
 // If you want to start measuring performance in your app, pass a function

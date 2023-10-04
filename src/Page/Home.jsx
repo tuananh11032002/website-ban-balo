@@ -2,7 +2,7 @@ import React from "react";
 import Header from "../Component/Header";
 import Footer from "../Component/Footer";
 import Body from "../Component/Body";
-import { Outlet } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 import { styled } from "styled-components";
 import Logo from "../Assets/Image/Logo";
 const Home = () => {

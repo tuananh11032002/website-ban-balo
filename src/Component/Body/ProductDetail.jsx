@@ -43,35 +43,32 @@ const ProductDetail = () => {
   }, [params.productId]);
   const handlerClick = () => {
     const SaveData = async (productdetail) => {
-      const datafilter = cart.filter((cart) => {
+      const datafilter = cart?.filter((cart) => {
         return cart?.product.id == productdetail.id;
       });
       let response;
       if (user) {
-        if (datafilter.length > 0) {
+        if (datafilter?.length > 0) {
           response = await AddProductIntoOrder(
             params.productId,
 
             {
               Price: productdetail.price,
               Quantity: datafilter[0].quantity + count,
-            },
-            user.token.accessToken
+            }
           );
         } else {
-          response = await AddProductIntoOrder(
-            params.productId,
-            {
-              Price: productdetail.price,
-              Quantity: count,
-            },
-            user.token.accessToken
-          );
+          response = await AddProductIntoOrder(params.productId, {
+            Price: productdetail.price,
+            Quantity: count,
+          });
         }
+        const data = await GetProductIntoOrder();
+        dispatch({ type: reducerCases.SET_CART, cart: data });
       } else {
         var cartTemp = localStorage.getItem("webbanbalo_cart");
 
-        if (datafilter.length > 0) {
+        if (datafilter?.length > 0) {
           const result = JSON.stringify(
             JSON.parse(cartTemp)?.map((pro) =>
               datafilter[0].product.id == pro.product.id

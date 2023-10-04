@@ -11,6 +11,10 @@ body {
   max-width: 100%;
   height: auto;
 }
+html {
+  overflow-x: hidden;
+}
+
 * {
   font-family: "Roboto", sans-serif;
   font-size: 13px;

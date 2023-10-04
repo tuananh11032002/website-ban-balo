@@ -8,6 +8,7 @@ export const reducerCases = {
   SET_USER: "SET_USER",
   SET_LISTUSER: "SET_LISTUSER",
   SET_LOADING: "SET_LOADING",
+  SET_CONNECTIONHUB: "SET_CONNECTIONHUB",
 };
 export const initialValues = {
   user: null,
@@ -19,9 +20,15 @@ export const initialValues = {
   quantity: 0,
   idTofindProductFromCategory: null,
   loading: false,
+  connection: null,
 };
 const reducer = (state, action) => {
   switch (action.type) {
+    case reducerCases.SET_CONNECTIONHUB:
+      return {
+        ...state,
+        connection: action.connection,
+      };
     case reducerCases.SET_LOADING:
       return {
         ...state,

@@ -29,7 +29,7 @@ const Product = ({ closeComponent2 }) => {
       }
     };
     fetchData();
-  }, []);
+  }, [category]);
 
   const HandlerSend = async () => {
     const inputs = document.querySelectorAll('input[type="text"]');
