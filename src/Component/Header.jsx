@@ -418,7 +418,7 @@ const Container = styled.header`
     box-sizing: border-box;
     padding-left: 5rem;
     padding-right: 5rem;
-    margin-top: 100px;
+    margin-top: 10px;
     hr {
       margin-top: 2rem;
     }
@@ -427,8 +427,7 @@ const Container = styled.header`
   .container_nobo {
     width: 100%;
     font-size: 12px;
-    top: 0;
-    position: fixed;
+
     margin: 0;
     padding-left: 10px;
     padding-right: 10px;

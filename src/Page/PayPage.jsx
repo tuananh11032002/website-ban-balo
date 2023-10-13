@@ -203,6 +203,7 @@ const PayPage = () => {
           </button>
         </div>
       </div>
+
       <div className="column">
         <ul
           className="cart"

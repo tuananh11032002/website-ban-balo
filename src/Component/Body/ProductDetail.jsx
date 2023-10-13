@@ -63,7 +63,12 @@ const ProductDetail = () => {
             Quantity: count,
           });
         }
+        dispatch({ type: reducerCases.SET_CART, loading: true });
+
         const data = await GetProductIntoOrder();
+        setTimeout(() => {
+          dispatch({ type: "SET_LOADING", loading: false });
+        }, 20000);
         dispatch({ type: reducerCases.SET_CART, cart: data });
       } else {
         var cartTemp = localStorage.getItem("webbanbalo_cart");
@@ -106,11 +111,11 @@ const ProductDetail = () => {
 
       handleAddToCart();
       if (response) {
-        dispatch({ type: reducerCases.SET_LOADING, loading: true });
+        dispatch({ type: reducerCases.SET_ADDPRODUCT, addproduct: true });
 
         setTimeout(() => {
-          dispatch({ type: reducerCases.SET_LOADING, loading: false });
-        }, 400);
+          dispatch({ type: reducerCases.SET_ADDPRODUCT, addproduct: false });
+        }, 200);
         dispatch({ type: reducerCases.SET_PRODUCTDETAIL, productdetail });
       }
     };

@@ -30,11 +30,12 @@ import RegisterPage from "./Page/RegisterPage";
 // import connection from "./Hub/connection";
 import * as signalR from "@microsoft/signalr";
 import checkAndRenewToken from "./Token/token";
+import { AiOutlineLoading3Quarters } from "react-icons/ai";
 
 function App() {
   const [isUserReady, setIsUserReady] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
-  const [{ user, connection }, dispatch] = useStateProvider();
+  const [{ user, connection, loading }, dispatch] = useStateProvider();
   useEffect(() => {
     const userLocal = localStorage.getItem("webbanbalo_user");
 
@@ -44,6 +45,7 @@ function App() {
     }
     setIsUserReady(true);
   }, [user]);
+  // "https://localhost:44301/messageHub"
   useEffect(() => {
     let connectionHub;
     const connectToSignalRHub = async () => {
@@ -90,59 +92,72 @@ function App() {
   }, []);
 
   return (
-    <Container>
-      {isUserReady ? (
-        <Routes>
-          <Route path="/" element={<Slide child={<Home />} />}></Route>
-          <Route path="/products" element={<Slide child={<Home />} />}></Route>
-          <Route
-            path="/products/:productId"
-            element={<Slide child={<ProductDetail />} />}
-          ></Route>
-          <Route
-            path="/collections/:categoryName"
-            element={<Slide child={<Home />} />}
-          ></Route>
-          <Route path="/admin" element={<Slide child={<Admin />} />}></Route>
-          <Route path="/pay" element={<Slide child={<PayPage />} />}></Route>
-          <Route path="/cart" element={<Slide child={<Cart />} />}></Route>
-          <Route path="/about-us" element={<Slide child={<About />} />}></Route>
-          <Route
-            path="/membership"
-            element={<Slide child={<Membership />} />}
-          ></Route>
-          <Route
-            path="/address"
-            element={<Slide child={<Address />} />}
-          ></Route>
-          <Route path="/test" element={<Slide child={<Test />} />}></Route>
-
-          <Route path="/test1" element={<Slide child={<Test1 />} />}></Route>
-          {/* <Route path="/login" element={<Slide child={<LoginPage />} />}></Route> */}
-          <Route
-            path="login"
-            element={<>{user ? <Navigate to="/" /> : <LoginPage />}</>}
-          />
-          <Route
-            path="/account/address"
-            element={<Slide child={<AddressAccount />} />}
-          />
-          <Route
-            path="/account/profile"
-            element={<Slide child={<ProfileAccount />} />}
-          />
-          <Route
-            path="/account/order"
-            element={<Slide child={<OrderAccount />} />}
-          />
-          <Route path="/chat" element={<Slide child={<WebSocket />} />} />
-          <Route
-            path="/register"
-            element={<Slide child={<RegisterPage />} />}
-          />
-        </Routes>
+    <>
+      {loading == true ? (
+        <div className="loading">
+          <AiOutlineLoading3Quarters />
+        </div>
       ) : null}
-    </Container>
+      <Container>
+        {isUserReady ? (
+          <Routes>
+            <Route path="/" element={<Slide child={<Home />} />}></Route>
+            <Route
+              path="/products"
+              element={<Slide child={<Home />} />}
+            ></Route>
+            <Route
+              path="/products/:productId"
+              element={<Slide child={<ProductDetail />} />}
+            ></Route>
+            <Route
+              path="/collections/:categoryName"
+              element={<Slide child={<Home />} />}
+            ></Route>
+            <Route path="/admin" element={<Slide child={<Admin />} />}></Route>
+            <Route path="/pay" element={<Slide child={<PayPage />} />}></Route>
+            <Route path="/cart" element={<Slide child={<Cart />} />}></Route>
+            <Route
+              path="/about-us"
+              element={<Slide child={<About />} />}
+            ></Route>
+            <Route
+              path="/membership"
+              element={<Slide child={<Membership />} />}
+            ></Route>
+            <Route
+              path="/address"
+              element={<Slide child={<Address />} />}
+            ></Route>
+            <Route path="/test" element={<Slide child={<Test />} />}></Route>
+
+            <Route path="/test1" element={<Slide child={<Test1 />} />}></Route>
+            {/* <Route path="/login" element={<Slide child={<LoginPage />} />}></Route> */}
+            <Route
+              path="login"
+              element={<>{user ? <Navigate to="/" /> : <LoginPage />}</>}
+            />
+            <Route
+              path="/account/address"
+              element={<Slide child={<AddressAccount />} />}
+            />
+            <Route
+              path="/account/profile"
+              element={<Slide child={<ProfileAccount />} />}
+            />
+            <Route
+              path="/account/order"
+              element={<Slide child={<OrderAccount />} />}
+            />
+            <Route path="/chat" element={<Slide child={<WebSocket />} />} />
+            <Route
+              path="/register"
+              element={<Slide child={<RegisterPage />} />}
+            />
+          </Routes>
+        ) : null}
+      </Container>
+    </>
   );
 }
 const Container = styled.div``;

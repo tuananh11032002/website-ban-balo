@@ -9,6 +9,7 @@ export const reducerCases = {
   SET_LISTUSER: "SET_LISTUSER",
   SET_LOADING: "SET_LOADING",
   SET_CONNECTIONHUB: "SET_CONNECTIONHUB",
+  SET_ADDPRODUCT: "SET_ADDPRODUCT",
 };
 export const initialValues = {
   user: null,
@@ -20,6 +21,7 @@ export const initialValues = {
   quantity: 0,
   idTofindProductFromCategory: null,
   loading: false,
+  addproduct: false,
   connection: null,
 };
 const reducer = (state, action) => {
@@ -33,6 +35,11 @@ const reducer = (state, action) => {
       return {
         ...state,
         loading: action.loading,
+      };
+    case reducerCases.SET_ADDPRODUCT:
+      return {
+        ...state,
+        loading: action.addproduct,
       };
     case reducerCases.SET_USER:
       return {

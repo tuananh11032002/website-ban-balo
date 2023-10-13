@@ -105,33 +105,37 @@ function App() {
 
   useEffect(() => {
     // Đăng ký lắng nghe sự kiện từ Hub
-    connection.on("ErrorMessage", (message) => {
-      setMessages((pre) => [...pre, message]);
-      setNewMessage("");
-    });
+    if (connection) {
+      connection.on("ErrorMessage", (message) => {
+        setMessages((pre) => [...pre, message]);
+        setNewMessage("");
+      });
 
-    connection.on("ReceiveMessage", (message) => {
-      const messageJSON = JSON.parse(message);
-      console.log("message", message);
-      setMessages((pre) => [
-        ...pre,
-        {
-          content: messageJSON.Content,
+      connection.on("ReceiveMessage", (message) => {
+        const messageJSON = JSON.parse(message);
+        console.log("message", message);
+        setMessages((pre) => [
+          ...pre,
+          {
+            content: messageJSON.Content,
 
-          receiverUserId: messageJSON.ReceiverUserId,
+            receiverUserId: messageJSON.ReceiverUserId,
 
-          senderUserId: messageJSON.SenderUserId,
+            senderUserId: messageJSON.SenderUserId,
 
-          timestamp: messageJSON.Timestamp,
-        },
-      ]);
+            timestamp: messageJSON.Timestamp,
+          },
+        ]);
 
-      setNewMessage("");
-    });
+        setNewMessage("");
+      });
+    }
 
     return () => {
       // Huỷ đăng ký lắng nghe khi component unmount
-      connection.off("ReceiveMessage");
+      if (connection) {
+        connection.off("ReceiveMessage");
+      }
     };
   }, []);
 
