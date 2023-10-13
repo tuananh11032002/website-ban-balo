@@ -12,6 +12,8 @@ import {
 import { BsChatDots, BsSearch } from "react-icons/bs";
 import { GrUnorderedList } from "react-icons/gr";
 import { BiSolidCategoryAlt } from "react-icons/bi";
+import CategoryList from "./Component/CategoryList";
+import WebSocket from "../AppSocket";
 
 const Admin = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -20,8 +22,20 @@ const Admin = () => {
   const menuRef = useRef(null);
   const [activeIndex, setActiveIndex] = useState(1);
   const headerRef = useRef(null);
-  const [scrollPosition, setScrollPosition] = useState(0);
+  const mainRef = useRef(null);
 
+  const [scrollPosition, setScrollPosition] = useState(0);
+  const [bodyHeight, setBodyHeight] = useState(0);
+
+  useEffect(() => {
+    const mainHeight = menuRef.current.clientHeight;
+    const headerHeight = headerRef.current.clientHeight;
+    const calculatedBodyHeight = mainHeight - headerHeight;
+    setBodyHeight(calculatedBodyHeight);
+  }, []);
+  useEffect(() => {
+    console.log("active", activeIndex);
+  });
   useEffect(() => {
     const handleScroll = () => {
       setScrollPosition(window.scrollY);
@@ -198,7 +212,7 @@ const Admin = () => {
         }}
       ></div>
 
-      <div className="main">
+      <div className="main" ref={mainRef}>
         <nav className="header" ref={headerRef}>
           {isPhone == true && !isMenuOpen ? (
             <div
@@ -229,7 +243,10 @@ const Admin = () => {
           </div>
         </nav>
         <main>
-          <ProductList />
+          {activeIndex == 1 ? <ProductList /> : null}
+          {activeIndex == 6 ? <CategoryList /> : null}
+
+          {activeIndex == 3 ? <WebSocket occupy={bodyHeight} /> : null}
         </main>
       </div>
     </Container>

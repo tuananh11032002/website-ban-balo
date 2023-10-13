@@ -6,7 +6,8 @@ import checkAndRenewToken from "./Token/token";
 import { getMessageWithUserId, getUserMessage } from "./Axios/web";
 import { FcHome } from "react-icons/fc";
 import { useNavigate } from "react-router-dom";
-function App() {
+function App({ occupy = null }) {
+  console.log("cup", occupy);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
   const [role, setRole] = useState("user");
@@ -42,66 +43,6 @@ function App() {
       messageListRef.current.scrollTop = messageListRef.current.scrollHeight;
     }
   }, [messages]);
-  //hub
-  // useEffect(() => {
-  //   try {
-  //     const connection = new signalR.HubConnectionBuilder()
-  //       .withUrl("https://localhost:44301/messageHub", {
-  //         accessTokenFactory: () => {
-  //           const token = JSON.parse(localStorage.getItem("webbanbalo_user"))
-  //             .token.accessToken;
-  //           return token;
-  //         },
-  //       })
-  //       .withAutomaticReconnect()
-  //       .build();
-  //     connection.start();
-
-  //     setConnection(connection);
-  //   } catch {
-  //     console.log("Server Error");
-  //   }
-  // }, []);
-
-  // useEffect(() => {
-  //   try {
-  //     if (connection) {
-  //       console.log("WebSocket connected.");
-  //       connection.on("ErrorMessage", (message) => {
-  //         setMessages((pre) => [...pre, message]);
-  //         setNewMessage("");
-  //       });
-
-  //       connection.on("ReceiveMessage", (message) => {
-  //         const messageJSON = JSON.parse(message);
-  //         console.log("message", message);
-  //         setMessages((pre) => [
-  //           ...pre,
-  //           {
-  //             content: messageJSON.Content,
-
-  //             receiverUserId: messageJSON.ReceiverUserId,
-
-  //             senderUserId: messageJSON.SenderUserId,
-
-  //             timestamp: messageJSON.Timestamp,
-  //           },
-  //         ]);
-  //         setNewMessage("");
-  //       });
-
-  //       connection.on("UserDisabled", (user) => {
-  //         // setLoggedInUsers((prevUsers) => prevUsers.filter((u) => u !== user));
-  //       });
-  //     }
-  //   } catch (error) {
-  //     console.error("WebSocket connection error:", error);
-  //   }
-
-  //   return () => {
-  //     connection?.stop();
-  //   };
-  // }, [connection]);
 
   useEffect(() => {
     // Đăng ký lắng nghe sự kiện từ Hub
@@ -224,7 +165,7 @@ function App() {
   };
   return (
     <>
-      <Container>
+      <Container height={occupy}>
         <div className="user">
           {user?.map((user, index) => {
             return (
@@ -302,7 +243,10 @@ function App() {
 const Container = styled.div`
   display: flex;
   justify-content: center;
-  height: 100vh;
+  height: ${(props) =>
+    props.height != null ? `${props.height - 30}px` : "100vh"};
+  max-height: 100%;
+  background-color: white;
   width: 100%;
   /* CSS cho lớp cha 'user' */
   .user {
