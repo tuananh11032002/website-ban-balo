@@ -11,7 +11,7 @@ const Component2 = ({ closeComponent2 }) => {
       <p>This is Component 2 content.</p>
       <button
         style={{ padding: "5px 10px", background: "red", color: "white" }}
-        onClick={closeComponent2}
+        onClick={() => closeComponent2()}
       >
         Đóng Component 2
       </button>

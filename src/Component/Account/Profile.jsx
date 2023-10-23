@@ -59,7 +59,7 @@ const Profile = () => {
               )}
             </div>
             {isEditing == "email" && (
-              <button onClick={handleSaveClick}>Lưu</button>
+              <button onClick={() => handleSaveClick()}>Lưu</button>
             )}
           </div>
           <div className="input-child">
@@ -82,7 +82,7 @@ const Profile = () => {
               )}
             </div>
             {isEditing == "phone" && (
-              <button onClick={handleSaveClick}>Lưu</button>
+              <button onClick={() => handleSaveClick()}>Lưu</button>
             )}
           </div>
           <div className="input-child">

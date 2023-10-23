@@ -70,7 +70,6 @@ function Pagination({ obj }) {
   return (
     <Container>
       <div>
-        {console.log("page", currentPage)}
         Displaying {Math.max(1, (currentPage - 1) * size + 1)} to{" "}
         {Math.min(currentPage * size, totalProduct)} of {totalProduct} entries
       </div>

@@ -67,8 +67,6 @@ const Product = () => {
     "#c7c7c7", // xám
   ];
   const getProductWithOption = async (categoryName, option) => {
-    // const categoryApi = await getCATEGORYAPI();
-    // dispatch({ type: reducerCases.SET_CATEGORY, category: categoryApi });
     const data = await getProductAndCategoryOption(categoryName, option);
     dispatch({ product: data, type: reducerCases.SET_PRODUCT });
   };
@@ -78,7 +76,7 @@ const Product = () => {
         <>
           <div
             key={index}
-            className="product-categoryName"
+            className="category-title"
             style={{
               display: "flex",
               alignItems: "center",
@@ -88,7 +86,7 @@ const Product = () => {
                   : "none",
             }}
           >
-            <h2>{product.name}</h2>{" "}
+            <h2>{product.name}</h2>
             {!params.categoryName || params.categoryName == null ? (
               <hr style={{ flex: 1 }} />
             ) : (
@@ -113,17 +111,18 @@ const Product = () => {
           </div>
           <div className="product-element">
             <ul>
-              {product?.product?.map((p, index) => (
+              {product?.product.map((p, index) => (
                 <li
                   key={index}
                   onClick={(e) => {
-                    hanlderClick(e, p.id);
+                    const { id } = p;
+                    hanlderClick(e, id);
                   }}
                 >
-                  <div className="product-element_name">
+                  <div className="product-element_image">
                     <img src={p.image} alt="" />
                   </div>
-                  <div className="product-element_image">{p.name}</div>
+                  <div className="product-element_name">{p.name}</div>
                   <div className="product-element_price">
                     {p.price.toLocaleString()}đ
                   </div>
@@ -150,41 +149,39 @@ const Product = () => {
 };
 
 const Container = styled.div`
-  padding: 0 80px;
-  img {
-    width: 267px;
-    height: 267px;
+  z-index: 0;
+  .category-title select {
+    width: 140px;
+    height: 40px;
   }
-  .product-categoryName {
-    select {
-      width: 140px;
-      height: 40px;
-    }
-    &:first-child {
-      padding-top: 20px;
-    }
+  .category-title:first-child {
+    padding-top: 20px;
   }
+
   ul {
     display: flex;
     flex-wrap: wrap;
-    justify-content: flex-start; /* Thay vì space-between */
+    justify-content: space-evenly;
     align-items: stretch; /* Thay vì center */
-
+    padding: 0;
+    width: 100%;
+    li:hover {
+      cursor: pointer;
+      box-shadow: 0 8px 10px rgba(0, 0, 0, 0.2);
+    }
     li {
       list-style-type: none;
-      height: 383px;
-      width: 277;
-      flex-basis: 22%;
-      margin: 10px;
+      max-width: 25%;
+      width: 25%;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      & {
-        position: relative;
-        /* Other styles for the product */
+      margin-bottom: 20px;
+      .product-element_image img {
+        width: 100%;
+        max-height: 267px;
       }
-
       .stock-label {
         position: absolute;
         top: 0;
@@ -204,35 +201,37 @@ const Container = styled.div`
           height: 20px;
           width: 20px;
           border-radius: 50%;
-          &:hover {
-            transform: scale(1.5);
-          }
-          &:first-child {
-            border: 1px solid red; /* Áp dụng style cho phần tử đầu tiên */
-          }
         }
-      }
-
-      &:hover {
-        cursor: pointer;
-        img {
-          width: 280px;
-          height: 280px;
+        .product-element_color__child:hover {
+          transform: scale(1.05);
+          transition: transform 0.5s;
+        }
+        .product-element_color__child:first-child {
+          border: 1px solid red; /* Áp dụng style cho phần tử đầu tiên */
         }
       }
     }
   }
-  @media screen and (max-width: 765px) {
-    padding: 0;
+  @media screen and (max-width: 1260px) {
     ul {
-      padding: 0;
-      li {
-        flex-basis: none;
-
-        img {
-        }
+      li .product-element_image img {
+        min-width: 50% !important;
       }
     }
+    ul {
+      li {
+        min-width: 50% !important;
+      }
+    }
+  }
+  @media screen and (max-width: 710px) {
+    /* ul {
+      justify-content: center !important;
+
+      li {
+        max-width: 100%;
+      }
+    } */
   }
 `;
 export default Product;

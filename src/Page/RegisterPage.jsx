@@ -21,9 +21,6 @@ const RegisterPage = () => {
     e.preventDefault();
     // Gửi dữ liệu đăng ký lên server hoặc xử lý tại đây.
     const data = await Register(formData);
-
-    console.log("response", data);
-    console.log("FormData:", formData);
   };
 
   return (

@@ -7,7 +7,6 @@ import { getMessageWithUserId, getUserMessage } from "./Axios/web";
 import { FcHome } from "react-icons/fc";
 import { useNavigate } from "react-router-dom";
 function App({ occupy = null }) {
-  console.log("cup", occupy);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
   const [role, setRole] = useState("user");
@@ -18,9 +17,8 @@ function App({ occupy = null }) {
   const inputRef = useRef(null);
   const navigate = useNavigate();
   const [{ connection }, dispatch] = useStateProvider();
+
   //get user message
-  console.log("user", user);
-  console.log("selecteduser", selectedUser);
   useEffect(() => {
     const getUser = async () => {
       const response = await getUserMessage();
@@ -33,6 +31,7 @@ function App({ occupy = null }) {
     };
     getUser();
   }, [user]);
+  //get message with userid
   useEffect(() => {
     getMessage();
   }, [selectedUser]);
@@ -44,6 +43,7 @@ function App({ occupy = null }) {
     }
   }, [messages]);
 
+  //connect server hub
   useEffect(() => {
     // Đăng ký lắng nghe sự kiện từ Hub
     if (connection) {
@@ -54,7 +54,6 @@ function App({ occupy = null }) {
 
       connection.on("ReceiveMessage", (message) => {
         const messageJSON = JSON.parse(message);
-        console.log("message", message);
         setMessages((pre) => [
           ...pre,
           {
@@ -106,7 +105,6 @@ function App({ occupy = null }) {
       handleSubmit();
     }
   };
-  console.log("messages", messages);
   function calculateTimeDifference(lastMessageSentTimeString) {
     // Kiểm tra xem chuỗi có đúng định dạng không
     const dateRegex = /^(\d{2}:\d{2}:\d{2} \d{2}\/\d{2}\/\d{4})$/;
@@ -215,11 +213,6 @@ function App({ occupy = null }) {
                     : "other"
                 }`}
               >
-                {console.log("divmess", message)}
-                {console.log(
-                  "divlocal",
-                  JSON.parse(localStorage.getItem("webbanbalo_user")).userName
-                )}
                 {message.content}
               </div>
             ))}
@@ -254,50 +247,49 @@ const Container = styled.div`
     flex-direction: column;
     width: 20%;
     overflow-y: auto;
-  }
+    /* CSS cho lớp con 'user-single' */
+    .user-single {
+      display: flex;
+      align-items: flex-start;
+      margin-bottom: 10px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      transition: background-color 0.2s; /* Hiệu ứng màu nền */
+      width: 100%;
+    }
 
-  /* CSS cho lớp con 'user-single' */
-  .user-single {
-    display: flex;
-    align-items: flex-start;
-    margin-bottom: 10px;
-    padding: 10px;
-    border: 1px solid #ccc;
-    transition: background-color 0.2s; /* Hiệu ứng màu nền */
-    width: 100%;
-  }
+    .user-single:hover {
+      background-color: #f0f0f0; /* Màu nền khi hover */
+    }
 
-  .user-single:hover {
-    background-color: #f0f0f0; /* Màu nền khi hover */
-  }
+    .user-single img {
+      margin-right: 10px;
+    }
 
-  .user-single img {
-    margin-right: 10px;
-  }
+    .user-single > div {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+    }
 
-  .user-single > div {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-  }
+    .user-single .userName {
+      font-weight: bold;
+    }
 
-  .user-single .userName {
-    font-weight: bold;
-  }
+    .user-single .lastMessageTime {
+      font-size: 0.8em;
+      color: #888;
+    }
 
-  .user-single .lastMessageTime {
-    font-size: 0.8em;
-    color: #888;
-  }
-
-  .user-single .lastMessage {
-    white-space: nowrap; /* Ngăn nội dung xuống dòng */
-    overflow: hidden; /* Ẩn nội dung dư thừa */
-    text-overflow: ellipsis; /* Hiển thị dấu ... khi nội dung vượt quá */
-    max-width: 70%; /* Đặt chiều rộng tối đa cho nội dung last message */
-  }
-  .selected {
-    background-color: #f0f0f0;
+    .user-single .lastMessage {
+      white-space: nowrap; /* Ngăn nội dung xuống dòng */
+      overflow: hidden; /* Ẩn nội dung dư thừa */
+      text-overflow: ellipsis; /* Hiển thị dấu ... khi nội dung vượt quá */
+      max-width: 70%; /* Đặt chiều rộng tối đa cho nội dung last message */
+    }
+    .selected {
+      background-color: #f0f0f0;
+    }
   }
 
   .chat-box {
@@ -308,47 +300,46 @@ const Container = styled.div`
     display: flex;
     flex-direction: column; /* Hiển thị tin nhắn từ trên xuống dưới */
     height: 100%;
-  }
+    .message-list {
+      flex: 1; /* Đặt chiều cao tự động */
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
 
-  .message-list {
-    flex: 1; /* Đặt chiều cao tự động */
-    display: flex;
-    flex-direction: column;
-    overflow-y: auto;
-  }
+    .message-list-inner {
+      flex: 1; /* Để tin nhắn lấp đầy chiều cao còn trống */
+      padding: 16px;
+      overflow-y: auto;
+    }
 
-  .message-list-inner {
-    flex: 1; /* Để tin nhắn lấp đầy chiều cao còn trống */
-    padding: 16px;
-    overflow-y: auto;
-  }
+    .message {
+      background-color: #f1f0f0;
+      padding: 8px;
+      margin-bottom: 8px;
+      border-radius: 4px;
+    }
 
-  .message {
-    background-color: #f1f0f0;
-    padding: 8px;
-    margin-bottom: 8px;
-    border-radius: 4px;
-  }
+    /* Định dạng tin nhắn của bạn (you) */
+    .message.you {
+      align-self: flex-end;
+      background-color: #0099ff;
+      color: white;
+    }
+    .message.other {
+      align-self: flex-start;
+      color: white;
+      background-color: black;
+      width: auto;
+    }
 
-  /* Định dạng tin nhắn của bạn (you) */
-  .message.you {
-    align-self: flex-end;
-    background-color: #0099ff;
-    color: white;
-  }
-  .message.other {
-    align-self: flex-start;
-    color: white;
-    background-color: black;
-    width: auto;
-  }
-
-  .message-input {
-    display: flex;
-    align-items: center;
-    padding: 16px;
-    background-color: #f1f0f0;
-    border-top: 1px solid #ccc; /* Thêm đường kẻ trên cùng */
+    .message-input {
+      display: flex;
+      align-items: center;
+      padding: 16px;
+      background-color: #f1f0f0;
+      border-top: 1px solid #ccc; /* Thêm đường kẻ trên cùng */
+    }
   }
 
   input[type="text"] {

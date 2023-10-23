@@ -76,7 +76,7 @@ const Address = () => {
                 setEditedData({ ...editedData, address: e.target.value })
               }
             />
-            <button onClick={handleSave}>Lưu</button>
+            <button onClick={() => handleSave()}>Lưu</button>
             <AiOutlineClose
               className="close-button"
               onClick={() => {

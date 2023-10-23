@@ -21,9 +21,10 @@ const PayPage = () => {
     const fetchData = async () => {
       try {
         const response = await axios.get(
-          "https://vn-public-apis.fpo.vn/provinces/getAll?limit=-1"
+          "https://provinces.open-api.vn/api/p/"
         );
-        setProvinces(response.data.data.data);
+        console.log("response", response);
+        setProvinces(response.data);
       } catch (error) {
         console.error(error);
       }
@@ -34,9 +35,11 @@ const PayPage = () => {
   const fetchDataDistrict = async (code) => {
     try {
       const response = await axios.get(
-        `https://vn-public-apis.fpo.vn/districts/getByProvince?provinceCode=${code}&limit=-1`
+        `https://provinces.open-api.vn/api/p/${code}`
       );
-      setDistricts(response.data.data.data);
+      console.log("response", response);
+
+      setDistricts([]);
     } catch (error) {
       console.error(error);
     }
@@ -45,9 +48,9 @@ const PayPage = () => {
   const fetchDataWard = async (code) => {
     try {
       const response = await axios.get(
-        `https://vn-public-apis.fpo.vn/wards/getByDistrict?districtCode=${code}&limit=-1`
+        `https://provinces.open-api.vn/api/w/{code}${code}`
       );
-      setWards(response.data.data.data);
+      setWards(response.data);
     } catch (error) {
       console.error(error);
     }

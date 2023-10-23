@@ -162,7 +162,6 @@ export const Login = (infor) => {
   return axiosClient.post(`${END_POINT.USER}/Login`, infor);
 };
 export const Register = (userInfor) => {
-  console.log("register", userInfor);
   return axiosClient.post(`${END_POINT.USER}/AddUser`, { ...userInfor, id: 0 });
 };
 export const RenewToken = (tokenModel) => {

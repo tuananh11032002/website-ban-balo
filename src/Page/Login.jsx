@@ -14,7 +14,7 @@ const LoginContainer = styled.div`
   background-color: #e0e0e0;
 `;
 
-const LoginForm = styled.form`
+const LoginForm = styled.div`
   background-color: #ffffff;
   border-radius: 12px;
   padding: 40px;
@@ -59,7 +59,6 @@ const LoginPage = () => {
   var temp = null;
   localStorage.setItem("myTempValue", JSON.stringify(temp));
   const result = localStorage.getItem("myTempValue");
-  console.log("result", JSON.parse(result));
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [{}, dispatch] = useStateProvider();
@@ -72,7 +71,6 @@ const LoginPage = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    // Do something with username and password (e.g., API call)
     console.log("login");
     const data = await Login({ password, username });
     if (data.success) {
@@ -112,7 +110,7 @@ const LoginPage = () => {
             onChange={(e) => setPassword(e.target.value)}
             onKeyPress={handleKeyPress}
           />
-          <Button onClick={handleLogin}>Login</Button>
+          <Button onClick={(e) => handleLogin(e)}>Login</Button>
         </LoginForm>
       </LoginContainer>
     </>

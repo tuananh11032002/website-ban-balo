@@ -7,7 +7,6 @@ const Logo = () => {
   return (
     <svg
       onClick={() => {
-        console.log("da chuyen huong");
         navigate("/chat");
       }}
       width="60px"

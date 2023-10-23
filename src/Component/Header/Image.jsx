@@ -31,8 +31,8 @@ const Image = ({ src, message, replace, key_name, id_image }) => {
 };
 
 const Container = styled.div`
-  height: 82px;
-  width: 200px;
+  max-height: 82px;
+  max-width: 200px;
   display: flex;
   flex-direction: column;
   justify-content: center;

@@ -28,30 +28,63 @@ const SearchMini = ({ dataProduct, setProductSearch, inputRef }) => {
           </li>
         );
       })}
-      {dataProduct?.length == 0 && <div>No Product With This Key</div>}
+      {dataProduct?.length == 0 && (
+        <NoProductMessage>No Product With This Key</NoProductMessage>
+      )}
     </Container>
   );
 };
 
 const Container = styled.ul`
-  width: 100%;
-  padding-inline-start: 0;
+  list-style-type: none;
+  padding: 0;
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  flex-direction: column;
+
   li {
     width: 100%;
-    text-decoration: none;
-    list-style-type: none;
-    border-bottom: 1px solid;
-    display: grid;
-    grid-template-columns: 1fr 3fr;
-    justify-content: center;
+    border: 1px solid #ccc;
+    padding: 10px;
+    text-align: center;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Sửa box-shadow và làm nó đổ xuống dưới */
+    transition: transform 0.2s;
+    display: flex;
     align-items: center;
-    &:hover {
-      cursor: pointer;
-    }
     img {
-      width: 100%;
-      height: 100%;
+      width: 40px;
+      max-height: 40px;
+    }
+
+    div {
+      margin-top: 10px;
+    }
+
+    div:first-child {
+      font-weight: bold;
+    }
+
+    div:last-child {
+      /* Loại bỏ màu đỏ cho giá */
+      color: #333; /* Màu văn bản tùy chỉnh */
     }
   }
+
+  li:hover {
+    background-color: #f2f2f2;
+    transform: scale(1.05); /* Thêm hiệu ứng khi hover */
+  }
+
+  li:active {
+    transform: scale(0.95);
+  }
+`;
+
+const NoProductMessage = styled.div`
+  text-align: center;
+  width: 100%;
+  font-weight: bold;
 `;
 export default SearchMini;

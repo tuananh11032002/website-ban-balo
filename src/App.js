@@ -27,10 +27,10 @@ import ProfileAccount from "./Page/ProfileAccount";
 import AddressAccount from "./Page/AddressAccount";
 import OrderAccount from "./Page/OrderAccount";
 import RegisterPage from "./Page/RegisterPage";
-// import connection from "./Hub/connection";
 import * as signalR from "@microsoft/signalr";
 import checkAndRenewToken from "./Token/token";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
+import { AddProduct } from "./AdminPage/Component/AddProduct";
 
 function App() {
   const [isUserReady, setIsUserReady] = useState(false);
@@ -40,7 +40,6 @@ function App() {
     const userLocal = localStorage.getItem("webbanbalo_user");
 
     if (userLocal != JSON.stringify(user) && userLocal != null) {
-      console.log(userLocal != JSON.stringify(user));
       dispatch({ type: reducerCases.SET_USER, user: JSON.parse(userLocal) });
     }
     setIsUserReady(true);
@@ -84,12 +83,12 @@ function App() {
       }
     };
 
-    connectToSignalRHub();
+    if (user) connectToSignalRHub();
 
     return () => {
-      connectionHub.stop();
+      if (user) connectionHub.stop();
     };
-  }, []);
+  }, [user]);
 
   return (
     <>
@@ -114,7 +113,13 @@ function App() {
               path="/collections/:categoryName"
               element={<Slide child={<Home />} />}
             ></Route>
+
             <Route path="/admin" element={<Slide child={<Admin />} />}></Route>
+            <Route
+              path="/admin/insert-product"
+              element={<Slide child={<AddProduct />} />}
+            />
+
             <Route path="/pay" element={<Slide child={<PayPage />} />}></Route>
             <Route path="/cart" element={<Slide child={<Cart />} />}></Route>
             <Route

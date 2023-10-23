@@ -9,11 +9,17 @@ import {
   AiOutlineBell,
   AiTwotoneCalendar,
 } from "react-icons/ai";
+import { RiCustomerService2Line } from "react-icons/ri";
 import { BsChatDots, BsSearch } from "react-icons/bs";
 import { GrUnorderedList } from "react-icons/gr";
 import { BiSolidCategoryAlt } from "react-icons/bi";
 import CategoryList from "./Component/CategoryList";
+import CustomerList from "./Component/CustomerList";
+import UserList from "./Component/UserList";
 import WebSocket from "../AppSocket";
+import OrderList from "./Component/OrderList";
+import { AddProduct } from "./Component/AddProduct";
+import { FaProductHunt } from "react-icons/fa";
 
 const Admin = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -33,9 +39,7 @@ const Admin = () => {
     const calculatedBodyHeight = mainHeight - headerHeight;
     setBodyHeight(calculatedBodyHeight);
   }, []);
-  useEffect(() => {
-    console.log("active", activeIndex);
-  });
+  useEffect(() => {});
   useEffect(() => {
     const handleScroll = () => {
       setScrollPosition(window.scrollY);
@@ -49,7 +53,6 @@ const Admin = () => {
   }, []);
 
   useEffect(() => {
-    console.log(scrollPosition);
     const header = headerRef.current;
 
     if (scrollPosition > 0) {
@@ -66,11 +69,19 @@ const Admin = () => {
     }
   }, [scrollPosition]);
   const handleLiClick = (index) => {
+    if (index == 8 && !isPhone) {
+      setIsPhone(true);
+    }
+    if (index != 8 && isPhone && window.innerWidth > 756) {
+      setIsPhone(false);
+    }
+
     setActiveIndex(index);
+    if (isPhone && isMenuOpen) {
+      setIsMenuOpen(false);
+    }
   };
   useEffect(() => {
-    console.log("isPhone", isPhone);
-    console.log("isMenuOpen", isMenuOpen);
     const overlay = document.getElementsByClassName("overlay")[0];
     if (!isMenuOpen && !isPhone) {
       menuParentRef.current.style.width = "60px";
@@ -81,7 +92,7 @@ const Admin = () => {
       overlay.style.display = isMenuOpen ? "block" : "none";
     } else if (isPhone && isMenuOpen) {
       menuRef.current.style.width = "256px";
-      overlay.style.display = isMenuOpen ? "block" : "none";
+      overlay.style.display = isMenuOpen ? "none" : "block";
     } else {
       menuParentRef.current.style.width = "256px";
       menuRef.current.style.width = "256px";
@@ -94,12 +105,14 @@ const Admin = () => {
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
+  const closeMenu = () => {
+    setIsMenuOpen(false);
+  };
 
   useEffect(() => {
     const handleResize = () => {
       setIsMenuOpen(window.innerWidth > 756);
       setIsPhone(window.innerWidth <= 756);
-      console.log(isPhone);
     };
 
     window.addEventListener("resize", handleResize);
@@ -115,7 +128,6 @@ const Admin = () => {
   const MenuMouseLeave = () => {
     if (!isMenuOpen) {
       menuRef.current.style.width = "60px";
-      console.log("eave");
     }
   };
   return (
@@ -128,7 +140,7 @@ const Admin = () => {
       >
         <div
           className={`menu-icon ${isMenuOpen || !isPhone ? "hidden" : ""}`}
-          onClick={toggleMenu}
+          onClick={() => toggleMenu()}
         >
           <div className="bar"></div>
           <div className="bar"></div>
@@ -202,6 +214,23 @@ const Admin = () => {
               <BiSolidCategoryAlt />
               Category
             </li>
+            <li
+              className={activeIndex === 7 ? "active" : ""}
+              onClick={() => handleLiClick(7)}
+            >
+              <RiCustomerService2Line />
+              Customer
+            </li>
+
+            <li
+              className={activeIndex === 8 ? "active" : ""}
+              onClick={() => {
+                handleLiClick(8);
+              }}
+            >
+              <FaProductHunt />
+              Add Product
+            </li>
           </ul>
         </div>
       </div>
@@ -217,7 +246,7 @@ const Admin = () => {
           {isPhone == true && !isMenuOpen ? (
             <div
               className={`menu-icon ${isMenuOpen || !isPhone ? "hidden" : ""}`}
-              onClick={toggleMenu}
+              onClick={() => toggleMenu()}
             >
               <div className="bar"></div>
               <div className="bar"></div>
@@ -243,10 +272,19 @@ const Admin = () => {
           </div>
         </nav>
         <main>
-          {activeIndex == 1 ? <ProductList /> : null}
-          {activeIndex == 6 ? <CategoryList /> : null}
-
+          {activeIndex == 1 ? (
+            <ProductList closeMenu={closeMenu} handleLiClick={handleLiClick} />
+          ) : null}
           {activeIndex == 3 ? <WebSocket occupy={bodyHeight} /> : null}
+          {activeIndex == 4 ? <OrderList /> : null}
+
+          {activeIndex == 5 ? <UserList /> : null}
+
+          {activeIndex == 6 ? (
+            <CategoryList setIsMenuOpen={setIsMenuOpen} />
+          ) : null}
+          {activeIndex == 7 ? <CustomerList /> : null}
+          {activeIndex == 8 ? <AddProduct /> : null}
         </main>
       </div>
     </Container>

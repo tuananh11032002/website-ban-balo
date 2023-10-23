@@ -1,61 +1,53 @@
 import React, { useState } from "react";
-import { AiOutlinePlus } from "react-icons/ai";
+import { AiOutlineHome, AiOutlinePlus } from "react-icons/ai";
+import { BiSolidDiscount } from "react-icons/bi";
+import { TbAffiliate } from "react-icons/tb";
+import { MdWeb } from "react-icons/md";
 
 import styled from "styled-components";
 import Pagination from "./Pagination";
-import { AddCategory } from "./AddCategory";
 
-const CategoryList = ({ setIsMenuOpen }) => {
+const CustomerList = () => {
   const [data, setData] = useState([
     {
       id: 1,
       name: "xxxx",
       image:
-        "https://demos.themeselection.com/materio-bootstrap-html-admin-template/assets/img/ecommerce-images/product-5.png",
-      category: "Accessories",
-      totalProduct: 4186,
-      totalEarning: "$7912.99",
-      action: "none",
+        "https://demos.themeselection.com/materio-bootstrap-html-admin-template/assets/img/avatars/17.png",
+      customerId: "#1234",
+      totalSpent: "$125",
+      order: 110,
+      country: "Ukraine",
     },
     {
       id: 1,
       name: "xxxx",
       image:
-        "https://demos.themeselection.com/materio-bootstrap-html-admin-template/assets/img/ecommerce-images/product-5.png",
-      category: "Accessories",
-      totalProduct: 4186,
-      totalEarning: "$7912.99",
-      action: "none",
+        "https://demos.themeselection.com/materio-bootstrap-html-admin-template/assets/img/avatars/17.png",
+      customerId: "#1234",
+      totalSpent: "$125",
+      order: 110,
+      country: "Ukraine",
     },
     {
       id: 1,
       name: "xxxx",
       image:
-        "https://demos.themeselection.com/materio-bootstrap-html-admin-template/assets/img/ecommerce-images/product-5.png",
-      category: "Accessories",
-      totalProduct: 4186,
-      totalEarning: "$7912.99",
-      action: "none",
+        "https://demos.themeselection.com/materio-bootstrap-html-admin-template/assets/img/avatars/17.png",
+      customerId: "#1234",
+      totalSpent: "$125",
+      order: 110,
+      country: "Ukraine",
     },
     {
       id: 1,
       name: "xxxx",
       image:
-        "https://demos.themeselection.com/materio-bootstrap-html-admin-template/assets/img/ecommerce-images/product-5.png",
-      category: "Accessories",
-      totalProduct: 4186,
-      totalEarning: "$7912.99",
-      action: "none",
-    },
-    {
-      id: 1,
-      name: "xxxx",
-      image:
-        "https://demos.themeselection.com/materio-bootstrap-html-admin-template/assets/img/ecommerce-images/product-5.png",
-      category: "Accessories",
-      totalProduct: 4186,
-      totalEarning: "$7912.99",
-      action: "none",
+        "https://demos.themeselection.com/materio-bootstrap-html-admin-template/assets/img/avatars/17.png",
+      customerId: "#1234",
+      totalSpent: "$125",
+      order: 110,
+      country: "Ukraine",
     },
   ]);
   const [selectAll, setSelectAll] = useState(false);
@@ -73,13 +65,10 @@ const CategoryList = ({ setIsMenuOpen }) => {
     newCheckboxes[index] = !newCheckboxes[index];
     setCheckboxes(newCheckboxes);
   };
-
   const [selectedValue, setSelectedValue] = useState("7");
-  const [addCategory, setAddCategory] = useState(false);
   return (
     <Container>
-      {addCategory ? <AddCategory setAddCategory={setAddCategory} /> : null}
-      <h1>eCommerce / Category List</h1>
+      <h1>eCommerce / Customer List</h1>
 
       <div className="datatable">
         <div class="datatable-action">
@@ -96,16 +85,9 @@ const CategoryList = ({ setIsMenuOpen }) => {
               <option value="20">20</option>
               <option value="50">50</option>
             </select>
-            <div
-              class="action-button"
-              onClick={(e) => {
-                e.preventDefault();
-                setAddCategory(true);
-                setIsMenuOpen(false);
-              }}
-            >
+            <div class="action-button">
               <AiOutlinePlus />
-              <span>Add Category</span>
+              <span>Add User</span>
             </div>
           </div>
         </div>
@@ -120,16 +102,16 @@ const CategoryList = ({ setIsMenuOpen }) => {
                     onChange={toggleSelectAll}
                   />
                 </th>
-                <th>CATEGORY</th>
+                <th colSpan="3">CUSTOMER</th>
+                <th>CUSTOMER ID</th>
 
-                <th>TOTAL PRODUCT</th>
-
-                <th>TOTAL EARNING</th>
-                <th>ACTION</th>
+                <th>COUNTRY</th>
+                <th>ORDER</th>
+                <th>TOTAL SPENT</th>
               </tr>
             </thead>
             <tbody>
-              {data.map((category, index) => (
+              {data.map((product, index) => (
                 <tr key={index}>
                   <td>
                     <input
@@ -138,22 +120,22 @@ const CategoryList = ({ setIsMenuOpen }) => {
                       onChange={() => handleCheckboxChange(index)}
                     />
                   </td>
-                  <td>
+                  <td colSpan="3">
                     <div className="td-flex">
+                      <div>{product.name}</div>
                       <img
-                        src={category.image}
+                        src={product.image}
                         alt=""
                         width="40px"
                         height="40px"
                       />
-                      <div>{category.category}</div>
                     </div>
                   </td>
-                  <td>{category.totalProduct}</td>
+                  <td>{product.customerId}</td>
 
-                  <td>{category.totalEarning}</td>
-
-                  <td>{category.action}</td>
+                  <td>{product.country}</td>
+                  <td>{product.order}</td>
+                  <td>{product.totalSpent}</td>
                 </tr>
               ))}
             </tbody>
@@ -170,14 +152,65 @@ const CategoryList = ({ setIsMenuOpen }) => {
     </Container>
   );
 };
+const boxShadow = "0 0.375rem 1rem 0 rgba(58, 53, 65, 0.12)";
 const borderRadius = "0.375rem";
 
 const Container = styled.div`
-  height: 100%;
   h1 {
     font-size: 2rem;
   }
+  .card-widget-saparater-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    border-radius: ${borderRadius};
 
+    box-shadow: ${boxShadow};
+    background-color: white;
+    .card {
+      flex: 1;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      flex-direction: row;
+      margin: 10px;
+      border: none;
+      position: relative; /* Thêm position relative */
+    }
+
+    .card:not(:last-child)::after {
+      content: "";
+      width: 1px;
+      background-color: #e7e7e8;
+      position: absolute;
+      top: 10px;
+      bottom: 10px;
+      right: -10px;
+    }
+    .card-widget-rate-increase {
+      color: #56ca00 !important;
+      background-color: #e6f7d9;
+    }
+    .card-widget-rate-decrease {
+      background-color: #ffe4e5 !important;
+      color: #ff4c51 !important;
+    }
+    .card svg {
+      width: 40px;
+      height: 40px;
+    }
+    @media (max-width: 1215px) {
+      .card {
+        min-width: calc(50% - 20px);
+        border-bottom: 1px solid #e7e7e8 !important;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .card {
+        min-width: calc(100% - 20px);
+      }
+    }
+  }
   .wrapper-table {
     max-width: 100%;
     overflow: scroll;
@@ -185,6 +218,32 @@ const Container = styled.div`
   .datatable {
     background-color: white;
     margin: 10px 0 0 0;
+    .datatable-filter {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.5rem 0;
+      flex-wrap: wrap;
+    }
+    .datatable-filter div {
+      display: flex;
+      flex: 1;
+      margin: 0 10px;
+    }
+    .datatable-filter select {
+      padding: 5px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      width: 100%; /* Chiều rộng bằng chiều rộng của cha */
+      background-color: transparent; /* Loại bỏ màu nền của select */
+      transition: border 0.3s; /* Hiệu ứng border */
+    }
+
+    .datatable-filter select:focus {
+      border: 2px solid #9055fd; /* Hiệu ứng border khi được chọn */
+    }
+
+    /* Điều chỉnh màu nền và các kiểu khác cho các select phù hợp với mục tiêu của bạn */
 
     /* Đặt kiểu cho bảng */
     .datatable-product {
@@ -194,7 +253,10 @@ const Container = styled.div`
       border: 1px solid #ccc;
       overflow: hidden;
     }
-
+    .datatable-product thead th,
+    .datatable-product tbody td {
+      border-bottom: 1px solid #e7e7e8;
+    }
     /* Đặt kiểu cho header của bảng */
     .datatable-product thead th {
       background-color: #f5f5f5;
@@ -207,10 +269,6 @@ const Container = styled.div`
     .datatable-product tbody td {
       padding: 1.5rem;
       text-align: center;
-    }
-    .datatable-product thead th,
-    .datatable-product tbody td {
-      border-bottom: 1px solid #e7e7e8;
     }
 
     /* Đặt kiểu cho checkbox */
@@ -356,7 +414,12 @@ const Container = styled.div`
       background-color: #0056b3;
     }
   }
-
+  @media screen and (max-width: 756px) {
+    .datatable-filter div {
+      min-width: calc(100%);
+      margin: 1rem 0 !important;
+    }
+  }
   @media screen and (max-width: 600px) {
     .action-button span {
       display: none;
@@ -364,4 +427,4 @@ const Container = styled.div`
   }
 `;
 
-export default CategoryList;
+export default CustomerList;

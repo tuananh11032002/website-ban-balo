@@ -131,90 +131,68 @@ const ProductDetail = () => {
           onClose={handleCloseMessage}
         />
 
-        <div className="productdetail__image">
-          <img src={productdetail?.image || null} />
-        </div>
-        <div className="productdetail__infor">
-          <div style={{ fontSize: "2rem", borderBottom: "1px solid black" }}>
-            {productdetail?.name}
+        <div className="body">
+          <div className="productdetail__image">
+            <img src={productdetail?.image || null} />
           </div>
-          <div style={{ color: "red", fontSize: "1.5rem" }}>
-            {productdetail?.price.toLocaleString()}đ
-          </div>
-          <div className="introduce">
-            Chẳng ai muốn phải lục tìm món đồ mình cần trong một chiếc balo. Để
-            chuẩn bị cho hành trang gọn gàng, sắp xếp mọi thứ tối ưu hơn thì bạn
-            không thể bỏ lỡ Slash Backpack. Rung động trong thiết kế ngăn đa
-            dạng và thể tích chứa lớn, sẵn sàng giúp bạn tự tin gói gọn nhiều
-            món đồ cần mang theo.
-          </div>
-          <br />
-          <div>
-            {productdetail?.description || null}
-            THÔNG TIN SẢN PHẨM: Chất liệu: Vải Polyester Canvas cao cấp trượt
-            nước Kích thước: 42cm x 32cm x 16cm Bao gồm 12 ngăn: 1 ngăn chống
-            sốc, 3 ngăn lớn, 5 ngăn phụ, 2 ngăn bên hong, 1 ngăn phụ phía sau
-            Ngăn chống sốc đựng vừa laptop 15.6 inch
-          </div>
-          <div>
-            <span className="color"></span>
-            <span className="color"></span>
-            <span className="color"></span>
-            <span className="color"></span>
-            <span className="color"></span>
-          </div>
-          <div style={{ display: "flex" }}>
-            Số lượng: &nbsp;
-            <div className="total">
-              <button
-                className="add"
-                onClick={() => {
-                  setCount((pre) => {
-                    if (pre > 0) {
-                      setCount(pre - 1);
-                    } else {
-                      setCount(0);
-                    }
-                  });
-                }}
-              >
-                -
-              </button>
-              <div>{count}</div>
-              <button
-                className="add"
-                onClick={() => {
-                  setCount(count + 1);
-                }}
-              >
-                +
-              </button>
+          <div className="productdetail__infor">
+            <div style={{ fontSize: "2rem", borderBottom: "1px solid black" }}>
+              {productdetail?.name}
             </div>
-          </div>
-          <div className="button-parent">
-            <>
-              <div
-                className="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handlerClick();
-                }}
-              >
-                Thêm vào giỏ hàng
+            <div style={{ color: "red", fontSize: "1.5rem" }}>
+              {productdetail?.price.toLocaleString()}đ
+            </div>
+            <div className="introduce">
+              Chẳng ai muốn phải lục tìm món đồ mình cần trong một chiếc balo.
+              Để chuẩn bị cho hành trang gọn gàng, sắp xếp mọi thứ tối ưu hơn
+              thì bạn không thể bỏ lỡ Slash Backpack. Rung động trong thiết kế
+              ngăn đa dạng và thể tích chứa lớn, sẵn sàng giúp bạn tự tin gói
+              gọn nhiều món đồ cần mang theo.
+            </div>
+            <br />
+            <div>
+              {productdetail?.description || null}
+              THÔNG TIN SẢN PHẨM: Chất liệu: Vải Polyester Canvas cao cấp trượt
+              nước Kích thước: 42cm x 32cm x 16cm Bao gồm 12 ngăn: 1 ngăn chống
+              sốc, 3 ngăn lớn, 5 ngăn phụ, 2 ngăn bên hong, 1 ngăn phụ phía sau
+              Ngăn chống sốc đựng vừa laptop 15.6 inch
+            </div>
+            <div>
+              <span className="color"></span>
+              <span className="color"></span>
+              <span className="color"></span>
+              <span className="color"></span>
+              <span className="color"></span>
+            </div>
+            <div style={{ display: "flex" }}>
+              Số lượng: &nbsp;
+              <div className="total">
+                <button
+                  className="add"
+                  onClick={() => {
+                    setCount((pre) => {
+                      if (pre > 0) {
+                        setCount(pre - 1);
+                      } else {
+                        setCount(0);
+                      }
+                    });
+                  }}
+                >
+                  -
+                </button>
+                <div>{count}</div>
+                <button
+                  className="add"
+                  onClick={() => {
+                    setCount(count + 1);
+                  }}
+                >
+                  +
+                </button>
               </div>
-              <div
-                className="button red"
-                onClick={() => {
-                  navigate("/pay");
-                }}
-              >
-                Mua ngay
-              </div>
-            </>
-          </div>
-
-          {/* <div className="button-parent">
-            {productdetail?.soluong != 0 ? (
+            </div>
+            <div className="button-parent">
               <>
                 <div
                   className="button"
@@ -234,10 +212,33 @@ const ProductDetail = () => {
                   Mua ngay
                 </div>
               </>
-            ) : (
-              <div className="button">Hàng tạm hết</div>
-            )}
-          </div> */}
+            </div>
+            {/* <div className="button-parent">
+              {productdetail?.soluong != 0 ? (
+                <>
+                  <div
+                    className="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handlerClick();
+                    }}
+                  >
+                    Thêm vào giỏ hàng
+                  </div>
+                  <div
+                    className="button red"
+                    onClick={() => {
+                      navigate("/pay");
+                    }}
+                  >
+                    Mua ngay
+                  </div>
+                </>
+              ) : (
+                <div className="button">Hàng tạm hết</div>
+              )}
+            </div> */}
+          </div>
         </div>
       </Container>
       <div>
@@ -247,12 +248,18 @@ const ProductDetail = () => {
   );
 };
 const Container = styled.div`
-  padding: 0 80px;
   max-width: 100%;
-  display: flex;
-  flex-wrap: wrap;
+
   background-color: #ededed;
   overflow: hidden;
+  padding-bottom: 20px;
+  .body {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+    align-items: center;
+    padding: 0 20px;
+  }
   .red {
     background-color: red;
     color: white;
@@ -269,7 +276,7 @@ const Container = styled.div`
     margin-top: 20px;
     .button {
       border: 1px solid;
-      width: 176px;
+      width: 50%;
       height: 47px;
       border-color: red;
       cursor: pointer;
@@ -294,6 +301,9 @@ const Container = styled.div`
     justify-content: center;
     align-items: center;
     max-width: 70%;
+  }
+  .productdetail__image img {
+    width: 100%;
   }
   .total {
     width: 9rem;
@@ -324,12 +334,23 @@ const Container = styled.div`
     .productdetail__image {
       flex: none;
       width: 100%;
-      img {
-        object-fit: cover;
-      }
+    }
+    .productdetail__image img {
+      object-fit: cover;
     }
     .productdetail__infor {
       flex: 1;
+    }
+  }
+  @media screen and (max-width: 950px) {
+    .productdetail__image {
+      flex: 0.5;
+    }
+  }
+  @media screen and (max-width: 765px) {
+    .productdetail__image,
+    .productdetail__infor {
+      min-width: 100%;
     }
   }
 `;

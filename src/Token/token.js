@@ -7,7 +7,7 @@ const checkAndRenewToken = async () => {
       JSON.parse(localStorage.getItem("webbanbalo_user")).token
     );
 
-    if (response.success == true) {
+    if (response.success === true) {
       const userTemp = JSON.parse(localStorage.getItem("webbanbalo_user"));
       const userTemp1 = { ...userTemp, token: response.token };
       localStorage.setItem("webbanbalo_user", JSON.stringify(userTemp1));

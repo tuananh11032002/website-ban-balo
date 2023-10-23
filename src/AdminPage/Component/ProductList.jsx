@@ -1,16 +1,17 @@
 import React, { useState } from "react";
-import { AiOutlineHome, AiOutlinePlus } from "react-icons/ai";
+import { AiOutlineClose, AiOutlineHome, AiOutlinePlus } from "react-icons/ai";
 import { BiSolidDiscount } from "react-icons/bi";
 import { TbAffiliate } from "react-icons/tb";
 import { MdWeb } from "react-icons/md";
 
 import styled from "styled-components";
 import Pagination from "./Pagination";
+import { useNavigate } from "react-router-dom";
 
-const ProductList = () => {
+const ProductList = ({ closeMenu, handleLiClick }) => {
   const [data, setData] = useState([
     {
-      id: 1,
+      title: "Air Jordan is a line of basketball shoes produced by Nike",
       name: "xxxx",
       image:
         "https://demos.themeselection.com/materio-bootstrap-html-admin-template/assets/img/ecommerce-images/product-9.png",
@@ -22,7 +23,8 @@ const ProductList = () => {
       action: "none",
     },
     {
-      id: 1,
+      title: "Air Jordan is a line of basketball shoes produced by Nike",
+
       name: "xxxx",
       image:
         "https://demos.themeselection.com/materio-bootstrap-html-admin-template/assets/img/ecommerce-images/product-9.png",
@@ -34,7 +36,8 @@ const ProductList = () => {
       action: "none",
     },
     {
-      id: 1,
+      title: "Air Jordan is a line of basketball shoes produced by Nike",
+
       name: "xxxx",
       image:
         "https://demos.themeselection.com/materio-bootstrap-html-admin-template/assets/img/ecommerce-images/product-9.png",
@@ -46,7 +49,8 @@ const ProductList = () => {
       action: "none",
     },
     {
-      id: 1,
+      title: "Air Jordan is a line of basketball shoes produced by Nike",
+
       name: "xxxx",
       image:
         "https://demos.themeselection.com/materio-bootstrap-html-admin-template/assets/img/ecommerce-images/product-9.png",
@@ -73,199 +77,428 @@ const ProductList = () => {
     newCheckboxes[index] = !newCheckboxes[index];
     setCheckboxes(newCheckboxes);
   };
+  const actionButtonClick = (product) => {
+    setContentDetailProduct(product);
+    setOpenDetailProduct(true);
+  };
   const [selectedValue, setSelectedValue] = useState("7");
-  console.log(selectedValue);
+  const [openDetailProduct, setOpenDetailProduct] = useState(false);
+  const [contentDetailProduct, setContentDetailProduct] = useState(null);
+  const [currentIndex, setCurrentIndex] = useState(null);
+  const navigate = useNavigate();
   return (
-    <Container>
-      <h1>eCommerce / Product List</h1>
-      <div className="card-widget-saparater-wrapper">
-        <div className="card">
-          <div>
-            <p>In Store Sales</p>
-            <h1>$5,345.43</h1>
-            <p>
-              <span> 5k orders</span>
-              <span className="card-widget-rate-increase">+5.7%</span>
-            </p>
-          </div>
-          <div>
-            <AiOutlineHome />
-          </div>
-        </div>
-        <div className="card">
-          <div>
-            <p> Website Sales</p>
-            <h1>$674,347.12</h1>
-            <p>
-              <span> 21k orders</span>
-              <span className="card-widget-rate-increase">+12.4%</span>
-            </p>
-          </div>
-          <div>
-            <MdWeb />
-          </div>
-        </div>
-        <div className="card">
-          <div>
-            <p>Discount</p>
-            <h1>$14,235.12</h1>
-            <p>
-              <span> 6k orders</span>
-              <span className="card-widget-rate-increase">+5.7%</span>
-            </p>
-          </div>
-          <div>
-            <BiSolidDiscount />
-          </div>
-        </div>
-        <div className="card">
-          <div>
-            <p> Affiliate</p>
-            <h1>$8,345.23</h1>
-            <p>
-              <span> 150 orders</span>
-              <span className="card-widget-rate-decrease">-3.5%</span>
-            </p>
-          </div>
-          <div>
-            <TbAffiliate />
-          </div>
-        </div>
-      </div>
-      <div className="datatable">
-        <div className="datatable-filter">
-          <div className=" product_status">
-            <select>
-              <option value="">Status</option>
-              <option value="Scheduled">Scheduled</option>
-              <option value="Publish">Publish</option>
-              <option value="Inactive">Inactive</option>
-            </select>
-          </div>
-          <div className="product_category">
-            <select>
-              <option value="">Category</option>
-              <option value="Household">Household</option>
-              <option value="Office">Office</option>
-              <option value="Electronics">Electronics</option>
-              <option value="Shoes">Shoes</option>
-              <option value="Accessories">Accessories</option>
-              <option value="Game">Game</option>
-            </select>
-          </div>
-          <div className="product_stock">
-            <select id="ProductStock">
-              <option value=""> Stock </option>
-              <option value="Out_of_Stock">Out of Stock</option>
-              <option value="In_Stock">In Stock</option>
-            </select>
-          </div>
-        </div>
-        <div class="datatable-action">
-          <input class="search-input" type="text" placeholder="Search" />
-          <div class="dttable-action-button">
-            <select
-              class="action-select"
-              name=""
-              id=""
-              onChange={(e) => setSelectedValue(e.target.value)}
+    <>
+      {openDetailProduct ? (
+        <DetailProduct>
+          <div className={`fade ${openDetailProduct ? "show" : "hidden"}`}>
+            {/* close-button */}
+            <span
+              className="fade-close"
+              onClick={() => {
+                setOpenDetailProduct(false);
+              }}
             >
-              <option value="7">7</option>
-              <option value="10">10</option>
-              <option value="20">20</option>
-              <option value="50">50</option>
-            </select>
-            <div class="action-button">
-              <AiOutlinePlus />
-              <span>Add Product</span>
+              <AiOutlineClose />
+            </span>
+            <div className="fade-header">
+              Detail of {contentDetailProduct.name}
+            </div>
+            <div className="fade-main">
+              <table>
+                <tbody>
+                  <tr>
+                    <td>Product</td>
+                    <td className="td-flex">
+                      <img src={contentDetailProduct.image} alt="" />
+                      <div>
+                        <div>{contentDetailProduct.name}</div>
+                        <div>{contentDetailProduct.title}</div>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Category</td>
+                    <td>{contentDetailProduct.category}</td>
+                  </tr>
+                  <tr>
+                    <td>Stock</td>
+                    <td>
+                      <label className="toggle-label">
+                        <input
+                          type="checkbox"
+                          checked={checkStock[currentIndex]}
+                          onChange={() => {
+                            const newCheckStock = [...checkStock];
+                            newCheckStock[currentIndex] =
+                              !newCheckStock[currentIndex];
+                            setCheckStock(newCheckStock);
+                          }}
+                        />
+                        <span class="toggle-slider"></span>
+                      </label>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Price</td>
+                    <td>{contentDetailProduct.price}</td>
+                  </tr>
+                  <tr>
+                    <td>QTY</td>
+                    <td>{contentDetailProduct.qty}</td>
+                  </tr>
+                  <tr>
+                    <td>Status</td>
+                    <td className={contentDetailProduct.status.toLowerCase()}>
+                      <span> {contentDetailProduct.status}</span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </DetailProduct>
+      ) : null}
+      <Container>
+        <h1>eCommerce / Product List</h1>
+        <div className="card-widget-saparater-wrapper">
+          <div className="card">
+            <div>
+              <p>In Store Sales</p>
+              <h1>$5,345.43</h1>
+              <p>
+                <span> 5k orders</span>
+                <span className="card-widget-rate-increase">+5.7%</span>
+              </p>
+            </div>
+            <div>
+              <AiOutlineHome />
+            </div>
+          </div>
+          <div className="card">
+            <div>
+              <p> Website Sales</p>
+              <h1>$674,347.12</h1>
+              <p>
+                <span> 21k orders</span>
+                <span className="card-widget-rate-increase">+12.4%</span>
+              </p>
+            </div>
+            <div>
+              <MdWeb />
+            </div>
+          </div>
+          <div className="card">
+            <div>
+              <p>Discount</p>
+              <h1>$14,235.12</h1>
+              <p>
+                <span> 6k orders</span>
+                <span className="card-widget-rate-increase">+5.7%</span>
+              </p>
+            </div>
+            <div>
+              <BiSolidDiscount />
+            </div>
+          </div>
+          <div className="card">
+            <div>
+              <p> Affiliate</p>
+              <h1>$8,345.23</h1>
+              <p>
+                <span> 150 orders</span>
+                <span className="card-widget-rate-decrease">-3.5%</span>
+              </p>
+            </div>
+            <div>
+              <TbAffiliate />
             </div>
           </div>
         </div>
-        <div className="wrapper-table">
-          <table className="datatable-product">
-            <thead>
-              <tr>
-                <th>
-                  <input
-                    type="checkbox"
-                    checked={selectAll}
-                    onChange={toggleSelectAll}
-                  />
-                </th>
-                <th colSpan="3">PRODUCT</th>
-                <th>CATEGORY</th>
-
-                <th>STOCK</th>
-                <th>PRICE</th>
-                <th>QTY</th>
-                <th>STATUS</th>
-                <th>ACTION</th>
-              </tr>
-            </thead>
-            <tbody>
-              {console.log(data)}
-              {data.map((product, index) => (
-                <tr key={index}>
-                  {console.log("pro", product)}
-                  <td>
+        <div className="datatable">
+          <div className="datatable-filter">
+            <div className=" product_status">
+              <select>
+                <option value="">Status</option>
+                <option value="Scheduled">Scheduled</option>
+                <option value="Publish">Publish</option>
+                <option value="Inactive">Inactive</option>
+              </select>
+            </div>
+            <div className="product_category">
+              <select>
+                <option value="">Category</option>
+                <option value="Household">Household</option>
+                <option value="Office">Office</option>
+                <option value="Electronics">Electronics</option>
+                <option value="Shoes">Shoes</option>
+                <option value="Accessories">Accessories</option>
+                <option value="Game">Game</option>
+              </select>
+            </div>
+            <div className="product_stock">
+              <select id="ProductStock">
+                <option value=""> Stock </option>
+                <option value="Out_of_Stock">Out of Stock</option>
+                <option value="In_Stock">In Stock</option>
+              </select>
+            </div>
+          </div>
+          <div class="datatable-action">
+            <input class="search-input" type="text" placeholder="Search" />
+            <div class="dttable-action-button">
+              <select
+                class="action-select"
+                name=""
+                id=""
+                onChange={(e) => setSelectedValue(e.target.value)}
+              >
+                <option value="7">7</option>
+                <option value="10">10</option>
+                <option value="20">20</option>
+                <option value="50">50</option>
+              </select>
+              <div
+                class="action-button"
+                onClick={() => {
+                  handleLiClick(8);
+                }}
+              >
+                <AiOutlinePlus />
+                <span>Add Product</span>
+              </div>
+            </div>
+          </div>
+          <div className="wrapper-table">
+            <table className="datatable-product">
+              <thead>
+                <tr>
+                  <th></th>
+                  <th>
                     <input
                       type="checkbox"
-                      checked={checkboxes[index]}
-                      onChange={() => handleCheckboxChange(index)}
+                      checked={selectAll}
+                      onChange={toggleSelectAll}
                     />
-                  </td>
-                  <td colSpan="3">
-                    <div className="td-flex">
-                      <div>{product.name}</div>
-                      <img
-                        src={product.image}
-                        alt=""
-                        width="40px"
-                        height="40px"
-                      />
-                    </div>
-                  </td>
-                  <td>{product.category}</td>
-                  <td>
-                    <label class="toggle-label">
+                  </th>
+                  <th colSpan="3">PRODUCT</th>
+                  <th>CATEGORY</th>
+
+                  <th>STOCK</th>
+                  <th>PRICE</th>
+                  <th>QTY</th>
+                  <th>STATUS</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data.map((product, index) => (
+                  <tr key={index}>
+                    <td
+                      className="td-action"
+                      onClick={() => {
+                        actionButtonClick(product);
+                        closeMenu();
+                        setCurrentIndex(index);
+                      }}
+                    >
+                      <span>
+                        <AiOutlinePlus />
+                      </span>
+                    </td>
+                    <td>
                       <input
                         type="checkbox"
-                        checked={checkStock[index]}
-                        onChange={() => {
-                          const newCheckStock = [...checkStock];
-                          newCheckStock[index] = !newCheckStock[index];
-                          setCheckStock(newCheckStock);
-                        }}
+                        checked={checkboxes[index]}
+                        onChange={() => handleCheckboxChange(index)}
                       />
-                      <span class="toggle-slider"></span>
-                    </label>
-                  </td>
-                  <td>{product.price}</td>
-                  <td>{product.qty}</td>
-                  <td className={product.status}>
-                    <span>{product.status}</span>
-                  </td>
-                  <td>{product.action}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                    </td>
+                    <td colSpan="3">
+                      <div className="td-flex">
+                        <img
+                          src={product.image}
+                          alt=""
+                          width="40px"
+                          height="40px"
+                        />
+                        <div>
+                          <div>{product.name}</div>
+                          <div>{product.title}</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td>{product.category}</td>
+                    <td>
+                      <label className="toggle-label">
+                        <input
+                          type="checkbox"
+                          checked={checkStock[index]}
+                          onChange={() => {
+                            const newCheckStock = [...checkStock];
+                            newCheckStock[index] = !newCheckStock[index];
+                            setCheckStock(newCheckStock);
+                          }}
+                        />
+                        <span class="toggle-slider"></span>
+                      </label>
+                    </td>
+                    <td>{product.price}</td>
+                    <td>{product.qty}</td>
+                    <td className={product.status}>
+                      <span>{product.status}</span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
-      <Pagination
-        obj={{
-          pageNow: 1,
-          size: selectedValue,
-          totalProduct: 100,
-        }}
-      />
-    </Container>
+        <Pagination
+          obj={{
+            pageNow: 1,
+            size: selectedValue,
+            totalProduct: 100,
+          }}
+        />
+      </Container>
+    </>
   );
 };
-const boxShadow = "0 0.375rem 1rem 0 rgba(58, 53, 65, 0.12)";
+const boxShadow = "0 0.375rem 1rem 0 rgba(61, 55, 70, 0.12)";
 const borderRadius = "0.375rem";
+const DetailProduct = styled.div`
+  width: 100%;
+  height: 100%;
+  background-color: rgba(128, 128, 128, 0.5);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
+  display: flex;
+  justify-content: center;
+  transform: translateY(0%);
 
+  .fade {
+    background-color: white;
+    max-width: 40rem;
+
+    border-radius: 10px;
+    background-clip: padding-box;
+    transform: translateY(0%);
+    transition: transform 0.4s;
+    height: auto;
+    max-height: 80%;
+    &.show {
+      transform: translateY(10%);
+    }
+
+    &.hidden {
+      transform: translateY(-100%);
+    }
+  }
+  .fade .fade-close {
+    position: absolute;
+    top: 0;
+    right: 10px;
+    z-index: 2;
+
+    cursor: pointer;
+  }
+  table {
+    border-collapse: collapse;
+  }
+  table tbody tr {
+    border-bottom: 1px solid gray;
+  }
+
+  table tbody tr td {
+    padding: 1.6rem 1.25rem;
+  }
+  td {
+    .toggle-label {
+      position: relative;
+      display: inline-block;
+      width: 40px; /* Điều chỉnh chiều rộng */
+      height: 20px; /* Điều chỉnh chiều cao */
+    }
+
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      border-radius: 20px; /* Điều chỉnh độ cong của góc */
+      transition: 0.4s;
+    }
+
+    .toggle-slider:before {
+      position: absolute;
+      content: "";
+      height: 16px; /* Điều chỉnh chiều cao của nút trượt */
+      width: 16px; /* Điều chỉnh chiều rộng của nút trượt */
+      left: 2px; /* Điều chỉnh vị trí từ trái */
+      bottom: 2px; /* Điều chỉnh vị trí từ dưới */
+      background-color: white;
+      border-radius: 50%;
+      transition: 0.4s;
+    }
+    .toggle-label input:checked + .toggle-slider {
+      background-color: #007bff; /* Màu nền của toggle khi bật */
+    }
+
+    .toggle-label input:checked + .toggle-slider:before {
+      transform: translateX(20px);
+    }
+  }
+  .publish {
+    font-weight: bold;
+    color: #008000; /* Màu xanh dương cho trạng thái 'Active' */
+    span {
+      background-color: #e6f7d9 !important ;
+      border-radius: 50rem !important;
+      padding: 8px;
+    }
+  }
+
+  .inactive {
+    font-weight: bold;
+
+    color: #ff0000; /* Màu đỏ cho trạng thái không 'Active' */
+    span {
+      background-color: #ffe4e5 !important;
+      border-radius: 50rem !important;
+      padding: 8px;
+    }
+  }
+  .scheduled {
+    font-weight: bold;
+
+    color: #ffb400; /* Màu cam cho trạng thái không 'Scheduled' */
+    span {
+      background-color: #fff4d9 !important;
+      border-radius: 50rem !important;
+      padding: 8px;
+    }
+  }
+  .td-flex {
+    display: flex;
+    justify-content: center;
+    div {
+      text-align: left;
+    }
+    img {
+      max-width: 40px;
+
+      max-height: 40px;
+    }
+  }
+`;
 const Container = styled.div`
+  opacity: 1;
+  z-index: 1;
   h1 {
     font-size: 2rem;
   }
@@ -398,11 +631,27 @@ const Container = styled.div`
     .datatable-product td:last-child {
       text-align: center;
     }
-    .datatable-product td:nth-child(2) {
-      .td-flex {
-        display: flex;
-        justify-content: center;
-        align-items: center;
+    .datatable-product .td-action svg {
+      fill: white;
+    }
+    .datatable-product .td-action span {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 25px;
+      height: 25px;
+      background-color: #9055fd;
+      border: 2px solid #fff;
+      box-shadow: 0 0 3px rgba(58, 53, 65, 0.8);
+      border-radius: 50%;
+    }
+
+    .datatable-product .td-flex {
+      display: flex;
+      justify-content: center;
+      div {
+        margin-left: 10px;
+        text-align: left;
       }
     }
 
@@ -518,6 +767,7 @@ const Container = styled.div`
       text-align: center;
       display: flex;
       align-items: center;
+      justify-content: center;
     }
 
     .action-button:hover {
