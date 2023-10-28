@@ -1,13 +1,6 @@
 import styled from "styled-components";
 import Home from "./Page/Home";
-import Admin from "./AdminPage/Admin";
-import {
-  Route,
-  Routes,
-  useLocation,
-  Navigate,
-  Redirect,
-} from "react-router-dom";
+import { Route, Routes, Navigate } from "react-router-dom";
 import ProductDetail from "./Component/Body/ProductDetail";
 import WebSocket from "./AppSocket";
 import PayPage from "./Page/PayPage";
@@ -15,10 +8,8 @@ import Cart from "./Page/Cart";
 import About from "./Page/About";
 import Membership from "./Page/Membership";
 import Address from "./Page/Address";
-import Test from "./Page/Test";
 import Slide from "./Page/Slide";
 import "./AppTransition.css";
-import Test1 from "./Page/Test1";
 import LoginPage from "./Page/Login";
 import { useStateProvider } from "./StateProvider/StateProvider";
 import { useEffect, useState } from "react";
@@ -30,7 +21,6 @@ import RegisterPage from "./Page/RegisterPage";
 import * as signalR from "@microsoft/signalr";
 import checkAndRenewToken from "./Token/token";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
-import { AddProduct } from "./AdminPage/Component/AddProduct";
 import ProductListPage from "./AdminPage/Page/ProductListPage";
 import ChatPage from "./AdminPage/Page/ChatPage";
 import CategoryListPage from "./AdminPage/Page/CategoryListPage";
@@ -38,7 +28,6 @@ import OrderListPage from "./AdminPage/Page/OrderListPage";
 import UserListPage from "./AdminPage/Page/UserListPage";
 import CustomerListPage from "./AdminPage/Page/CustomerListPage";
 import AddProductPage from "./AdminPage/Page/AddProductPage";
-import Page from "./Test/Page";
 import CustomerDetailPage from "./AdminPage/Page/CustomerDetailPage";
 import DetailOrderPage from "./AdminPage/Page/DetailOrderPage";
 import NotFound from "./Page/NotFound";
@@ -46,12 +35,11 @@ import AccountDetailPage from "./AdminPage/Page/AccountDetailPage";
 
 function App() {
   const [isUserReady, setIsUserReady] = useState(false);
-  const [isConnected, setIsConnected] = useState(false);
-  const [{ user, connection, loading }, dispatch] = useStateProvider();
+  const [{ user, loading }, dispatch] = useStateProvider();
   useEffect(() => {
     const userLocal = localStorage.getItem("webbanbalo_user");
 
-    if (userLocal != JSON.stringify(user) && userLocal != null) {
+    if (userLocal !== JSON.stringify(user) && userLocal !== null) {
       dispatch({ type: reducerCases.SET_USER, user: JSON.parse(userLocal) });
     }
     setIsUserReady(true);
@@ -75,7 +63,6 @@ function App() {
 
         connectionHub.onclose(() => {
           console.log("SignalR connection closed");
-          setIsConnected(false); // Đánh dấu kết nối bị đóng
           dispatch({
             connection: connectionHub,
             type: reducerCases.SET_CONNECTIONHUB,
@@ -104,7 +91,7 @@ function App() {
 
   return (
     <>
-      {loading == true ? (
+      {loading === true ? (
         <div className="loading">
           <AiOutlineLoading3Quarters />
         </div>
@@ -140,10 +127,7 @@ function App() {
               path="/address"
               element={<Slide child={<Address />} />}
             ></Route>
-            <Route path="/test" element={<Slide child={<Test />} />}></Route>
 
-            <Route path="/test1" element={<Slide child={<Test1 />} />}></Route>
-            {/* <Route path="/login" element={<Slide child={<LoginPage />} />}></Route> */}
             <Route
               path="login"
               element={<>{user ? <Navigate to="/" /> : <LoginPage />}</>}
@@ -198,8 +182,6 @@ function App() {
               element={<Slide child={<AccountDetailPage />} />}
             />
             <Route path="*" element={<Slide child={<NotFound />} />} />
-
-            <Route path="/test-tam" element={<Slide child={<Page />} />} />
           </Routes>
         ) : null}
       </Container>
