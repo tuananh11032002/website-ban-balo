@@ -150,14 +150,7 @@ const Container = styled.div`
       box-shadow: 0px 6px 8px rgba(0, 0, 0, 0.2); /* Hiệu ứng bóng khi hover */
     }
   }
-  i {
-    color: blue;
-    &:hover {
-      cursor: pointer;
-      text-decoration: underline;
-      transform: scale(1.25);
-    }
-  }
+
   .data {
     overflow-y: auto;
     height: auto;
@@ -171,37 +164,47 @@ const Container = styled.div`
       align-items: center;
       padding: 1rem;
       border-bottom: 1px solid;
-      & > div {
-        &:not(:last-child) {
-          margin-bottom: 10px;
-        }
-      }
+    }
+    .data-child > div {
+      flex: 1;
+    }
+    .data-child > div:last-child {
+      display: flex;
+      justify-content: flex-end;
+    }
+    .data-child > div:not(:last-child) {
+      margin-bottom: 10px;
+    }
+    .data-child i {
+      color: blue;
+    }
+    .data-child i:hover {
+      cursor: pointer;
+      text-decoration: underline;
+      transform: scale(1.25);
     }
   }
-  /* CSS cho overlay */
   .edit-form-overlay {
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: rgba(0, 0, 0, 0.5); /* Màu nền với độ trong suốt */
+    background-color: rgba(0, 0, 0, 0.5);
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 1000; /* Đảm bảo hiển thị trên cùng của trang */
+    z-index: 1000;
   }
 
-  /* CSS cho form chỉnh sửa */
   .edit-form {
     background-color: white;
     padding: 20px;
     border-radius: 5px;
     box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
-    width: 300px; /* Điều chỉnh kích thước form theo ý muốn */
+    width: 300px;
   }
 
-  /* Định dạng các input và button trong form chỉnh sửa */
   .edit-form input {
     width: 100%;
     padding: 10px;
@@ -223,7 +226,6 @@ const Container = styled.div`
     background-color: #0056b3;
   }
 
-  /* CSS cho nút chỉnh sửa dưới danh sách dữ liệu */
   button {
     margin-top: 10px;
     background-color: #007bff;
@@ -241,9 +243,7 @@ const Container = styled.div`
     top: 0.625rem;
     right: 0.625rem;
     color: red;
-    &:hover {
-      cursor: pointer;
-    }
+    cursor: pointer;
   }
 `;
 export default Address;

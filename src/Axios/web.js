@@ -9,7 +9,9 @@ const END_POINT = {
   MESSAGE: "Message",
 };
 export const getCATEGORYAPI = () => {
-  return axiosClient.get(`${END_POINT.CATEGORY}`);
+  return axiosClient.get(`${END_POINT.CATEGORY}`, {
+    withCredentials: false,
+  });
 };
 
 export const putCategory = (category) => {
@@ -112,8 +114,8 @@ export const GetProductIntoOrder = async () => {
   }
 };
 
-export const DeleteProductIntoOrder = (productid) => {
-  checkAndRenewToken();
+export const DeleteProductIntoOrder = async (productid) => {
+  await checkAndRenewToken();
   return axiosClient.delete(`${END_POINT.ORDER}`, {
     params: { productid },
     headers: {
@@ -169,8 +171,8 @@ export const RenewToken = (tokenModel) => {
 };
 
 //areas message
-export const getUserMessage = () => {
-  checkAndRenewToken();
+export const getUserMessage = async () => {
+  await checkAndRenewToken();
   return axiosClient.get(`${END_POINT.MESSAGE}/userList`, {
     headers: {
       Authorization: `Bearer ${
@@ -180,8 +182,8 @@ export const getUserMessage = () => {
   });
 };
 
-export const getMessageWithUserId = (receiverId) => {
-  checkAndRenewToken();
+export const getMessageWithUserId = async (receiverId) => {
+  await checkAndRenewToken();
   return axiosClient.get(`${END_POINT.MESSAGE}/${receiverId}`, {
     headers: {
       Authorization: `Bearer ${

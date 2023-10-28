@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { createContext, useEffect, useRef, useState } from "react";
 import ProductList from "./Component/ProductList";
 import styled from "styled-components";
 import { FcCdLogo } from "react-icons/fc";
@@ -13,20 +13,17 @@ import { RiCustomerService2Line } from "react-icons/ri";
 import { BsChatDots, BsSearch } from "react-icons/bs";
 import { GrUnorderedList } from "react-icons/gr";
 import { BiSolidCategoryAlt } from "react-icons/bi";
-import CategoryList from "./Component/CategoryList";
-import CustomerList from "./Component/CustomerList";
-import UserList from "./Component/UserList";
-import WebSocket from "../AppSocket";
-import OrderList from "./Component/OrderList";
-import { AddProduct } from "./Component/AddProduct";
-import { FaProductHunt } from "react-icons/fa";
 
-const Admin = () => {
+import { FaProductHunt } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
+export const AdminContext = createContext();
+
+const Admin = ({ Child, indexActive = 0, ...props }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isPhone, setIsPhone] = useState(window.innerWidth <= 756);
   const menuParentRef = useRef(null);
   const menuRef = useRef(null);
-  const [activeIndex, setActiveIndex] = useState(1);
+  const [activeIndex, setActiveIndex] = useState(indexActive || 1);
   const headerRef = useRef(null);
   const mainRef = useRef(null);
 
@@ -52,6 +49,7 @@ const Admin = () => {
     };
   }, []);
 
+  const navigate = useNavigate();
   useEffect(() => {
     const header = headerRef.current;
 
@@ -69,6 +67,27 @@ const Admin = () => {
     }
   }, [scrollPosition]);
   const handleLiClick = (index) => {
+    if (index === 1) {
+      navigate("/admin");
+    }
+    if (index === 3) {
+      navigate("/admin/chat");
+    }
+    if (index === 4) {
+      navigate("/admin/order-list");
+    }
+    if (index === 5) {
+      navigate("/admin/user-list");
+    }
+    if (index === 6) {
+      navigate("/admin/category-list");
+    }
+    if (index === 7) {
+      navigate("/admin/customer-list");
+    }
+    if (index === 8) {
+      navigate("/admin/add-product");
+    }
     if (index == 8 && !isPhone) {
       setIsPhone(true);
     }
@@ -131,163 +150,160 @@ const Admin = () => {
     }
   };
   return (
-    <Container>
-      <div
-        className={`menu-parent`}
-        ref={menuParentRef}
-        onMouseLeave={MenuMouseLeave}
-        onMouseOver={MenuMouseOver}
-      >
+    <AdminContext.Provider
+      value={{
+        closeMenu,
+        occupy: bodyHeight,
+      }}
+    >
+      <Container>
         <div
-          className={`menu-icon ${isMenuOpen || !isPhone ? "hidden" : ""}`}
-          onClick={() => toggleMenu()}
+          className={`menu-parent`}
+          ref={menuParentRef}
+          onMouseLeave={MenuMouseLeave}
+          onMouseOver={MenuMouseOver}
         >
-          <div className="bar"></div>
-          <div className="bar"></div>
-          <div className="bar"></div>
+          <div
+            className={`menu-icon ${isMenuOpen || !isPhone ? "hidden" : ""}`}
+            onClick={() => toggleMenu()}
+          >
+            <div className="bar"></div>
+            <div className="bar"></div>
+            <div className="bar"></div>
+          </div>
+          <div
+            ref={menuRef}
+            className={`menu ${isMenuOpen ? "open" : ""} ${
+              !isPhone ? "menu-not-phone" : ""
+            }`}
+          >
+            <div>
+              <div className="logo-branch">
+                <div>
+                  <FcCdLogo /> &nbsp;
+                  <span>Branch</span>
+                </div>
+                <div className="toggle-menu">
+                  <label className={`toggle ${isMenuOpen ? "on" : "off"}`}>
+                    <input
+                      type="checkbox"
+                      checked={isMenuOpen}
+                      onChange={toggleMenu}
+                    />
+                    <span className="slider"></span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <ul>
+              <li
+                className={activeIndex === 1 ? "active" : ""}
+                onClick={() => handleLiClick(1)}
+              >
+                <AiOutlineHome />
+                Home
+              </li>
+              <li
+                className={activeIndex === 2 ? "active" : ""}
+                onClick={() => handleLiClick(2)}
+              >
+                <AiOutlineMail />
+                Email
+              </li>
+              <li
+                className={activeIndex === 3 ? "active" : ""}
+                onClick={() => handleLiClick(3)}
+              >
+                <BsChatDots />
+                Chat
+              </li>
+              <li
+                className={activeIndex === 4 ? "active" : ""}
+                onClick={() => handleLiClick(4)}
+              >
+                <GrUnorderedList />
+                Order
+              </li>
+              <li
+                className={activeIndex === 5 ? "active" : ""}
+                onClick={() => handleLiClick(5)}
+              >
+                <AiOutlineUser />
+                User
+              </li>
+              <li
+                className={activeIndex === 6 ? "active" : ""}
+                onClick={() => handleLiClick(6)}
+              >
+                <BiSolidCategoryAlt />
+                Category
+              </li>
+              <li
+                className={activeIndex === 7 ? "active" : ""}
+                onClick={() => handleLiClick(7)}
+              >
+                <RiCustomerService2Line />
+                Customer
+              </li>
+
+              <li
+                className={activeIndex === 8 ? "active" : ""}
+                onClick={() => {
+                  handleLiClick(8);
+                }}
+              >
+                <FaProductHunt />
+                Add Product
+              </li>
+            </ul>
+          </div>
         </div>
         <div
-          ref={menuRef}
-          className={`menu ${isMenuOpen ? "open" : ""} ${
-            !isPhone ? "menu-not-phone" : ""
-          }`}
-        >
-          <div>
-            <div className="logo-branch">
+          className="overlay"
+          onClick={() => {
+            setIsMenuOpen(!isMenuOpen);
+          }}
+        ></div>
+
+        <div className="main" ref={mainRef}>
+          <nav className="header" ref={headerRef}>
+            {isPhone == true && !isMenuOpen ? (
+              <div
+                className={`menu-icon ${
+                  isMenuOpen || !isPhone ? "hidden" : ""
+                }`}
+                onClick={() => toggleMenu()}
+              >
+                <div className="bar"></div>
+                <div className="bar"></div>
+                <div className="bar"></div>
+              </div>
+            ) : null}
+            <div className="nav-search">
+              <BsSearch />
+              <input type="text" placeholder="Nhập nội dung cần tìm kiếm" />
+            </div>
+            <div className="nav-action">
               <div>
-                <FcCdLogo /> &nbsp;
-                <span>Branch</span>
+                <AiTwotoneCalendar />
               </div>
-              <div className="toggle-menu">
-                <label className={`toggle ${isMenuOpen ? "on" : "off"}`}>
-                  <input
-                    type="checkbox"
-                    checked={isMenuOpen}
-                    onChange={toggleMenu}
-                  />
-                  <span className="slider"></span>
-                </label>
+
+              <div className="notification">
+                <AiOutlineBell />
+              </div>
+              <div>
+                <img src={require("../Assets/Image/account-male.png")} alt="" />
+                <div className="img-status"></div>
               </div>
             </div>
-          </div>
-
-          <ul>
-            <li
-              className={activeIndex === 1 ? "active" : ""}
-              onClick={() => handleLiClick(1)}
-            >
-              <AiOutlineHome />
-              Home
-            </li>
-            <li
-              className={activeIndex === 2 ? "active" : ""}
-              onClick={() => handleLiClick(2)}
-            >
-              <AiOutlineMail />
-              Email
-            </li>
-            <li
-              className={activeIndex === 3 ? "active" : ""}
-              onClick={() => handleLiClick(3)}
-            >
-              <BsChatDots />
-              Chat
-            </li>
-            <li
-              className={activeIndex === 4 ? "active" : ""}
-              onClick={() => handleLiClick(4)}
-            >
-              <GrUnorderedList />
-              Order
-            </li>
-            <li
-              className={activeIndex === 5 ? "active" : ""}
-              onClick={() => handleLiClick(5)}
-            >
-              <AiOutlineUser />
-              User
-            </li>
-            <li
-              className={activeIndex === 6 ? "active" : ""}
-              onClick={() => handleLiClick(6)}
-            >
-              <BiSolidCategoryAlt />
-              Category
-            </li>
-            <li
-              className={activeIndex === 7 ? "active" : ""}
-              onClick={() => handleLiClick(7)}
-            >
-              <RiCustomerService2Line />
-              Customer
-            </li>
-
-            <li
-              className={activeIndex === 8 ? "active" : ""}
-              onClick={() => {
-                handleLiClick(8);
-              }}
-            >
-              <FaProductHunt />
-              Add Product
-            </li>
-          </ul>
+          </nav>
+          <main>
+            <Child />
+          </main>
         </div>
-      </div>
-      <div
-        className="overlay"
-        onClick={() => {
-          setIsMenuOpen(!isMenuOpen);
-        }}
-      ></div>
-
-      <div className="main" ref={mainRef}>
-        <nav className="header" ref={headerRef}>
-          {isPhone == true && !isMenuOpen ? (
-            <div
-              className={`menu-icon ${isMenuOpen || !isPhone ? "hidden" : ""}`}
-              onClick={() => toggleMenu()}
-            >
-              <div className="bar"></div>
-              <div className="bar"></div>
-              <div className="bar"></div>
-            </div>
-          ) : null}
-          <div className="nav-search">
-            <BsSearch />
-            <input type="text" placeholder="Nhập nội dung cần tìm kiếm" />
-          </div>
-          <div className="nav-action">
-            <div>
-              <AiTwotoneCalendar />
-            </div>
-
-            <div className="notification">
-              <AiOutlineBell />
-            </div>
-            <div>
-              <img src={require("../Assets/Image/account-male.png")} alt="" />
-              <div className="img-status"></div>
-            </div>
-          </div>
-        </nav>
-        <main>
-          {activeIndex == 1 ? (
-            <ProductList closeMenu={closeMenu} handleLiClick={handleLiClick} />
-          ) : null}
-          {activeIndex == 3 ? <WebSocket occupy={bodyHeight} /> : null}
-          {activeIndex == 4 ? <OrderList /> : null}
-
-          {activeIndex == 5 ? <UserList /> : null}
-
-          {activeIndex == 6 ? (
-            <CategoryList setIsMenuOpen={setIsMenuOpen} />
-          ) : null}
-          {activeIndex == 7 ? <CustomerList /> : null}
-          {activeIndex == 8 ? <AddProduct /> : null}
-        </main>
-      </div>
-    </Container>
+      </Container>
+    </AdminContext.Provider>
   );
 };
 let backgroundColor = "#f4f5fa";
@@ -310,6 +326,7 @@ const Container = styled.div`
   }
   .main {
     flex: 1;
+    background-color: rgb(244, 245, 250);
   }
   .menu {
     width: 250px;
@@ -443,6 +460,7 @@ const Container = styled.div`
     padding: 0 1%;
     background-color: ${backgroundColor};
     width: 100%;
+    min-height: 100vh;
     position: relative;
 
     .header {
@@ -451,7 +469,7 @@ const Container = styled.div`
       justify-content: space-between;
       padding: 10px; /* Điều chỉnh khoảng cách theo nhu cầu của bạn */
       position: sticky;
-      z-index: 2;
+      z-index: 1;
       top: 0;
       background-color: ${backgroundColor};
       box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.1); /* Bóng bên dưới */

@@ -6,8 +6,10 @@ import { MdWeb } from "react-icons/md";
 
 import styled from "styled-components";
 import Pagination from "./Pagination";
+import { useNavigate } from "react-router-dom";
 
 const CustomerList = () => {
+  const navigate = useNavigate();
   const [data, setData] = useState([
     {
       id: 1,
@@ -18,6 +20,7 @@ const CustomerList = () => {
       totalSpent: "$125",
       order: 110,
       country: "Ukraine",
+      mail: "zarton8@weibo.com",
     },
     {
       id: 1,
@@ -28,6 +31,7 @@ const CustomerList = () => {
       totalSpent: "$125",
       order: 110,
       country: "Ukraine",
+      mail: "zarton8@weibo.com",
     },
     {
       id: 1,
@@ -35,6 +39,7 @@ const CustomerList = () => {
       image:
         "https://demos.themeselection.com/materio-bootstrap-html-admin-template/assets/img/avatars/17.png",
       customerId: "#1234",
+      mail: "zarton8@weibo.com",
       totalSpent: "$125",
       order: 110,
       country: "Ukraine",
@@ -42,6 +47,7 @@ const CustomerList = () => {
     {
       id: 1,
       name: "xxxx",
+      mail: "zarton8@weibo.com",
       image:
         "https://demos.themeselection.com/materio-bootstrap-html-admin-template/assets/img/avatars/17.png",
       customerId: "#1234",
@@ -122,13 +128,25 @@ const CustomerList = () => {
                   </td>
                   <td colSpan="3">
                     <div className="td-flex">
-                      <div>{product.name}</div>
                       <img
                         src={product.image}
                         alt=""
                         width="40px"
                         height="40px"
                       />
+                      <div>
+                        <div
+                          style={{ fontWeight: "bold", cursor: "pointer" }}
+                          onClick={() => {
+                            navigate(
+                              `/admin/customer-detail/${product.customerId}`
+                            );
+                          }}
+                        >
+                          {product.name}
+                        </div>
+                        <div>{product.mail}</div>
+                      </div>
                     </div>
                   </td>
                   <td>{product.customerId}</td>
@@ -288,12 +306,20 @@ const Container = styled.div`
     .datatable-product td:last-child {
       text-align: center;
     }
-    .datatable-product td:nth-child(2) {
-      .td-flex {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-      }
+    .datatable-product td:nth-child(2) .td-flex {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .td-flex img {
+      border-radius: 50%;
+      margin-right: 10px;
+    }
+    .td-flex > div {
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      text-align: left;
     }
 
     .datatable-product td {

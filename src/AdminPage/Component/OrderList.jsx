@@ -6,11 +6,13 @@ import { MdOutlinePendingActions, MdOutlineSmsFailed } from "react-icons/md";
 import styled from "styled-components";
 import Pagination from "./Pagination";
 import { RiRefundFill } from "react-icons/ri";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const OrderList = () => {
+  const navigate = useNavigate();
   const [data, setData] = useState([
     {
+      orderId: "123",
       order: "#6979",
       date: "Apr 15, 2023, 10:21",
       customerName: "TUAN ANH HANDSOME",
@@ -24,6 +26,7 @@ const OrderList = () => {
         "https://demos.themeselection.com/materio-bootstrap-html-admin-template/assets/img/icons/payments/mastercard.png",
     },
     {
+      orderId: "123",
       order: "#6979",
       date: "Apr 15, 2023, 10:21",
       customerName: "TUAN ANH HANDSOME",
@@ -37,6 +40,7 @@ const OrderList = () => {
         "https://demos.themeselection.com/materio-bootstrap-html-admin-template/assets/img/icons/payments/paypal_logo.png",
     },
     {
+      orderId: "123",
       order: "#6979",
       date: "Apr 15, 2023, 10:21",
       customerName: "TUAN ANH HANDSOME",
@@ -167,7 +171,14 @@ const OrderList = () => {
                     />
                   </td>
                   <td className="td-order">
-                    <Link to="#">{product.order}</Link>
+                    <div
+                      style={{ fontWeight: "bold", cursor: "pointer" }}
+                      onClick={() => {
+                        navigate(`/admin/order-detail/${product.orderId}`);
+                      }}
+                    >
+                      {product.order}
+                    </div>
                   </td>
                   <td>{product.date}</td>
 
@@ -229,13 +240,15 @@ const Container = styled.div`
     display: flex;
     flex-wrap: wrap;
     border-radius: ${borderRadius};
+    margin-bottom: 10px;
 
     box-shadow: ${boxShadow};
     background-color: white;
     .card {
       flex: 1;
       display: flex;
-      justify-content: space-around;
+      justify-content: space-between;
+      padding: 0 20px;
       align-items: center;
       flex-direction: row;
       margin: 10px;
@@ -273,6 +286,8 @@ const Container = styled.div`
   .wrapper-table {
     max-width: 100%;
     overflow: scroll;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    margin-bottom: 10px;
   }
   .datatable {
     background-color: white;
@@ -302,6 +317,7 @@ const Container = styled.div`
     .datatable-product tbody td {
       padding: 1.5rem;
       text-align: center;
+      height: 100%;
     }
 
     /* Đặt kiểu cho checkbox */
@@ -339,7 +355,7 @@ const Container = styled.div`
     }
     .td-methodPayment {
       display: flex;
-      justify-content: space-evenly;
+      flex-direction: row;
       align-items: center;
       img {
         width: 20px;
@@ -429,6 +445,8 @@ const Container = styled.div`
       align-items: center;
       padding: 10px;
       border-radius: 5px;
+      margin-bottom: 10px;
+
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
 

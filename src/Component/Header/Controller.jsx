@@ -39,8 +39,8 @@ const Container = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  height: auto;
   flex-wrap: wrap;
+  height: auto;
   border-top: 1px solid #cccccc;
   border-bottom: 1px solid #cccccc;
   * {
@@ -61,13 +61,11 @@ const Container = styled.div`
     .image {
       border: none;
       margin: auto;
-      &:not(:last-child) {
-        border-right: none;
-      }
+      min-width: 50%;
     }
-    /* .image:not(:last-child) {
+    .image:not(:last-child) {
       border-right: none;
-    } */
+    }
   }
 `;
 

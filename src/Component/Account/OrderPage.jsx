@@ -114,7 +114,7 @@ const OrderPage = () => {
       {data?.length >= 0
         ? data.map((da, index) => {
             return (
-              <div className="order-child">
+              <div className="order-child" key={index}>
                 <div className="header">
                   <div>Mã số đơn hàng: {da.orderID}</div>
                   <div>Tình trạng đơn hàng: {da.status}</div>
@@ -137,26 +137,25 @@ const OrderPage = () => {
                     <div className="price-total">
                       <div>Tổng tiền: </div>
                       <div className="price-label">
-                        {da.totalAmount.toLocaleString()}00000đ
+                        {da.totalAmount.toLocaleString()}đ
                       </div>
                     </div>
                     <div className="price-total">
                       <div>Phí vận chuyển:</div>
                       <div className="price-label">
-                        {da.totalAmount.toLocaleString()}00000đ
+                        {da.totalAmount.toLocaleString()}đ
                       </div>
                     </div>
                     <div className="price-total">
                       <div>Giảm giá:</div>
                       <div className="price-label">
-                        {da.totalAmount.toLocaleString()}00000đ
+                        {da.totalAmount.toLocaleString()}đ
                       </div>
                     </div>
                     <div className="price-total">
                       <div>Thành tiền: </div>
                       <div className="price-label">
-                        {" "}
-                        {da.totalAmount.toLocaleString()}00000đ
+                        {da.totalAmount.toLocaleString()}đ
                       </div>
                     </div>
                   </div>
@@ -174,28 +173,33 @@ const OrderPage = () => {
   );
 };
 const Container = styled.div`
-  padding: 20px;
   .navbar {
     display: flex;
     justify-content: space-around;
     padding: 10px;
-    background-color: #007bff;
+    background-color: #f5f5f5;
+    margin-bottom: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
   }
 
   .nav-item {
     cursor: pointer;
     padding: 5px 20px;
-    color: #ffffff;
+    color: black;
     text-align: center;
+    font-weight: 500;
+    font-size: 16px;
   }
 
   .nav-item.active {
-    border-bottom: 1px solid #ffffff;
+    border-bottom: 1px solid black;
   }
   .order-child {
     border: 1px solid #ccc;
     padding: 20px;
     margin-bottom: 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
     .header {
       display: flex;
       justify-content: space-between;

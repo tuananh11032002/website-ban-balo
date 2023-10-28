@@ -31,6 +31,18 @@ import * as signalR from "@microsoft/signalr";
 import checkAndRenewToken from "./Token/token";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { AddProduct } from "./AdminPage/Component/AddProduct";
+import ProductListPage from "./AdminPage/Page/ProductListPage";
+import ChatPage from "./AdminPage/Page/ChatPage";
+import CategoryListPage from "./AdminPage/Page/CategoryListPage";
+import OrderListPage from "./AdminPage/Page/OrderListPage";
+import UserListPage from "./AdminPage/Page/UserListPage";
+import CustomerListPage from "./AdminPage/Page/CustomerListPage";
+import AddProductPage from "./AdminPage/Page/AddProductPage";
+import Page from "./Test/Page";
+import CustomerDetailPage from "./AdminPage/Page/CustomerDetailPage";
+import DetailOrderPage from "./AdminPage/Page/DetailOrderPage";
+import NotFound from "./Page/NotFound";
+import AccountDetailPage from "./AdminPage/Page/AccountDetailPage";
 
 function App() {
   const [isUserReady, setIsUserReady] = useState(false);
@@ -114,12 +126,6 @@ function App() {
               element={<Slide child={<Home />} />}
             ></Route>
 
-            <Route path="/admin" element={<Slide child={<Admin />} />}></Route>
-            <Route
-              path="/admin/insert-product"
-              element={<Slide child={<AddProduct />} />}
-            />
-
             <Route path="/pay" element={<Slide child={<PayPage />} />}></Route>
             <Route path="/cart" element={<Slide child={<Cart />} />}></Route>
             <Route
@@ -142,23 +148,58 @@ function App() {
               path="login"
               element={<>{user ? <Navigate to="/" /> : <LoginPage />}</>}
             />
-            <Route
-              path="/account/address"
-              element={<Slide child={<AddressAccount />} />}
-            />
-            <Route
-              path="/account/profile"
-              element={<Slide child={<ProfileAccount />} />}
-            />
-            <Route
-              path="/account/order"
-              element={<Slide child={<OrderAccount />} />}
-            />
+            <Route path="/account/address" element={<AddressAccount />} />
+            <Route path="/account/profile" element={<ProfileAccount />} />
+            <Route path="/account/order" element={<OrderAccount />} />
             <Route path="/chat" element={<Slide child={<WebSocket />} />} />
             <Route
               path="/register"
               element={<Slide child={<RegisterPage />} />}
             />
+            <Route
+              path="/admin"
+              element={<Slide child={<ProductListPage />} />}
+            />
+            <Route
+              path="/admin/chat"
+              element={<Slide child={<ChatPage />} />}
+            />
+            <Route
+              path="/admin/order-list"
+              element={<Slide child={<OrderListPage />} />}
+            />
+            <Route
+              path="/admin/category-list"
+              element={<Slide child={<CategoryListPage />} />}
+            />
+            <Route
+              path="/admin/user-list"
+              element={<Slide child={<UserListPage />} />}
+            />
+            <Route
+              path="/admin/customer-list"
+              element={<Slide child={<CustomerListPage />} />}
+            />
+
+            <Route
+              path="/admin/add-product"
+              element={<Slide child={<AddProductPage />} />}
+            />
+            <Route
+              path="/admin/customer-detail/:id"
+              element={<Slide child={<CustomerDetailPage />} />}
+            />
+            <Route
+              path="/admin/order-detail/:id"
+              element={<Slide child={<DetailOrderPage />} />}
+            />
+            <Route
+              path="/admin/account-detail/:id"
+              element={<Slide child={<AccountDetailPage />} />}
+            />
+            <Route path="*" element={<Slide child={<NotFound />} />} />
+
+            <Route path="/test-tam" element={<Slide child={<Page />} />} />
           </Routes>
         ) : null}
       </Container>

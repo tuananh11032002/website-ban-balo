@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { AiOutlineUser, AiOutlinePlus } from "react-icons/ai";
-import { BiSolidDiscount, BiUserCheck } from "react-icons/bi";
+import { BiSolidDiscount, BiUser, BiUserCheck } from "react-icons/bi";
 import { TbAffiliate } from "react-icons/tb";
 import { MdWeb } from "react-icons/md";
 import { FiUserPlus } from "react-icons/fi";
@@ -8,60 +8,64 @@ import { FaUserPen } from "react-icons/fa6";
 
 import styled from "styled-components";
 import Pagination from "./Pagination";
+import { useNavigate } from "react-router-dom";
+import { AdminContext } from "../Admin";
+import { GrUserAdmin } from "react-icons/gr";
 
-const ProductList = () => {
+const UserList = () => {
   const [data, setData] = useState([
     {
       id: 1,
-      name: "xxxx",
+      role: "admin",
       image:
-        "https://demos.themeselection.com/materio-bootstrap-html-admin-template/assets/img/ecommerce-images/product-9.png",
+        "https://demos.themeselection.com/materio-bootstrap-html-admin-template/assets/img/avatars/2.png",
       category: "Shoes",
-      price: "$125",
-      qty: 110,
-      stock: true,
-      status: "publish",
+      displayName: "TRAN TUAN ANH",
+      userName: "@zmcclevertye",
+      email: "zmcclevertye@soundcloud.com",
+      status: "active",
       action: "none",
     },
     {
       id: 1,
-      name: "xxxx",
+      role: "admin",
       image:
-        "https://demos.themeselection.com/materio-bootstrap-html-admin-template/assets/img/ecommerce-images/product-9.png",
-      category: "Shoes",
-      price: "$125",
-      qty: 110,
-      stock: true,
-      status: "publish",
+        "https://demos.themeselection.com/materio-bootstrap-html-admin-template/assets/img/avatars/7.png",
+      displayName: "TRAN TUAN ANH",
+      userName: "@zmcclevertye",
+      email: "zmcclevertye@soundcloud.com",
+      status: "active",
       action: "none",
     },
     {
       id: 1,
-      name: "xxxx",
+      role: "user",
+      displayName: "TRAN TUAN ANH",
+      userName: "@zmcclevertye",
+      email: "zmcclevertye@soundcloud.com",
       image:
-        "https://demos.themeselection.com/materio-bootstrap-html-admin-template/assets/img/ecommerce-images/product-9.png",
+        "https://demos.themeselection.com/materio-bootstrap-html-admin-template/assets/img/avatars/6.png",
       category: "Shoes",
-      price: "$125",
-      qty: 110,
-      stock: true,
-      status: "Scheduled",
+
+      status: "inactive",
       action: "none",
     },
     {
       id: 1,
-      name: "xxxx",
+      role: "user",
+
+      displayName: "TRAN TUAN ANH",
+      userName: "@zmcclevertye",
+      email: "zmcclevertye@soundcloud.com",
       image:
-        "https://demos.themeselection.com/materio-bootstrap-html-admin-template/assets/img/ecommerce-images/product-9.png",
-      category: "Shoes",
-      price: "$125",
-      qty: 110,
-      stock: true,
-      status: "Inactive",
+        "https://demos.themeselection.com/materio-bootstrap-html-admin-template/assets/img/avatars/6.png",
+
+      status: "active",
       action: "none",
     },
   ]);
+  const navigate = useNavigate();
   const [selectAll, setSelectAll] = useState(false);
-  const [checkStock, setCheckStock] = useState(data.map((item) => item.stock));
 
   const [checkboxes, setCheckboxes] = useState(Array(data.length).fill(false));
 
@@ -76,217 +80,357 @@ const ProductList = () => {
     setCheckboxes(newCheckboxes);
   };
   const [selectedValue, setSelectedValue] = useState("7");
+  const [formData, setFormData] = useState({
+    fullName: "",
+    email: "",
+    phoneNumber: "",
+    selection: "User",
+  });
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    // Xử lý logic gửi biểu mẫu ở đây
+  };
+  const { closeMenu } = useContext(AdminContext);
+  const [isOpenEditUser, setIsOpenEditUser] = useState(false);
   return (
-    <Container>
-      <div className="error">Bí ý tưởng, chưa biết làm sao</div>
-      <h1>eCommerce / User List</h1>
-      <div className="card-widget-saparater-wrapper">
-        <div className="card">
-          <div>
-            <p>Session</p>
-            <h1>$5,345.43</h1>
-            <p>
-              <span> 5k orders</span>
-              <span className="card-widget-rate-increase">+5.7%</span>
-            </p>
+    <>
+      {isOpenEditUser ? (
+        <Overlay>
+          {closeMenu()}
+          <div className="form-container">
+            <form onSubmit={handleSubmit}>
+              <div className="form-group">
+                <label htmlFor="fullName">Nhập full name:</label>
+                <input
+                  type="text"
+                  name="fullName"
+                  value={formData.fullName}
+                  onChange={handleChange}
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="email">Nhập email:</label>
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="phoneNumber">Nhập số điện thoại:</label>
+                <input
+                  type="tel"
+                  name="phoneNumber"
+                  value={formData.phoneNumber}
+                  onChange={handleChange}
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="selection">Chọn vai trò:</label>
+                <select
+                  name="selection"
+                  value={formData.selection}
+                  onChange={handleChange}
+                >
+                  <option value="User">User</option>
+                  <option value="Role">Role</option>
+                </select>
+              </div>
+
+              <div className="button-group">
+                <button type="submit" className="submit-button">
+                  Submit
+                </button>
+                <button
+                  type="button"
+                  className="cancel-button"
+                  onClick={() => {
+                    setIsOpenEditUser(false);
+                  }}
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
           </div>
-          <div>
-            <AiOutlineUser />
+        </Overlay>
+      ) : null}
+      <Container>
+        <h1>eCommerce / User List</h1>
+        <div className="card-widget-saparater-wrapper">
+          {/* <div className="card">
+         <div>
+           <p>Session</p>
+           <h1>$5,345.43</h1>
+           <p>
+             <span> 5k orders</span>
+             <span className="card-widget-rate-increase">+5.7%</span>
+           </p>
+         </div>
+         <div>
+           <AiOutlineUser />
+         </div>
+       </div>
+       <div className="card">
+         <div>
+           <p> Paid Users</p>
+           <h1>$674,347.12</h1>
+           <p>
+             <span> 21k orders</span>
+             <span className="card-widget-rate-increase">+12.4%</span>
+           </p>
+         </div>
+         <div>
+           <FiUserPlus />
+         </div>
+       </div> */}
+          <div className="card">
+            <div>
+              <p>Active Users</p>
+              <h1>$14,235.12</h1>
+              <p>
+                <span> 6k orders</span>
+                <span className="card-widget-rate-increase">+5.7%</span>
+              </p>
+            </div>
+            <div>
+              <BiUserCheck />
+            </div>
           </div>
-        </div>
-        <div className="card">
-          <div>
-            <p> Paid Users</p>
-            <h1>$674,347.12</h1>
-            <p>
-              <span> 21k orders</span>
-              <span className="card-widget-rate-increase">+12.4%</span>
-            </p>
-          </div>
-          <div>
-            <FiUserPlus />
-          </div>
-        </div>
-        <div className="card">
-          <div>
-            <p>Active Users</p>
-            <h1>$14,235.12</h1>
-            <p>
-              <span> 6k orders</span>
-              <span className="card-widget-rate-increase">+5.7%</span>
-            </p>
-          </div>
-          <div>
-            <BiUserCheck />
-          </div>
-        </div>
-        <div className="card">
-          <div>
-            <p> Pending Users</p>
-            <h1>$8,345.23</h1>
-            <p>
-              <span> 150 orders</span>
-              <span className="card-widget-rate-decrease">-3.5%</span>
-            </p>
-          </div>
-          <div>
-            <FaUserPen />
-          </div>
-        </div>
-      </div>
-      <div className="datatable">
-        <div className="datatable-filter">
-          <div className=" product_status">
-            <select>
-              <option value=""> Select Role </option>
-              <option value="Admin">Admin</option>
-              <option value="Author">Author</option>
-              <option value="Editor">Editor</option>
-              <option value="Maintainer">Maintainer</option>
-              <option value="Subscriber">Subscriber</option>
-            </select>
-          </div>
-          <div className="product_category">
-            <select>
-              <option value=""> Select Plan </option>
-              <option value="Basic">Basic</option>
-              <option value="Company">Company</option>
-              <option value="Enterprise">Enterprise</option>
-              <option value="Team">Team</option>
-            </select>
-          </div>
-          <div className="product_stock">
-            <select>
-              <option value=""> Select Status </option>
-              <option value="Pending" class="text-capitalize">
-                Pending
-              </option>
-              <option value="Active" class="text-capitalize">
-                Active
-              </option>
-              <option value="Inactive" class="text-capitalize">
-                Inactive
-              </option>
-            </select>
-          </div>
-        </div>
-        <div class="datatable-action">
-          <input class="search-input" type="text" placeholder="Search" />
-          <div class="dttable-action-button">
-            <select
-              class="action-select"
-              name=""
-              id=""
-              onChange={(e) => setSelectedValue(e.target.value)}
-            >
-              <option value="7">7</option>
-              <option value="10">10</option>
-              <option value="20">20</option>
-              <option value="50">50</option>
-            </select>
-            <div class="action-button">
-              <AiOutlinePlus />
-              <span>Add User</span>
+          <div className="card">
+            <div>
+              <p> Pending Users</p>
+              <h1>$8,345.23</h1>
+              <p>
+                <span> 150 orders</span>
+                <span className="card-widget-rate-decrease">-3.5%</span>
+              </p>
+            </div>
+            <div>
+              <FaUserPen />
             </div>
           </div>
         </div>
-        <div className="wrapper-table">
-          <table className="datatable-product">
-            <thead>
-              <tr>
-                <th>
-                  <input
-                    type="checkbox"
-                    checked={selectAll}
-                    onChange={toggleSelectAll}
-                  />
-                </th>
-                <th colSpan="3">PRODUCT</th>
-                <th>CATEGORY</th>
+        <div className="datatable">
+          <div className="datatable-filter">
+            <div className=" product_status">
+              <select>
+                <option value=""> Select Role </option>
+                <option value="Admin">Admin</option>
+                <option value="Author">User</option>
+              </select>
+            </div>
 
-                <th>STOCK</th>
-                <th>PRICE</th>
-                <th>QTY</th>
-                <th>STATUS</th>
-                <th>ACTION</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.map((product, index) => (
-                <tr key={index}>
-                  <td>
+            <div className="product_stock">
+              <select>
+                <option value=""> Select Status </option>
+                <option value="Pending" class="text-capitalize">
+                  Pending
+                </option>
+                <option value="Active" class="text-capitalize">
+                  Active
+                </option>
+                <option value="Inactive" class="text-capitalize">
+                  Inactive
+                </option>
+              </select>
+            </div>
+          </div>
+          <div class="datatable-action">
+            <input class="search-input" type="text" placeholder="Search" />
+            <div class="dttable-action-button">
+              <select
+                class="action-select"
+                name=""
+                id=""
+                onChange={(e) => setSelectedValue(e.target.value)}
+              >
+                <option value="7">7</option>
+                <option value="10">10</option>
+                <option value="20">20</option>
+                <option value="50">50</option>
+              </select>
+              <div
+                class="action-button"
+                onClick={() => {
+                  setIsOpenEditUser(true);
+                }}
+              >
+                <AiOutlinePlus />
+                <span>Add User</span>
+              </div>
+            </div>
+          </div>
+          <div className="wrapper-table">
+            <table className="datatable-product">
+              <thead>
+                <tr>
+                  <th>
                     <input
                       type="checkbox"
-                      checked={checkboxes[index]}
-                      onChange={() => handleCheckboxChange(index)}
+                      checked={selectAll}
+                      onChange={toggleSelectAll}
                     />
-                  </td>
-                  <td colSpan="3">
-                    <div className="td-flex">
-                      <div>{product.name}</div>
-                      <img
-                        src={product.image}
-                        alt=""
-                        width="40px"
-                        height="40px"
-                      />
-                    </div>
-                  </td>
-                  <td>{product.category}</td>
-                  <td>
-                    <label class="toggle-label">
+                  </th>
+                  <th>USER</th>
+                  <th>EMAIL</th>
+
+                  <th>ROLE</th>
+                  <th>STATUS</th>
+                  <th>ACTION</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data.map((product, index) => (
+                  <tr key={index}>
+                    <td>
                       <input
                         type="checkbox"
-                        checked={checkStock[index]}
-                        onChange={() => {
-                          const newCheckStock = [...checkStock];
-                          newCheckStock[index] = !newCheckStock[index];
-                          setCheckStock(newCheckStock);
-                        }}
+                        checked={checkboxes[index]}
+                        onChange={() => handleCheckboxChange(index)}
                       />
-                      <span class="toggle-slider"></span>
-                    </label>
-                  </td>
-                  <td>{product.price}</td>
-                  <td>{product.qty}</td>
-                  <td className={product.status}>
-                    <span>{product.status}</span>
-                  </td>
-                  <td>{product.action}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                    </td>
+                    <td>
+                      <div className="td-flex">
+                        <img
+                          src={product.image}
+                          alt=""
+                          width="40px"
+                          height="40px"
+                        />
+                        <div>
+                          <div
+                            onClick={() => {
+                              navigate(`/admin/account-detail/${product.id}`);
+                            }}
+                          >
+                            {product.displayName}
+                          </div>
+                          <div>{product.userName}</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td>{product.email}</td>
+                    <td className={`td-role ${product.role}`}>
+                      {product.role === "admin" ? <GrUserAdmin /> : <BiUser />}
+                      {product.role}
+                    </td>
+
+                    <td className={`${product.status.toLowerCase()}-user`}>
+                      <span>{product.status}</span>
+                    </td>
+                    <td>{product.action}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
-      <Pagination
-        obj={{
-          pageNow: 1,
-          size: selectedValue,
-          totalProduct: 100,
-        }}
-      />
-    </Container>
+        <Pagination
+          obj={{
+            pageNow: 1,
+            size: selectedValue,
+            totalProduct: 100,
+          }}
+        />
+      </Container>
+    </>
   );
 };
 const boxShadow = "0 0.375rem 1rem 0 rgba(58, 53, 65, 0.12)";
 const borderRadius = "0.375rem";
+const Overlay = styled.div`
+  background-color: rgba(0, 0, 0, 0.3);
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  bottom: 0;
 
-const Container = styled.div`
-  .error {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100vh;
-    z-index: 3;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 24px;
-    background-color: #f7d5d5;
-    opacity: 0.8;
+  width: 100%;
+  z-index: 1;
+  height: 100vh;
+  display: flex;
+  justify-content: flex-end;
+
+  .form-container {
+    background-color: white;
+    padding: 20px;
+    max-width: 400px;
+    width: 400px;
+    border: 1px solid #ddd;
+    z-index: 2;
+    animation: slide 0.2s linear;
+    @keyframes slide {
+      from {
+        transform: translateX(100%);
+      }
+      to {
+        transform: translateX(0%);
+      }
+    }
   }
+
+  .form-group {
+    margin: 10px 0;
+  }
+
+  label {
+    display: block;
+  }
+
+  input,
+  select {
+    width: 100%;
+    padding: 10px;
+    margin: 5px 0;
+  }
+
+  .button-group {
+    margin-top: 10px;
+  }
+
+  .cancel-button {
+    background-color: #ff6666;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+  }
+
+  .submit-button {
+    background-color: #3399ff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    margin-right: 10px;
+    border-radius: 5px;
+    transition: box-shadow 0.1s;
+  }
+
+  .cancel-button:active {
+    background-color: red;
+  }
+
+  .submit-button:active {
+    background-color: #0066cc;
+  }
+  .submit-button:hover,
+  .cancel-button:hover {
+    box-shadow: 0 0 2px 2px rgba(0, 0, 0, 0.2);
+  }
+`;
+const Container = styled.div`
   h1 {
     font-size: 2rem;
   }
@@ -419,55 +563,40 @@ const Container = styled.div`
     .datatable-product td:last-child {
       text-align: center;
     }
+    .datatable-product .td-role {
+      text-align: left;
+    }
+    .datatable-product .td-role svg {
+      width: 22px;
+      height: 22px;
+    }
+    .datatable-product .admin svg {
+      color: red;
+    }
+    .datatable-product .user svg {
+      color: blue;
+    }
     .datatable-product td:nth-child(2) {
       .td-flex {
         display: flex;
         justify-content: center;
         align-items: center;
       }
-    }
-
-    .datatable-product td {
-      .toggle-label {
-        position: relative;
-        display: inline-block;
-        width: 40px; /* Điều chỉnh chiều rộng */
-        height: 20px; /* Điều chỉnh chiều cao */
-      }
-
-      .toggle-slider {
-        position: absolute;
-        cursor: pointer;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-color: #ccc;
-        border-radius: 20px; /* Điều chỉnh độ cong của góc */
-        transition: 0.4s;
-      }
-
-      .toggle-slider:before {
-        position: absolute;
-        content: "";
-        height: 16px; /* Điều chỉnh chiều cao của nút trượt */
-        width: 16px; /* Điều chỉnh chiều rộng của nút trượt */
-        left: 2px; /* Điều chỉnh vị trí từ trái */
-        bottom: 2px; /* Điều chỉnh vị trí từ dưới */
-        background-color: white;
+      .td-flex img {
         border-radius: 50%;
-        transition: 0.4s;
+        margin-right: 10px;
       }
-      .toggle-label input:checked + .toggle-slider {
-        background-color: #007bff; /* Màu nền của toggle khi bật */
+      .td-flex > div {
+        text-align: left;
       }
-
-      .toggle-label input:checked + .toggle-slider:before {
-        transform: translateX(20px);
+      .td-flex > div > div:first-child {
+        font-weight: 500;
+        cursor: pointer;
       }
     }
+
     /* Đặt kiểu cho cột "STATUS" */
-    .datatable-product .publish {
+    .datatable-product .active-user {
       text-align: center;
       font-weight: bold;
       color: #008000; /* Màu xanh dương cho trạng thái 'Active' */
@@ -478,7 +607,7 @@ const Container = styled.div`
       }
     }
 
-    .datatable-product .Inactive {
+    .datatable-product .inactive-user {
       color: #ff0000; /* Màu đỏ cho trạng thái không 'Active' */
       span {
         background-color: #ffe4e5 !important;
@@ -486,7 +615,7 @@ const Container = styled.div`
         padding: 8px;
       }
     }
-    .datatable-product .Scheduled {
+    .datatable-product .pending-user {
       color: #ffb400; /* Màu cam cho trạng thái không 'Scheduled' */
       span {
         background-color: #fff4d9 !important;
@@ -558,4 +687,4 @@ const Container = styled.div`
   }
 `;
 
-export default ProductList;
+export default UserList;

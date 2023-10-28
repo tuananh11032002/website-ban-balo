@@ -411,7 +411,11 @@ const Container = styled.header`
   z-index: 3;
   .header-parent {
     height: ${(props) => `${props.height}px`};
+    margin-bottom: 10px;
+
     .container_nobo {
+      padding: 20px 10px;
+
       width: 100%;
       position: fixed;
       box-sizing: border-box;
@@ -421,8 +425,6 @@ const Container = styled.header`
       align-items: center;
       z-index: 2;
       box-sizing: border-box;
-      padding: 8px 0;
-
       .account {
         display: flex;
         flex-direction: column;
@@ -564,9 +566,9 @@ const Container = styled.header`
   }
   .searchmini {
     position: absolute;
-    top: 3.5rem;
+    top: 4.5rem;
     width: 100%;
-    height: 200px;
+    max-height: 200px;
     overflow-y: scroll;
     z-index: 3;
     background-color: #f5f5f5;

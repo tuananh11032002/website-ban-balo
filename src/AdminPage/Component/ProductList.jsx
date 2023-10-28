@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { AiOutlineClose, AiOutlineHome, AiOutlinePlus } from "react-icons/ai";
 import { BiSolidDiscount } from "react-icons/bi";
 import { TbAffiliate } from "react-icons/tb";
@@ -7,8 +7,11 @@ import { MdWeb } from "react-icons/md";
 import styled from "styled-components";
 import Pagination from "./Pagination";
 import { useNavigate } from "react-router-dom";
+import { AdminContext } from "../Admin";
 
-const ProductList = ({ closeMenu, handleLiClick }) => {
+const ProductList = () => {
+  const { closeMenu } = useContext(AdminContext);
+
   const [data, setData] = useState([
     {
       title: "Air Jordan is a line of basketball shoes produced by Nike",
@@ -243,11 +246,11 @@ const ProductList = ({ closeMenu, handleLiClick }) => {
               </select>
             </div>
           </div>
-          <div class="datatable-action">
-            <input class="search-input" type="text" placeholder="Search" />
-            <div class="dttable-action-button">
+          <div className="datatable-action">
+            <input className="search-input" type="text" placeholder="Search" />
+            <div className="dttable-action-button">
               <select
-                class="action-select"
+                className="action-select"
                 name=""
                 id=""
                 onChange={(e) => setSelectedValue(e.target.value)}
@@ -258,9 +261,9 @@ const ProductList = ({ closeMenu, handleLiClick }) => {
                 <option value="50">50</option>
               </select>
               <div
-                class="action-button"
+                className="action-button"
                 onClick={() => {
-                  handleLiClick(8);
+                  navigate("/admin/add-product");
                 }}
               >
                 <AiOutlinePlus />

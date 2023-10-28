@@ -1,11 +1,13 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
 
 import styled from "styled-components";
 import Pagination from "./Pagination";
 import { AddCategory } from "./AddCategory";
+import { AdminContext } from "../Admin";
 
-const CategoryList = ({ setIsMenuOpen }) => {
+const CategoryList = () => {
+  const { closeMenu } = useContext(AdminContext);
   const [data, setData] = useState([
     {
       id: 1,
@@ -101,7 +103,7 @@ const CategoryList = ({ setIsMenuOpen }) => {
               onClick={(e) => {
                 e.preventDefault();
                 setAddCategory(true);
-                setIsMenuOpen(false);
+                closeMenu();
               }}
             >
               <AiOutlinePlus />

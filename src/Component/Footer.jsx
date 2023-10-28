@@ -13,22 +13,21 @@ const Footer = () => {
 
   return (
     <Container>
-      <div className="infor_footer">
-        <div className="address infor_footer__child">
+      <div className="footer-info">
+        <div className="address info-child">
           <div>
-            <a href="#">CAMELIA BRAND </a>
+            <a href="#">CAMELIA BRAND</a>
           </div>
-          <div>Store 1: 633 Nguyễn Đình Chiểu, P.2, Q.3.HCM </div>
-          <div>Store 2:71 Trần Quang Diệu, P14, Q3, HCM </div>
-          <div>Hotline : 19001052</div>
-
+          <div>Store 1: 633 Nguyễn Đình Chiểu, P.2, Q.3.HCM</div>
+          <div>Store 2: 71 Trần Quang Diệu, P14, Q3, HCM</div>
+          <div>Hotline: 19001052</div>
           <div>thecameliavn@gmail.com</div>
         </div>
-        <div className="social infor_footer__child">
+        <div className="social info-child">
           <div>Đăng kí nhận tin</div>
           <div>
             <div className="input">
-              <input type="email" placeholder="Nhap Mail" />
+              <input type="email" placeholder="Nhập Mail" />
               <AiOutlineSend />
             </div>
             <div className="icon">
@@ -39,7 +38,6 @@ const Footer = () => {
               >
                 <AiFillFacebook />
               </a>
-
               <a
                 href="https://instagram.com"
                 target="_blank"
@@ -57,7 +55,7 @@ const Footer = () => {
             </div>
           </div>
         </div>
-        <div className="purpose infor_footer__child">
+        <div className="useful-links info-child">
           <div>BẠN NÊN XEM</div>
           <div>Giới thiệu</div>
           <div>Phương thức giao hàng</div>
@@ -75,138 +73,65 @@ const Footer = () => {
 };
 
 const Container = styled.footer`
-  display: grid;
-  height: auto;
-  width: 100%;
-  max-width: 100%;
-  grid-template-rows: 3fr 1fr;
-  grid-auto-flow: dense;
-
-  background-color: #212121;
-  flex-wrap: wrap;
-  color: white;
-
-  .infor_footer {
-    display: flex;
-    padding-left: 50px;
-    justify-content: space-between;
-    align-items: center;
-    .purpose {
-      flex: 1;
-    }
-    .address {
-      flex: 1;
-    }
-    .social {
-      flex: 3;
-      input {
-        width: 92%;
-        height: 30%;
-      }
-      .icon {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        svg {
-          margin: 2rem;
-        }
-      }
-    }
-    .infor_footer__child {
-      margin: 0 10px;
-      a {
-        text-decoration: none;
-        color: white;
-      }
-    }
+  background-color: #333;
+  color: #fff;
+  padding: 20px;
+  font-size: 16px;
+  text-align: center;
+  * {
+    font-size: 16px;
   }
-  .input {
-    background-color: white;
-    padding: 1%;
-    input {
+  .footer-info {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    svg {
+      width: 22px;
+      height: 22px;
+    }
+    .info-child {
+      flex: 1;
+      padding: 10px;
+    }
+
+    .address {
+    }
+
+    .social div:nth-child(2) .input {
+      width: 100%;
+      background-color: white;
+      border: 1px;
+      border-radius: 5px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .social div:nth-child(2) .input input {
       outline: none;
       border: none;
+      padding: 5px 0;
+      border-radius: 5px;
+      flex: 1;
     }
-    svg {
-      &:hover {
-        color: red;
-      }
-      color: black;
-      border: none;
+    .social div:nth-child(2) .input svg {
+      color: #02090f;
+    }
+
+    .useful-links {
     }
   }
 
   .copyright {
-    height: 50px;
-    span {
-      height: 100%;
-
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      border-top: 1px solid white;
-      margin: 10px;
-    }
   }
-  @media screen and (max-width: 1130px) {
-    height: 500px;
-    .infor_footer {
-      padding: 10px;
-      * {
-        word-wrap: break-word;
-      }
-    }
-    .infor_footer .social {
-      order: 1;
-      flex: 2;
-    }
-    .infor_footer > .purpose,
-    .infor_footer > .address {
-      flex: 1.5;
-    }
-    .infor_footer > .purpose {
-      order: 2;
-    }
-    .infor_footer > .address {
+  @media screen and (max-width: 765px) {
+    .social {
       order: 3;
-      margin: 0;
+      min-width: 100%;
     }
-    .infor_footer {
-    }
-  }
-  @media screen and (max-width: 774px) {
-    grid-template-rows: 4fr 1fr;
-
-    .infor_footer {
-      flex-direction: row;
-      align-items: flex-start;
-      flex-wrap: wrap;
-      height: 50px;
-    }
-
-    .infor_footer .address {
-      /* Đặt .address ở hàng thứ nhất */
-      order: 3;
-      width: 45%;
-      flex: none;
-    }
-
-    .infor_footer .purpose {
-      /* Đặt .purpose ở hàng thứ hai */
-      order: 2;
-      width: 45%;
-      flex: none;
-    }
-
-    .infor_footer .social {
-      /* Đặt .social ở hàng thứ ba */
-      order: 3;
-      width: 90%;
-      margin: auto;
-      height: 22px;
-      margin-top: 10px;
-      flex: none;
+    .useful-links {
+      display: none;
     }
   }
 `;
+
 export default Footer;

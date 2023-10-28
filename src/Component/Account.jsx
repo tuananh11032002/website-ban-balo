@@ -1,18 +1,15 @@
 import React, { useEffect, useState } from "react";
 import Header from "./Header";
 import Footer from "./Footer";
-
 import { styled } from "styled-components";
 import { useStateProvider } from "../StateProvider/StateProvider";
 import { AiOutlineEdit } from "react-icons/ai";
-
-import { MdOutlineAccountCircle } from "react-icons/md";
-import Profile from "./Account/Profile";
+import { RiListOrdered } from "react-icons/ri";
+import { MdOutlinePassword } from "react-icons/md";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import Address from "./Account/Address";
-import OrderPage from "./Account/OrderPage";
-
-const Account = ({ component }) => {
+import { FaAddressCard } from "react-icons/fa";
+import { ImProfile } from "react-icons/im";
+const Account = ({ component, indexActive = 1 }) => {
   const { pathname } = useLocation();
   const [{ user }, dispatch] = useStateProvider();
   const state = pathname === "/account/profile" ? 1 : 0;
@@ -24,8 +21,8 @@ const Account = ({ component }) => {
     <div>
       <Header />
       <Container>
-        <div className="slidebar">
-          <div className="user slidebar-child">
+        <div className="sidebar">
+          <div className={`user-section sidebar-child `}>
             <img src={require("../Assets/Image/nologin.jpg")} alt="" />
 
             <div className="user-button">
@@ -37,46 +34,45 @@ const Account = ({ component }) => {
             </div>
           </div>
           <div
-            className="myaccount hover slidebar-child"
+            className={`sidebar-child my-account ${
+              indexActive === 1 ? "active-choose" : ""
+            }`}
             onClick={() => {
               navigate("/account/profile");
             }}
           >
-            <img
-              src="https://down-vn.img.susercontent.com/file/ba61750a46794d8847c3f463c5e71cc4"
-              alt=""
-            />
-            Tài khoản của tôi
+            <ImProfile />
+            Hồ sơ
           </div>
-          {state == 1 ? (
-            <ul className="slidebar-child">
-              <li
-                onClick={() => {
-                  navigate("/account/profile");
-                }}
-              >
-                Hồ sơ
-              </li>
-              <li>Đổi mật khẩu</li>
-              <li
-                onClick={() => {
-                  navigate("/account/address");
-                }}
-              >
-                Địa chỉ
-              </li>
-            </ul>
-          ) : null}
+
           <div
-            className="order hover slidebar-child"
+            className={`sidebar-child ${
+              indexActive === 2 ? "active-choose" : ""
+            }`}
+          >
+            <MdOutlinePassword />
+            Đổi mật khẩu
+          </div>
+          <div
+            className={`sidebar-child ${
+              indexActive == 3 ? "active-choose" : ""
+            }`}
+            onClick={() => {
+              navigate("/account/address");
+            }}
+          >
+            <FaAddressCard />
+            Địa chỉ
+          </div>
+          <div
+            className={`order hover sidebar-child ${
+              indexActive == 4 ? "active-choose" : ""
+            }`}
             onClick={() => {
               navigate("/account/order");
             }}
           >
-            <img
-              src="https://down-vn.img.susercontent.com/file/f0049e9df4e536bc3e7f140d071e9078"
-              alt=""
-            />
+            <RiListOrdered />
             Đơn mua
           </div>
         </div>
@@ -90,86 +86,121 @@ const Account = ({ component }) => {
 const Container = styled.div`
   background-color: #f5f5f5;
   width: 100%;
-  height: auto;
-  min-height: 600px;
-  display: grid;
-  overflow-x: hidden;
-  overflow-y: none;
-  grid-template-columns: 2fr 8fr;
+  display: flex;
+  flex-wrap: wrap;
+  padding: 20px;
+
   .main {
-    margin-right: 40px;
-    margin-top: 1rem;
-    padding: 2rem;
+    flex: 1;
+    border-radius: 5px;
     background-color: white;
     margin-bottom: 20px;
-  }
-  .hover {
-    &:hover {
-      color: red;
-      cursor: pointer;
+    padding: 20px;
+    * {
+      font-size: 16px;
     }
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   }
-  .slidebar-child {
-    font-size: 14px;
-    text-align: left;
-    &:not(:first-child) {
-      margin-top: 20px;
-    }
-    li {
-      list-style: none;
-      font-size: 14px;
-    }
-  }
-  .slidebar-child {
-    list-style: none;
-    padding: 0;
-  }
-
-  .slidebar-child li {
-    margin: 10px 0;
-    padding: 5px 10px;
-    background-color: #f0f0f0;
-    border: 1px solid #ccc;
+  .hover:hover {
     cursor: pointer;
-    transition: background-color 0.3s ease;
   }
-
-  .slidebar-child li:hover {
-    background-color: #ddd;
-  }
-
-  .slidebar-child li {
-    color: #333;
-    font-size: 14px;
-  }
-  .user {
+  .sidebar {
+    max-height: 400px;
+    width: 250px;
+    background-color: #fff;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+    padding: 20px;
+    margin-right: 20px;
     display: flex;
-    .user-button {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding-left: 10px;
-      text-align: right;
-    }
-  }
-  .slidebar {
-    padding-top: 10vh;
-    display: flex;
+    flex-wrap: wrap;
     flex-direction: column;
-    justify-content: flex-start;
-    background-color: transparent;
-    padding-left: 5vw;
-    img {
-      height: 20px;
-      width: 20px;
+    * {
+      font-size: 16px;
     }
-    @media screen and (max-width: 1000px) {
-      padding-left: 0;
-    }
+  }
 
-    img {
-      max-width: 40px;
-      max-height: 40px;
+  .sidebar-child {
+    margin-bottom: 10px;
+    cursor: pointer;
+    padding: 10px 0;
+  }
+  .active-choose {
+    background-color: #f5f5f5;
+  }
+  .sidebar-child svg {
+    width: 24px;
+    height: 24px;
+    margin-right: 10px;
+  }
+  .user-section {
+    display: flex;
+    flex-direction: row;
+  }
+  .user-section img {
+    max-width: 40px;
+    max-height: 40px;
+    border-radius: 50%;
+    margin-right: 5px;
+  }
+  .user-section > div {
+    text-align: left;
+  }
+
+  .user-button {
+    text-align: center;
+  }
+
+  .my-account {
+    cursor: pointer;
+  }
+  .my-account > ul,
+  .my-account > div {
+    width: 100%;
+  }
+
+  .my-account img {
+    width: 30px;
+    height: 30px;
+    margin-right: 10px;
+  }
+
+  .order {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+  }
+
+  .order img {
+    width: 30px;
+    height: 30px;
+    margin-right: 10px;
+  }
+
+  @media screen and (max-width: 1000px) {
+    .user-section {
+      display: none;
+    }
+    .sidebar {
+      flex: 1;
+      margin-bottom: 10px;
+      flex-direction: row;
+      min-width: 100%;
+    }
+    .sidebar-child {
+      flex: 1;
+    }
+    .sidebar-child:nth-child(3) {
+      display: flex;
+      align-items: flex-start;
+    }
+    .my-account {
+      flex-direction: column;
+    }
+  }
+  @media screen and (max-width: 756px) {
+    .sidebar-child {
+      min-width: 50%;
     }
   }
 `;

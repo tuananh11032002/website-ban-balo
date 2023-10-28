@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useContext } from "react";
 import * as signalR from "@microsoft/signalr";
 import styled from "styled-components";
 import { useStateProvider } from "./StateProvider/StateProvider";
@@ -6,7 +6,8 @@ import checkAndRenewToken from "./Token/token";
 import { getMessageWithUserId, getUserMessage } from "./Axios/web";
 import { FcHome } from "react-icons/fc";
 import { useNavigate } from "react-router-dom";
-function App({ occupy = null }) {
+import { AdminContext } from "./AdminPage/Admin";
+function App() {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
   const [role, setRole] = useState("user");
@@ -17,6 +18,20 @@ function App({ occupy = null }) {
   const inputRef = useRef(null);
   const navigate = useNavigate();
   const [{ connection }, dispatch] = useStateProvider();
+  const [dataContext, setDataContext] = useState({
+    closeMenu: null,
+    occupy: null,
+  });
+
+  const contextTemp = useContext(AdminContext);
+  useEffect(() => {
+    if (contextTemp) {
+      setDataContext({
+        closeMenu: contextTemp.closeMenu,
+        occupy: contextTemp.occupy,
+      });
+    }
+  }, []);
 
   //get user message
   useEffect(() => {
@@ -160,11 +175,29 @@ function App({ occupy = null }) {
 
   const handleUserClick = (user) => {
     setSelectedUser(user);
+    if (isPhone && isOpenUser) {
+      setIsOpenUser(false);
+    }
   };
+  const [isPhone, setIsPhone] = useState(window.innerWidth < 756);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsPhone(window.innerWidth <= 756);
+    };
+
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+  const [isOpenUser, setIsOpenUser] = useState(false);
+
   return (
     <>
-      <Container height={occupy}>
-        <div className="user">
+      <Container height={dataContext.occupy}>
+        <div className={`user ${isOpenUser ? "show-user" : null}`}>
           {user?.map((user, index) => {
             return (
               <div
@@ -196,6 +229,16 @@ function App({ occupy = null }) {
 
         <div className="chat-box">
           <div className="action">
+            {isPhone ? (
+              <div
+                className={`container-bar`}
+                onClick={() => setIsOpenUser(!isOpenUser)}
+              >
+                <div className="bar"></div>
+                <div className="bar"></div>
+                <div className="bar"></div>
+              </div>
+            ) : null}
             <FcHome
               onClick={() => {
                 navigate("/");
@@ -238,6 +281,7 @@ const Container = styled.div`
   justify-content: center;
   height: ${(props) =>
     props.height != null ? `${props.height - 30}px` : "100vh"};
+
   max-height: 100%;
   background-color: white;
   width: 100%;
@@ -245,8 +289,11 @@ const Container = styled.div`
   .user {
     display: flex;
     flex-direction: column;
-    width: 20%;
     overflow-y: auto;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 5px;
+    margin-right: 10px;
     /* CSS cho lớp con 'user-single' */
     .user-single {
       display: flex;
@@ -256,6 +303,7 @@ const Container = styled.div`
       border: 1px solid #ccc;
       transition: background-color 0.2s; /* Hiệu ứng màu nền */
       width: 100%;
+      border-radius: 5px;
     }
 
     .user-single:hover {
@@ -295,11 +343,26 @@ const Container = styled.div`
   .chat-box {
     flex: 1;
     border: 1px solid #ccc;
-    border-radius: 8px;
+    padding: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    border-radius: 5px;
     overflow: hidden;
     display: flex;
     flex-direction: column; /* Hiển thị tin nhắn từ trên xuống dưới */
     height: 100%;
+    .action {
+      display: flex;
+      align-items: center;
+    }
+    .container-bar {
+      margin-right: 10px;
+    }
+    .bar {
+      height: 3px;
+      width: 25px;
+      background-color: black;
+      margin: 3px 0;
+    }
     .message-list {
       flex: 1; /* Đặt chiều cao tự động */
       display: flex;
@@ -359,6 +422,21 @@ const Container = styled.div`
   svg {
     height: 40px;
     width: 40px;
+  }
+  @media screen and (max-width: 756px) {
+    height: ${(props) =>
+      props.height != null ? `${props.height - 50}px` : "90vh"};
+    .user {
+      display: none;
+    }
+    .show-user {
+      background-color: white;
+      display: flex;
+      z-index: 1;
+      max-width: 50%;
+    }
+    .chat-box {
+    }
   }
 `;
 export default App;
