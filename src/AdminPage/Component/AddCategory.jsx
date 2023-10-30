@@ -1,11 +1,52 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { MdClose } from "react-icons/md";
 import styled from "styled-components";
+import { addCategory, addFile } from "../../Axios/web";
+import { useStateProvider } from "../../StateProvider/StateProvider";
+import { reducerCases } from "../../StateProvider/reducer";
 
 export const AddCategory = ({ setAddCategory }) => {
+  const [name, setName] = useState("");
+  const [title, setTitle] = useState("");
+  const [files, setFile] = useState([]);
+  const [{user},dispatch] = useStateProvider();
+
+  const handleFileChange = (e) => {
+    let file = e.target.files[0];
+    setFile((prevFiles)=>[...prevFiles, file]);
+    // if (file && file.type === "image/jpeg" && file.size < 1000000) {
+    //   // Only accept JPEG files smaller than 1 MB
+    //   
+    // } else {
+    //   // Handle invalid file input
+    // }
+  };
+  const handleSubmit = async(e)=>{
+    e.preventDefault();
+    const idFile = await addFile(files);
+    console.log("idFile:",idFile);
+    // const userTmp = user; 
+    // userTmp.token = idFile.resetToken;
+    // dispatch({type:reducerCases.SET_USER, user: userTmp});
+    const userTmp = localStorage.getItem("webbanbalo_user");
+    let userTmp1 = JSON.parse(userTmp);
+    userTmp1.token = idFile.resetToken;
+    await localStorage.setItem("webbanbalo_user", JSON.stringify(userTmp1));
+    const idImg = idFile.data.data.id;//get id image
+    if(idFile.resetToken != null){
+      console.log("idImg", idImg);
+      const data = await addCategory({name:name, icon:idImg});
+      console.log("newCate:",data);
+      userTmp1.token = data.resetToken;
+      await localStorage.setItem("webbanbalo_user", JSON.stringify(userTmp1));
+    }else {
+
+    }
+  };
+  
   return (
     <Container>
-      <form>
+      <form onSubmit={handleSubmit}>
         <span
           className="close-button"
           onClick={() => {
@@ -14,9 +55,9 @@ export const AddCategory = ({ setAddCategory }) => {
         >
           <MdClose />
         </span>
-        <input type="text" placeholder="Name Category" />
-        <input type="text" placeholder="Title" />
-        <input type="file" />
+        <input type="text" value={name} onChange={(e)=>{setName(e.target.value)}} placeholder="Name Category" />
+        <input type="text" value={title} onChange={(e)=>{setTitle(e.target.value)}} placeholder="Title" />
+        <input type="file" onChange={handleFileChange} />
         <div className="select-wrapper">
           <label>Status</label>
           <select>
@@ -25,7 +66,7 @@ export const AddCategory = ({ setAddCategory }) => {
             <option value="option3">Option 3</option>
           </select>
         </div>
-        <button>Add</button>
+        <button type="submit">Add</button>
       </form>
     </Container>
   );

@@ -7,68 +7,33 @@ import styled from "styled-components";
 import Pagination from "./Pagination";
 import { RiRefundFill } from "react-icons/ri";
 import { useNavigate } from "react-router-dom";
+import { useStateProvider } from "../../StateProvider/StateProvider";
+import { reducerCases } from "../../StateProvider/reducer";
+import { getListOrder } from "../../Axios/web";
 
 const OrderList = () => {
   const navigate = useNavigate();
-  const [data, setData] = useState([
-    {
-      orderId: "123",
-      order: "#6979",
-      date: "Apr 15, 2023, 10:21",
-      customerName: "TUAN ANH HANDSOME",
-      customerImage:
-        "https://demos.themeselection.com/materio-bootstrap-html-admin-template/assets/img/avatars/19.png",
-      customerEmail: "tuaananh@gmail.com",
-      payment: "pending",
-      status: "delivered",
-      methodPament: "***789",
-      imageMethodPayment:
-        "https://demos.themeselection.com/materio-bootstrap-html-admin-template/assets/img/icons/payments/mastercard.png",
-    },
-    {
-      orderId: "123",
-      order: "#6979",
-      date: "Apr 15, 2023, 10:21",
-      customerName: "TUAN ANH HANDSOME",
-      customerImage:
-        "https://demos.themeselection.com/materio-bootstrap-html-admin-template/assets/img/avatars/19.png",
-      customerEmail: "tuaananh@gmail.com",
-      payment: "Failed",
-      status: "Out for Delivery",
-      methodPament: "***789",
-      imageMethodPayment:
-        "https://demos.themeselection.com/materio-bootstrap-html-admin-template/assets/img/icons/payments/paypal_logo.png",
-    },
-    {
-      orderId: "123",
-      order: "#6979",
-      date: "Apr 15, 2023, 10:21",
-      customerName: "TUAN ANH HANDSOME",
-      customerImage:
-        "https://demos.themeselection.com/materio-bootstrap-html-admin-template/assets/img/avatars/19.png",
-      customerEmail: "tuaananh@gmail.com",
-      payment: "Paid",
-      status: "Dispatched",
-      methodPament: "***789",
-      imageMethodPayment:
-        "https://demos.themeselection.com/materio-bootstrap-html-admin-template/assets/img/icons/payments/paypal_logo.png",
-    },
-    {
-      order: "#6979",
-      date: "Apr 15, 2023, 10:21",
-      customerName: "TUAN ANH HANDSOME",
-      customerImage:
-        "https://demos.themeselection.com/materio-bootstrap-html-admin-template/assets/img/avatars/19.png",
-      customerEmail: "tuaananh@gmail.com",
-      payment: "Cancelled",
-      status: "Ready to Pickup",
-      methodPament: "***789",
-      imageMethodPayment:
-        "https://demos.themeselection.com/materio-bootstrap-html-admin-template/assets/img/icons/payments/paypal_logo.png",
-    },
-  ]);
+  const [data, setData] = useState([]);
   const [selectAll, setSelectAll] = useState(false);
-
+  const [{ listCustomer }, dispatch] = useStateProvider();
+  const [index, setIndex] = useState(5);
+  const [page, setPage] = useState(1);
+  const [totalItem, setTotalItem] = useState();
+  
+  useEffect(() => {
+    const fetchData = async () => {
+      const res = await getListOrder({ index: index, page:page });
+      setData(res.data.orderList);
+      setTotalItem(res.data.totalItemCount);
+      //resetToken
+      const userTmp = localStorage.getItem("webbanbalo_user");
+      let userTmp1 = JSON.parse(userTmp);
+      userTmp1.token = res.resetToken;
+      await localStorage.setItem("webbanbalo_user", JSON.stringify(userTmp1));
+      //end resetToken
+    };
+    fetchData();      
+  }, [])
   const [checkboxes, setCheckboxes] = useState(Array(data.length).fill(false));
 
   const toggleSelectAll = () => {
@@ -221,9 +186,9 @@ const OrderList = () => {
       </div>
       <Pagination
         obj={{
-          pageNow: 1,
-          size: selectedValue,
-          totalProduct: 100,
+          pageNow: page,
+          size: index,
+          totalProduct: totalItem,
         }}
       />
     </Container>

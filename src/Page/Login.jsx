@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import { Login } from "../Axios/web";
+import { login } from "../Axios/web";
 import ProductAddedMessage from "../Component/Body/ProductAddedMessage";
 import { useNavigate } from "react-router-dom";
 import { useStateProvider } from "../StateProvider/StateProvider";
@@ -71,16 +71,13 @@ const LoginPage = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    console.log("login");
-    const data = await Login({ password, username });
-    if (data.success) {
-      setShowProductAdded(true);
-      dispatch({ type: reducerCases.SET_USER, user: data });
-      localStorage.setItem("webbanbalo_user", JSON.stringify(data));
-      setTimeout(() => {
-        navigate("/");
-      }, 500);
-    }
+    const data = await login({ password:password, username:username });
+    setShowProductAdded(true);
+    dispatch({ type: reducerCases.SET_USER, user: data });
+    await localStorage.setItem("webbanbalo_user", JSON.stringify(data));
+    setTimeout(() => {
+      navigate("/");
+    }, 500);
   };
   const [showProductAdded, setShowProductAdded] = useState(false);
   const handleCloseMessage = () => {

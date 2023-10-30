@@ -52,7 +52,7 @@ function App() {
         connectionHub = new signalR.HubConnectionBuilder()
           .withUrl("https://localhost:44301/messageHub", {
             accessTokenFactory: async () => {
-              await checkAndRenewToken();
+              // await checkAndRenewToken();
               const token = JSON.parse(localStorage.getItem("webbanbalo_user"))
                 .token.accessToken;
               return token;

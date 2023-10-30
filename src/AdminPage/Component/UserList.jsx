@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { AiOutlineUser, AiOutlinePlus } from "react-icons/ai";
 import { BiSolidDiscount, BiUser, BiUserCheck } from "react-icons/bi";
 import { TbAffiliate } from "react-icons/tb";
@@ -11,61 +11,33 @@ import Pagination from "./Pagination";
 import { useNavigate } from "react-router-dom";
 import { AdminContext } from "../Admin";
 import { GrUserAdmin } from "react-icons/gr";
+import { useStateProvider } from "../../StateProvider/StateProvider";
+import { reducerCases } from "../../StateProvider/reducer";
+import { getListAccount } from "../../Axios/web";
 
 const UserList = () => {
-  const [data, setData] = useState([
-    {
-      id: 1,
-      role: "admin",
-      image:
-        "https://demos.themeselection.com/materio-bootstrap-html-admin-template/assets/img/avatars/2.png",
-      category: "Shoes",
-      displayName: "TRAN TUAN ANH",
-      userName: "@zmcclevertye",
-      email: "zmcclevertye@soundcloud.com",
-      status: "active",
-      action: "none",
-    },
-    {
-      id: 1,
-      role: "admin",
-      image:
-        "https://demos.themeselection.com/materio-bootstrap-html-admin-template/assets/img/avatars/7.png",
-      displayName: "TRAN TUAN ANH",
-      userName: "@zmcclevertye",
-      email: "zmcclevertye@soundcloud.com",
-      status: "active",
-      action: "none",
-    },
-    {
-      id: 1,
-      role: "user",
-      displayName: "TRAN TUAN ANH",
-      userName: "@zmcclevertye",
-      email: "zmcclevertye@soundcloud.com",
-      image:
-        "https://demos.themeselection.com/materio-bootstrap-html-admin-template/assets/img/avatars/6.png",
-      category: "Shoes",
-
-      status: "inactive",
-      action: "none",
-    },
-    {
-      id: 1,
-      role: "user",
-
-      displayName: "TRAN TUAN ANH",
-      userName: "@zmcclevertye",
-      email: "zmcclevertye@soundcloud.com",
-      image:
-        "https://demos.themeselection.com/materio-bootstrap-html-admin-template/assets/img/avatars/6.png",
-
-      status: "active",
-      action: "none",
-    },
-  ]);
+  const [data, setData] = useState([]);
   const navigate = useNavigate();
   const [selectAll, setSelectAll] = useState(false);
+  const [{ listCustomer }, dispatch] = useStateProvider();
+  const [index, setIndex] = useState(5);
+  const [page, setPage] = useState(1);
+  const [totalItem, setTotalItem] = useState();
+  
+  useEffect(() => {
+    const fetchData = async () => {
+      const res = await getListAccount({ index: index, page:page });
+      setData(res.data.userList);
+      setTotalItem(res.data.totalItemCount);
+      //resetToken
+      const userTmp = localStorage.getItem("webbanbalo_user");
+      let userTmp1 = JSON.parse(userTmp);
+      userTmp1.token = res.resetToken;
+      await localStorage.setItem("webbanbalo_user", JSON.stringify(userTmp1));
+      //end resetToken
+    };
+    fetchData();      
+  }, [])
 
   const [checkboxes, setCheckboxes] = useState(Array(data.length).fill(false));
 
@@ -314,7 +286,7 @@ const UserList = () => {
                               navigate(`/admin/account-detail/${product.id}`);
                             }}
                           >
-                            {product.displayName}
+                            {product.name}
                           </div>
                           <div>{product.userName}</div>
                         </div>
@@ -326,9 +298,9 @@ const UserList = () => {
                       {product.role}
                     </td>
 
-                    <td className={`${product.status.toLowerCase()}-user`}>
+                    {/* <td className={`${product.status.toLowerCase()}-user`}>
                       <span>{product.status}</span>
-                    </td>
+                    </td> */}
                     <td>{product.action}</td>
                   </tr>
                 ))}
@@ -338,9 +310,9 @@ const UserList = () => {
         </div>
         <Pagination
           obj={{
-            pageNow: 1,
-            size: selectedValue,
-            totalProduct: 100,
+            pageNow: page,
+            size: index,
+            totalProduct: totalItem,
           }}
         />
       </Container>

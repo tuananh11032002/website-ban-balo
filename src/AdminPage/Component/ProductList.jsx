@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { AiOutlineClose, AiOutlineHome, AiOutlinePlus } from "react-icons/ai";
 import { BiSolidDiscount } from "react-icons/bi";
 import { TbAffiliate } from "react-icons/tb";
@@ -8,66 +8,37 @@ import styled from "styled-components";
 import Pagination from "./Pagination";
 import { useNavigate } from "react-router-dom";
 import { AdminContext } from "../Admin";
+import { useStateProvider } from "../../StateProvider/StateProvider";
+import { reducerCases } from "../../StateProvider/reducer";
+import { getListProductForAdmin } from "../../Axios/web";
 
 const ProductList = () => {
   const { closeMenu } = useContext(AdminContext);
 
-  const [data, setData] = useState([
-    {
-      title: "Air Jordan is a line of basketball shoes produced by Nike",
-      name: "xxxx",
-      image:
-        "https://demos.themeselection.com/materio-bootstrap-html-admin-template/assets/img/ecommerce-images/product-9.png",
-      category: "Shoes",
-      price: "$125",
-      qty: 110,
-      stock: true,
-      status: "publish",
-      action: "none",
-    },
-    {
-      title: "Air Jordan is a line of basketball shoes produced by Nike",
-
-      name: "xxxx",
-      image:
-        "https://demos.themeselection.com/materio-bootstrap-html-admin-template/assets/img/ecommerce-images/product-9.png",
-      category: "Shoes",
-      price: "$125",
-      qty: 110,
-      stock: true,
-      status: "publish",
-      action: "none",
-    },
-    {
-      title: "Air Jordan is a line of basketball shoes produced by Nike",
-
-      name: "xxxx",
-      image:
-        "https://demos.themeselection.com/materio-bootstrap-html-admin-template/assets/img/ecommerce-images/product-9.png",
-      category: "Shoes",
-      price: "$125",
-      qty: 110,
-      stock: true,
-      status: "Scheduled",
-      action: "none",
-    },
-    {
-      title: "Air Jordan is a line of basketball shoes produced by Nike",
-
-      name: "xxxx",
-      image:
-        "https://demos.themeselection.com/materio-bootstrap-html-admin-template/assets/img/ecommerce-images/product-9.png",
-      category: "Shoes",
-      price: "$125",
-      qty: 110,
-      stock: true,
-      status: "Inactive",
-      action: "none",
-    },
-  ]);
+  const [data, setData] = useState([]);
   const [selectAll, setSelectAll] = useState(false);
-  const [checkStock, setCheckStock] = useState(data.map((item) => item.stock));
+  const [{ listCustomer }, dispatch] = useStateProvider();
+  const [index, setIndex] = useState(5);
+  const [page, setPage] = useState(1);
+  const [totalItem, setTotalItem] = useState();
+  
+  useEffect(() => {
+    const fetchData = async () => {
+      const res = await getListProductForAdmin({ index: index, page:page });
+      setData(res.data.productList);
+      setTotalItem(res.data.totalItemCount);
+      //resetToken
+      const userTmp = localStorage.getItem("webbanbalo_user");
+      let userTmp1 = JSON.parse(userTmp);
+      userTmp1.token = res.resetToken;
+      await localStorage.setItem("webbanbalo_user", JSON.stringify(userTmp1));
+      //end resetToken
+    };
+    fetchData();      
+  }, [])
 
+
+  // const [checkStock, setCheckStock] = useState(data.map((item) => item.stock));
   const [checkboxes, setCheckboxes] = useState(Array(data.length).fill(false));
 
   const toggleSelectAll = () => {
@@ -129,13 +100,13 @@ const ProductList = () => {
                       <label className="toggle-label">
                         <input
                           type="checkbox"
-                          checked={checkStock[currentIndex]}
-                          onChange={() => {
-                            const newCheckStock = [...checkStock];
-                            newCheckStock[currentIndex] =
-                              !newCheckStock[currentIndex];
-                            setCheckStock(newCheckStock);
-                          }}
+                          // checked={checkStock[currentIndex]}
+                          // onChange={() => {
+                          //   const newCheckStock = [...checkStock];
+                          //   newCheckStock[currentIndex] =
+                          //     !newCheckStock[currentIndex];
+                          //   setCheckStock(newCheckStock);
+                          // }}
                         />
                         <span class="toggle-slider"></span>
                       </label>
@@ -317,14 +288,14 @@ const ProductList = () => {
                     <td colSpan="3">
                       <div className="td-flex">
                         <img
-                          src={product.image}
+                          src={product.mainFile}
                           alt=""
                           width="40px"
                           height="40px"
                         />
                         <div>
                           <div>{product.name}</div>
-                          <div>{product.title}</div>
+                          <div>{product.code}</div>
                         </div>
                       </div>
                     </td>
@@ -333,18 +304,18 @@ const ProductList = () => {
                       <label className="toggle-label">
                         <input
                           type="checkbox"
-                          checked={checkStock[index]}
-                          onChange={() => {
-                            const newCheckStock = [...checkStock];
-                            newCheckStock[index] = !newCheckStock[index];
-                            setCheckStock(newCheckStock);
-                          }}
+                          // checked={checkStock[index]}
+                          // onChange={() => {
+                          //   const newCheckStock = [...checkStock];
+                          //   newCheckStock[index] = !newCheckStock[index];
+                          //   setCheckStock(newCheckStock);
+                          // }}
                         />
                         <span class="toggle-slider"></span>
                       </label>
                     </td>
-                    <td>{product.price}</td>
-                    <td>{product.qty}</td>
+                    <td>{product.unitPrice}</td>
+                    <td>{product.totalItem}</td>
                     <td className={product.status}>
                       <span>{product.status}</span>
                     </td>
@@ -356,9 +327,9 @@ const ProductList = () => {
         </div>
         <Pagination
           obj={{
-            pageNow: 1,
-            size: selectedValue,
-            totalProduct: 100,
+            pageNow: page,
+            size: index,
+            totalProduct: totalItem,
           }}
         />
       </Container>

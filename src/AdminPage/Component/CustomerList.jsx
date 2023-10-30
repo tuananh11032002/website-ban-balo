@@ -1,64 +1,41 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { AiOutlineHome, AiOutlinePlus } from "react-icons/ai";
 import { BiSolidDiscount } from "react-icons/bi";
 import { TbAffiliate } from "react-icons/tb";
 import { MdWeb } from "react-icons/md";
-
 import styled from "styled-components";
 import Pagination from "./Pagination";
 import { useNavigate } from "react-router-dom";
+import { useStateProvider } from "../../StateProvider/StateProvider";
+import { reducerCases } from "../../StateProvider/reducer";
+import { getListAccount } from "../../Axios/web";
 
 const CustomerList = () => {
   const navigate = useNavigate();
-  const [data, setData] = useState([
-    {
-      id: 1,
-      name: "xxxx",
-      image:
-        "https://demos.themeselection.com/materio-bootstrap-html-admin-template/assets/img/avatars/17.png",
-      customerId: "#1234",
-      totalSpent: "$125",
-      order: 110,
-      country: "Ukraine",
-      mail: "zarton8@weibo.com",
-    },
-    {
-      id: 1,
-      name: "xxxx",
-      image:
-        "https://demos.themeselection.com/materio-bootstrap-html-admin-template/assets/img/avatars/17.png",
-      customerId: "#1234",
-      totalSpent: "$125",
-      order: 110,
-      country: "Ukraine",
-      mail: "zarton8@weibo.com",
-    },
-    {
-      id: 1,
-      name: "xxxx",
-      image:
-        "https://demos.themeselection.com/materio-bootstrap-html-admin-template/assets/img/avatars/17.png",
-      customerId: "#1234",
-      mail: "zarton8@weibo.com",
-      totalSpent: "$125",
-      order: 110,
-      country: "Ukraine",
-    },
-    {
-      id: 1,
-      name: "xxxx",
-      mail: "zarton8@weibo.com",
-      image:
-        "https://demos.themeselection.com/materio-bootstrap-html-admin-template/assets/img/avatars/17.png",
-      customerId: "#1234",
-      totalSpent: "$125",
-      order: 110,
-      country: "Ukraine",
-    },
-  ]);
+  const [data, setData] = useState([]);
   const [selectAll, setSelectAll] = useState(false);
-  const [checkStock, setCheckStock] = useState(data.map((item) => item.stock));
-
+  const [{ listCustomer }, dispatch] = useStateProvider();
+  const [index, setIndex] = useState(5);
+  const [page, setPage] = useState(1);
+  const [search, setSearch] = useState("Member");
+  const [totalItem, setTotalItem] = useState();
+  //role member
+  useEffect(() => {
+    const fetchData = async () => {
+      const res = await getListAccount({ index: index, page:page, search:search });
+      setData(res.data.userList);
+      setTotalItem(res.data.totalItemCount);
+      //resetToken
+      const userTmp = localStorage.getItem("webbanbalo_user");
+      let userTmp1 = JSON.parse(userTmp);
+      userTmp1.token = res.resetToken;
+      await localStorage.setItem("webbanbalo_user", JSON.stringify(userTmp1));
+      //end resetToken
+    };
+    fetchData();      
+  }, [])
+  
+  
   const [checkboxes, setCheckboxes] = useState(Array(data.length).fill(false));
 
   const toggleSelectAll = () => {
@@ -145,11 +122,11 @@ const CustomerList = () => {
                         >
                           {product.name}
                         </div>
-                        <div>{product.mail}</div>
+                        <div>{product.userName}</div>
                       </div>
                     </div>
                   </td>
-                  <td>{product.customerId}</td>
+                  <td>{product.id}</td>
 
                   <td>{product.country}</td>
                   <td>{product.order}</td>
@@ -162,9 +139,9 @@ const CustomerList = () => {
       </div>
       <Pagination
         obj={{
-          pageNow: 1,
-          size: selectedValue,
-          totalProduct: 100,
+          pageNow: page,
+          size: index,
+          totalProduct: totalItem,
         }}
       />
     </Container>

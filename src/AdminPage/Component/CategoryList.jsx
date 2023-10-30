@@ -1,68 +1,34 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
 
 import styled from "styled-components";
 import Pagination from "./Pagination";
 import { AddCategory } from "./AddCategory";
 import { AdminContext } from "../Admin";
+import { useStateProvider } from "../../StateProvider/StateProvider";
+import { reducerCases } from "../../StateProvider/reducer";
+import { getListCategory, getCategory } from "../../Axios/web";
 
 const CategoryList = () => {
   const { closeMenu } = useContext(AdminContext);
-  const [data, setData] = useState([
-    {
-      id: 1,
-      name: "xxxx",
-      image:
-        "https://demos.themeselection.com/materio-bootstrap-html-admin-template/assets/img/ecommerce-images/product-5.png",
-      category: "Accessories",
-      totalProduct: 4186,
-      totalEarning: "$7912.99",
-      action: "none",
-    },
-    {
-      id: 1,
-      name: "xxxx",
-      image:
-        "https://demos.themeselection.com/materio-bootstrap-html-admin-template/assets/img/ecommerce-images/product-5.png",
-      category: "Accessories",
-      totalProduct: 4186,
-      totalEarning: "$7912.99",
-      action: "none",
-    },
-    {
-      id: 1,
-      name: "xxxx",
-      image:
-        "https://demos.themeselection.com/materio-bootstrap-html-admin-template/assets/img/ecommerce-images/product-5.png",
-      category: "Accessories",
-      totalProduct: 4186,
-      totalEarning: "$7912.99",
-      action: "none",
-    },
-    {
-      id: 1,
-      name: "xxxx",
-      image:
-        "https://demos.themeselection.com/materio-bootstrap-html-admin-template/assets/img/ecommerce-images/product-5.png",
-      category: "Accessories",
-      totalProduct: 4186,
-      totalEarning: "$7912.99",
-      action: "none",
-    },
-    {
-      id: 1,
-      name: "xxxx",
-      image:
-        "https://demos.themeselection.com/materio-bootstrap-html-admin-template/assets/img/ecommerce-images/product-5.png",
-      category: "Accessories",
-      totalProduct: 4186,
-      totalEarning: "$7912.99",
-      action: "none",
-    },
-  ]);
+  const [data, setData] = useState([]);
   const [selectAll, setSelectAll] = useState(false);
-  const [checkStock, setCheckStock] = useState(data.map((item) => item.stock));
+  const [{ listCategory }, dispatch] = useStateProvider();
+  const [index, setIndex] = useState(5);
+  const [page, setPage] = useState(1);
+  const [totalItem, setTotalItem] = useState();
+  
+  useEffect(() => {
+    const fetchData = async () => {
+      const res = await getListCategory({ index: index, page:page });
+      setData(res.data.productCategory);
+      setTotalItem(res.data.totalItemCount);
+      dispatch({ listCategory: res.data.productCategory, type: reducerCases.SET_LISTCATEGORY });
+    };
+    fetchData();      
+  }, [])
 
+  // const [checkStock, setCheckStock] = useState(data.map((item) => item.stock));
   const [checkboxes, setCheckboxes] = useState(Array(data.length).fill(false));
 
   const toggleSelectAll = () => {
@@ -76,7 +42,7 @@ const CategoryList = () => {
     setCheckboxes(newCheckboxes);
   };
 
-  const [selectedValue, setSelectedValue] = useState("7");
+  const [selectedValue, setSelectedValue] = useState(index);
   const [addCategory, setAddCategory] = useState(false);
   return (
     <Container>
@@ -141,6 +107,7 @@ const CategoryList = () => {
                     />
                   </td>
                   <td>
+                    {category.name}
                     <div className="td-flex">
                       <img
                         src={category.image}
@@ -153,7 +120,7 @@ const CategoryList = () => {
                   </td>
                   <td>{category.totalProduct}</td>
 
-                  <td>{category.totalEarning}</td>
+                  <td>{category.totalProfit}</td>
 
                   <td>{category.action}</td>
                 </tr>
@@ -164,9 +131,9 @@ const CategoryList = () => {
       </div>
       <Pagination
         obj={{
-          pageNow: 1,
-          size: selectedValue,
-          totalProduct: 100,
+          pageNow: page,
+          size: index,
+          totalProduct: totalItem,
         }}
       />
     </Container>
