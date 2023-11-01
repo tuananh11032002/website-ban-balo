@@ -15,14 +15,14 @@ const CustomerList = () => {
   const [data, setData] = useState([]);
   const [selectAll, setSelectAll] = useState(false);
   const [{ listCustomer }, dispatch] = useStateProvider();
-  const [index, setIndex] = useState(5);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("Member");
   const [totalItem, setTotalItem] = useState();
+  const [selectedValue, setSelectedValue] = useState("7");
   //role member
   useEffect(() => {
     const fetchData = async () => {
-      const res = await getListAccount({ index: index, page:page, search:search });
+      const res = await getListAccount({ index: selectedValue, page:page, search: "Member" });
       setData(res.data.userList);
       setTotalItem(res.data.totalItemCount);
       //resetToken
@@ -33,7 +33,7 @@ const CustomerList = () => {
       //end resetToken
     };
     fetchData();      
-  }, [])
+  }, [page, selectedValue])
   
   
   const [checkboxes, setCheckboxes] = useState(Array(data.length).fill(false));
@@ -48,7 +48,7 @@ const CustomerList = () => {
     newCheckboxes[index] = !newCheckboxes[index];
     setCheckboxes(newCheckboxes);
   };
-  const [selectedValue, setSelectedValue] = useState("7");
+  
   return (
     <Container>
       <h1>eCommerce / Customer List</h1>
@@ -116,7 +116,7 @@ const CustomerList = () => {
                           style={{ fontWeight: "bold", cursor: "pointer" }}
                           onClick={() => {
                             navigate(
-                              `/admin/customer-detail/${product.customerId}`
+                              `/admin/customer-detail/${product.id}`
                             );
                           }}
                         >
@@ -140,9 +140,10 @@ const CustomerList = () => {
       <Pagination
         obj={{
           pageNow: page,
-          size: index,
+          size: selectedValue,
           totalProduct: totalItem,
         }}
+        setPageNow={setPage}
       />
     </Container>
   );

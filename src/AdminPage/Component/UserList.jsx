@@ -20,13 +20,19 @@ const UserList = () => {
   const navigate = useNavigate();
   const [selectAll, setSelectAll] = useState(false);
   const [{ listCustomer }, dispatch] = useStateProvider();
-  const [index, setIndex] = useState(5);
   const [page, setPage] = useState(1);
   const [totalItem, setTotalItem] = useState();
-  
+  const [selectedValue, setSelectedValue] = useState("7");
+  const [formData, setFormData] = useState({
+    fullName: "",
+    email: "",
+    phoneNumber: "",
+    selection: "User",
+  });
+
   useEffect(() => {
     const fetchData = async () => {
-      const res = await getListAccount({ index: index, page:page });
+      const res = await getListAccount({ index: selectedValue, page:page });
       setData(res.data.userList);
       setTotalItem(res.data.totalItemCount);
       //resetToken
@@ -37,7 +43,7 @@ const UserList = () => {
       //end resetToken
     };
     fetchData();      
-  }, [])
+  }, [page, selectedValue])
 
   const [checkboxes, setCheckboxes] = useState(Array(data.length).fill(false));
 
@@ -51,13 +57,6 @@ const UserList = () => {
     newCheckboxes[index] = !newCheckboxes[index];
     setCheckboxes(newCheckboxes);
   };
-  const [selectedValue, setSelectedValue] = useState("7");
-  const [formData, setFormData] = useState({
-    fullName: "",
-    email: "",
-    phoneNumber: "",
-    selection: "User",
-  });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -311,9 +310,10 @@ const UserList = () => {
         <Pagination
           obj={{
             pageNow: page,
-            size: index,
+            size: selectedValue,
             totalProduct: totalItem,
           }}
+          setPageNow={setPage}
         />
       </Container>
     </>

@@ -14,19 +14,19 @@ const CategoryList = () => {
   const [data, setData] = useState([]);
   const [selectAll, setSelectAll] = useState(false);
   const [{ listCategory }, dispatch] = useStateProvider();
-  const [index, setIndex] = useState(5);
   const [page, setPage] = useState(1);
   const [totalItem, setTotalItem] = useState();
+  const [selectedValue, setSelectedValue] = useState("7");
   
   useEffect(() => {
     const fetchData = async () => {
-      const res = await getListCategory({ index: index, page:page });
+      const res = await getListCategory({ index: selectedValue, page:page });
       setData(res.data.productCategory);
       setTotalItem(res.data.totalItemCount);
       dispatch({ listCategory: res.data.productCategory, type: reducerCases.SET_LISTCATEGORY });
     };
     fetchData();      
-  }, [])
+  }, [page, selectedValue])
 
   // const [checkStock, setCheckStock] = useState(data.map((item) => item.stock));
   const [checkboxes, setCheckboxes] = useState(Array(data.length).fill(false));
@@ -42,7 +42,7 @@ const CategoryList = () => {
     setCheckboxes(newCheckboxes);
   };
 
-  const [selectedValue, setSelectedValue] = useState(index);
+  
   const [addCategory, setAddCategory] = useState(false);
   return (
     <Container>
@@ -132,9 +132,10 @@ const CategoryList = () => {
       <Pagination
         obj={{
           pageNow: page,
-          size: index,
+          size: selectedValue,
           totalProduct: totalItem,
         }}
+        setPageNow={setPage}
       />
     </Container>
   );

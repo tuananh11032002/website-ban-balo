@@ -1,20 +1,28 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
+import { useStateProvider } from "../../StateProvider/StateProvider";
+import { reducerCases } from "../../StateProvider/reducer";
+import { getAccountById } from "../../Axios/web";
+
 
 const AccountDetail = () => {
   const { id } = useParams();
-  const [customerData, setCustomerData] = useState({
-    displayName: "Lorine Hischke",
-    userId: "#45678",
-    numberOrder: 5674,
-    spent: 19800000,
-    userName: "lorine.hischke",
-    email: "vafgot@vultukir.org",
-    status: "Active",
-    contact: "(123) 456-7890",
-  });
+  const [customerData, setCustomerData] = useState({});
   const [isOpenEditAccount, setisOpenEditAccount] = useState(false);
+  useEffect(()=>{
+    const fetchData = async () => {
+      const res = await getAccountById(id);
+      setCustomerData(res.data.user);      
+      //resetToken
+      const userTmp = localStorage.getItem("webbanbalo_user");
+      let userTmp1 = JSON.parse(userTmp);
+      userTmp1.token = res.resetToken;
+      await localStorage.setItem("webbanbalo_user", JSON.stringify(userTmp1));
+      //end resetToken
+    };
+    fetchData(); 
+  },[])
   const [paymentData, setPaymentData] = useState([
     {
       id: 1,
@@ -43,6 +51,7 @@ const AccountDetail = () => {
       namePayment: "ZaloPay",
     },
   ]);
+  
   return (
     <>
       {isOpenEditAccount ? (
@@ -111,8 +120,8 @@ const AccountDetail = () => {
         <div className="card">
           <div className="customer-avatar">
             <img src={require("../../Assets/Image/account-male.png")} alt="" />
-            <div className="name">{customerData.displayName}</div>
-            <div>USER ID: {customerData.userId}</div>
+            <div className="name">{customerData.name}</div>
+            <div>USER ID: {customerData.id}</div>
           </div>
           <div className="customer-detail">
             <div className="title">DETAIL</div>
@@ -120,12 +129,12 @@ const AccountDetail = () => {
               <span className="bold">Username:</span> {customerData.userName}
             </div>
             <div className="info">
-              <span className="bold">Email:</span> {customerData.email}
+              <span className="bold">Email:</span> {customerData.userName}
             </div>
-            <div className={`status ${customerData?.status.toLowerCase()}`}>
+            {/* <div className={`status ${customerData?.status.toLowerCase()}`}>
               <small className="bold">Status:</small>
               <span>{customerData.status}</span>
-            </div>
+            </div> */}
             <div className="info">
               <span className="bold">Contact:</span> {customerData.contact}
             </div>

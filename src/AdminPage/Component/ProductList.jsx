@@ -18,13 +18,17 @@ const ProductList = () => {
   const [data, setData] = useState([]);
   const [selectAll, setSelectAll] = useState(false);
   const [{ listCustomer }, dispatch] = useStateProvider();
-  const [index, setIndex] = useState(5);
   const [page, setPage] = useState(1);
   const [totalItem, setTotalItem] = useState();
+  const [selectedValue, setSelectedValue] = useState("7");
+  const [openDetailProduct, setOpenDetailProduct] = useState(false);
+  const [contentDetailProduct, setContentDetailProduct] = useState(null);
+  const [currentIndex, setCurrentIndex] = useState(null);
+  const navigate = useNavigate();
   
   useEffect(() => {
     const fetchData = async () => {
-      const res = await getListProductForAdmin({ index: index, page:page });
+      const res = await getListProductForAdmin({ index: selectedValue, page:page });
       setData(res.data.productList);
       setTotalItem(res.data.totalItemCount);
       //resetToken
@@ -35,7 +39,7 @@ const ProductList = () => {
       //end resetToken
     };
     fetchData();      
-  }, [])
+  }, [page, selectedValue])
 
 
   // const [checkStock, setCheckStock] = useState(data.map((item) => item.stock));
@@ -55,11 +59,7 @@ const ProductList = () => {
     setContentDetailProduct(product);
     setOpenDetailProduct(true);
   };
-  const [selectedValue, setSelectedValue] = useState("7");
-  const [openDetailProduct, setOpenDetailProduct] = useState(false);
-  const [contentDetailProduct, setContentDetailProduct] = useState(null);
-  const [currentIndex, setCurrentIndex] = useState(null);
-  const navigate = useNavigate();
+
   return (
     <>
       {openDetailProduct ? (
@@ -328,9 +328,10 @@ const ProductList = () => {
         <Pagination
           obj={{
             pageNow: page,
-            size: index,
+            size: selectedValue,
             totalProduct: totalItem,
           }}
+          setPageNow={setPage}
         />
       </Container>
     </>

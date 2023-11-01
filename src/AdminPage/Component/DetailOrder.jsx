@@ -1,64 +1,33 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
 import { FaCartPlus } from "react-icons/fa";
+import { getOrder } from "../../Axios/web";
+
 const DetailOrder = () => {
   const { id } = useParams(); // Truy cập ID từ URL
   const [selectAll, setSelectAll] = useState(false);
-  const [detailData, setDetailData] = useState([
-    {
-      productImage:
-        "https://demos.themeselection.com/materio-bootstrap-html-admin-template/assets/img/products/woodenchair.png",
-      productName: "Wooden Chair",
-      price: 1876,
-      qty: 454,
-      total: 34.09,
-    },
-    {
-      productImage:
-        "https://demos.themeselection.com/materio-bootstrap-html-admin-template/assets/img/products/woodenchair.png",
-      productName: "Wooden Chair",
-      price: 1876,
-      qty: 454,
-      total: 34.09,
-    },
-    {
-      productImage:
-        "https://demos.themeselection.com/materio-bootstrap-html-admin-template/assets/img/products/woodenchair.png",
-      productName: "Wooden Chair",
-      price: 1876,
-      qty: 454,
-      total: 34.09,
-    },
-    {
-      productImage:
-        "https://demos.themeselection.com/materio-bootstrap-html-admin-template/assets/img/products/woodenchair.png",
-      productName: "Wooden Chair",
-      price: 1876,
-      qty: 454,
-      total: 34.09,
-    },
-  ]);
-  const [fee, setFee] = useState({
-    subtotal: "$5000.25",
-    discount: "$00.00",
-    tax: "$100.00",
-    total: " $5100.25",
-  });
-  const [customer, setCustomer] = useState({
-    customerName: "Shamus Tuttle",
-    customerId: "#58909",
-    orderTotal: 256,
-    email: "Shamus889@yahoo.com",
+  const [detailData, setDetailData] = useState([]);
+  const [fee, setFee] = useState({});
+  const [customer, setCustomer] = useState({});
 
-    phone: "+1 (609) 972-22-22",
-    cardNumber: "******4291",
-    methodPayment: "online",
-    paymentName: "Mastercard",
-  });
-  const [checkboxes, setCheckboxes] = useState(
-    Array(detailData.length).fill(false)
-  );
+  useEffect(()=>{
+    const fetchData = async () => {
+      const res = await getOrder(id);
+      // setCustomer(res.data.);    
+      // setDetailData(res.data.);
+      // setFee(res.data.);
+      //resetToken
+      const userTmp = localStorage.getItem("webbanbalo_user");
+      let userTmp1 = JSON.parse(userTmp);
+      userTmp1.token = res.resetToken;
+      await localStorage.setItem("webbanbalo_user", JSON.stringify(userTmp1));
+      //end resetToken
+    };
+    fetchData(); 
+  },[])
+
+  const [checkboxes, setCheckboxes] = useState(Array(detailData.length).fill(false));
 
   const toggleSelectAll = () => {
     setSelectAll(!selectAll);

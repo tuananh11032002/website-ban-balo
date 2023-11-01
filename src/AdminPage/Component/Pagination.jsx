@@ -1,13 +1,14 @@
 import React, { useCallback, useState } from "react";
 import styled from "styled-components";
 
-function Pagination({ obj }) {
+function Pagination({ obj, setPageNow }) {
   const { totalProduct, pageNow, size } = obj;
   const [currentPage, setCurrentPage] = useState(pageNow);
   const totalPage = Math.ceil(totalProduct / size);
   const onPageChange = useCallback((pageNumber) => {
     // Cập nhật trang hiện tại
     setCurrentPage(pageNumber);
+    setPageNow(pageNumber);
   }, []);
 
   const renderPaginationButtons = () => {

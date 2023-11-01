@@ -1,49 +1,32 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { AiOutlineClose, AiOutlinePlus } from "react-icons/ai";
 import { FaCartArrowDown, FaMoneyBillAlt } from "react-icons/fa";
 import styled from "styled-components";
 import { AdminContext } from "../Admin";
 import { useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
+import { getAccountById } from "../../Axios/web";
 
 const CustomerDetail = () => {
   const { closeMenu } = useContext(AdminContext);
-
-  const [customerData, setCustomerData] = useState({
-    displayName: "Lorine Hischke",
-    userId: "#45678",
-    numberOrder: 5674,
-    spent: 19800000,
-    userName: "lorine.hischke",
-    email: "vafgot@vultukir.org",
-    status: "Active",
-    contact: "(123) 456-7890",
-  });
-  const [orderList, setOrderList] = useState([
-    {
-      orderId: "#9957",
-      dateTime: "Nov 29, 2022",
-      status: "Out for delivery",
-      spent: "59.28",
-    },
-    {
-      orderId: "#9958",
-      dateTime: "Nov 29, 2022",
-      status: "Out for delivery",
-      spent: "59.28",
-    },
-    {
-      orderId: "#9959",
-      dateTime: "Nov 29, 2022",
-      status: "Out for delivery",
-      spent: "59.28",
-    },
-    {
-      orderId: "#9960",
-      dateTime: "Nov 29, 2022",
-      status: "Out for delivery",
-      spent: "59.28",
-    },
-  ]);
+  const { id } = useParams();
+  const [customerData, setCustomerData] = useState({});
+  const [orderList, setOrderList] = useState([]);
+  useEffect(()=>{
+    const fetchData = async () => {
+      const res = await getAccountById(id);
+      setCustomerData(res.data.user);    
+      setOrderList(res.data.user.orderList);
+      //resetToken
+      const userTmp = localStorage.getItem("webbanbalo_user");
+      let userTmp1 = JSON.parse(userTmp);
+      userTmp1.token = res.resetToken;
+      await localStorage.setItem("webbanbalo_user", JSON.stringify(userTmp1));
+      //end resetToken
+    };
+    fetchData(); 
+  },[])
+  
   const [isOptionsVisible, setIsOptionsVisible] = useState(false);
 
   const toggleOptions = () => {
@@ -150,8 +133,8 @@ const CustomerDetail = () => {
         <div className="card">
           <div className="customer-avatar">
             <img src={require("../../Assets/Image/account-male.png")} alt="" />
-            <div className="name">{customerData.displayName}</div>
-            <div>Customer ID: {customerData.userId}</div>
+            <div className="name">{customerData.name}</div>
+            <div>Customer ID: {customerData.id}</div>
             <div className="card-icons">
               <div className="icons">
                 <FaCartArrowDown />
@@ -163,7 +146,7 @@ const CustomerDetail = () => {
               <div className="icons">
                 <FaMoneyBillAlt />
                 <div>
-                  <div>${customerData.spent.toLocaleString()}</div>
+                  {/* <div>${customerData.spent.toLocaleString()}</div> */}
                   <div>Spent</div>
                 </div>
               </div>
@@ -172,10 +155,10 @@ const CustomerDetail = () => {
           <div className="customer-detail">
             <div className="title">DETAIL</div>
             <div className="info">Username: {customerData.userName}</div>
-            <div className="info">Email: {customerData.email}</div>
-            <div className={`status ${customerData?.status.toLowerCase()}`}>
+            <div className="info">Email: {customerData.userName}</div>
+            {/* <div className={`status ${customerData?.status.toLowerCase()}`}>
               Status: <span>{customerData.status}</span>
-            </div>
+            </div> */}
             <div className="info">Contact: {customerData.contact}</div>
           </div>
         </div>
