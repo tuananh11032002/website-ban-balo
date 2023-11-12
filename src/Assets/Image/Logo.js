@@ -23,11 +23,11 @@ const Logo = () => {
             y2="100%"
             id="linearGradient-1"
           >
-            <stop stop-color="#00B2FF" offset="0%"></stop>
-            <stop stop-color="#006AFF" offset="100%"></stop>
+            <stop stopColor="#00B2FF" offset="0%"></stop>
+            <stop stopColor="#006AFF" offset="100%"></stop>
           </linearGradient>
         </defs>
-        <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g stroke="none" strokeWidth="1" fill="none" fillRule="evenodd">
           <g>
             <circle fill="#FFFFFF" cx="30" cy="30" r="30"></circle>
             <svg x="10" y="10">

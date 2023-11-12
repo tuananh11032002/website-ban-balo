@@ -4,7 +4,7 @@ import Account from "../Component/Account";
 
 const ProfileAccount = () => {
   useEffect(() => {
-    window.scroll(0, 500);
+    window.scrollTo(0, 250);
   }, []);
   return (
     <>

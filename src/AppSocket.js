@@ -37,11 +37,13 @@ function App() {
   useEffect(() => {
     const getUser = async () => {
       const response = await getUserMessage();
-      if (JSON.stringify(response) != JSON.stringify(user)) {
-        setUser(response);
-      }
-      if (response?.length > 0) {
-        setSelectedUser(response[0]);
+      if (response?.status) {
+        if (JSON.stringify(response.result) != JSON.stringify(user)) {
+          setUser(response.result);
+        }
+        if (response.result?.length > 0) {
+          setSelectedUser(response.result[0]);
+        }
       }
     };
     getUser();
@@ -52,7 +54,6 @@ function App() {
   }, [selectedUser]);
   //scroll
   useEffect(() => {
-    // Cuộn xuống cuối danh sách tin nhắn sau khi một tin nhắn mới được thêm vào.
     if (messageListRef.current) {
       messageListRef.current.scrollTop = messageListRef.current.scrollHeight;
     }
@@ -97,8 +98,10 @@ function App() {
   const getMessage = async () => {
     if (selectedUser) {
       const response = await getMessageWithUserId(selectedUser.userId);
-      if (JSON.stringify(response) != JSON.stringify(messages)) {
-        setMessages(response);
+      if (response?.status) {
+        if (JSON.stringify(response.result) != JSON.stringify(messages)) {
+          setMessages(response.result);
+        }
       }
     }
   };
@@ -202,7 +205,7 @@ function App() {
             return (
               <div
                 className={`user-single ${
-                  selectedUser.userId == user.userId ? "selected" : ""
+                  selectedUser?.userId == user.userId ? "selected" : ""
                 }`}
                 key={index}
                 onClick={() => {
@@ -279,8 +282,7 @@ function App() {
 const Container = styled.div`
   display: flex;
   justify-content: center;
-  height: ${(props) =>
-    props.height != null ? `${props.height - 30}px` : "100vh"};
+  height: ${(props) => (props.height != null ? `${100 - 20}vh` : "100vh")};
 
   max-height: 100%;
   background-color: white;
@@ -294,6 +296,7 @@ const Container = styled.div`
     border-radius: 5px;
     padding: 5px;
     margin-right: 10px;
+    max-width: 300px;
     /* CSS cho lớp con 'user-single' */
     .user-single {
       display: flex;
@@ -330,10 +333,10 @@ const Container = styled.div`
     }
 
     .user-single .lastMessage {
-      white-space: nowrap; /* Ngăn nội dung xuống dòng */
-      overflow: hidden; /* Ẩn nội dung dư thừa */
-      text-overflow: ellipsis; /* Hiển thị dấu ... khi nội dung vượt quá */
-      max-width: 70%; /* Đặt chiều rộng tối đa cho nội dung last message */
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 70%;
     }
     .selected {
       background-color: #f0f0f0;

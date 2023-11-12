@@ -1,53 +1,65 @@
 import React, { useEffect, useState } from "react";
 import { useStateProvider } from "../../StateProvider/StateProvider";
-import {
-  getProductAPI,
-  getProdctFromCategoryApi,
-  getCATEGORYAPI,
-  getProductAndCategory,
-  getProductAndCategoryOption,
-} from "../../Axios/web";
+import { getProductApiWithNameCategory, getCategoryApi } from "../../Axios/web";
 import { reducerCases } from "../../StateProvider/reducer";
 import { styled } from "styled-components";
 import { useParams, useNavigate } from "react-router-dom";
-
+import processApiImagePath from "../../Helper/EditLinkImage";
+import { v4 as uuidv4 } from "uuid";
 const Product = () => {
   const params = useParams();
+  const { categoryName } = params;
   const navigate = useNavigate();
   const [{ product, category }, dispatch] = useStateProvider();
   const [isValue, setIsValue] = useState(1);
+  console.log("CategoryName", categoryName);
   useEffect(() => {
-    if (!params.categoryName || params.categoryName == null) {
-      const fetchData = async () => {
-        const data = await getProductAndCategory();
-        dispatch({ product: data, type: reducerCases.SET_PRODUCT });
-      };
-      fetchData();
-    } else {
-      const fetchData = async () => {
-        const categoryApi = await getCATEGORYAPI();
-        dispatch({ type: reducerCases.SET_CATEGORY, category: categoryApi });
-      };
-      fetchData();
-    }
-  }, [params.categoryName]);
+    const fetchData = async () => {
+      if (categoryName !== undefined) {
+        window.scrollTo(0, 200);
+        let categoryId;
+        if (!category) {
+          const categoryApi = await getCategoryApi();
+          categoryId = categoryApi.result?.filter(
+            (p) => p.name === categoryName
+          );
 
-  // useEffect để theo dõi thay đổi trong state.category và thực hiện các thao tác cần thiết sau khi cập nhật xong.
-  useEffect(() => {
-    const fetchDataBasedOnCategory = async () => {
-      if (category?.length > 0) {
-        const data = category.filter((cat) => {
-          return cat.name == params.categoryName;
-        });
-        if (data.length > 0) {
-          const categoryById = await getProdctFromCategoryApi(data[0]?.id);
-          dispatch({ type: reducerCases.SET_PRODUCT, product: categoryById });
+          dispatch({
+            type: reducerCases.SET_CATEGORY,
+            category: categoryApi.result,
+          });
+        } else {
+          categoryId = category.filter((p) => p.name === categoryName);
+        }
+
+        const dataProduct = await getProductApiWithNameCategory(
+          categoryId[0].id,
+          "",
+          isValue,
+          15,
+          1
+        );
+        if (dataProduct.result !== product) {
+          dispatch({
+            type: reducerCases.SET_PRODUCT,
+            product: dataProduct.result,
+          });
+        }
+      } else {
+        const dataProduct = await getProductApiWithNameCategory();
+        if (dataProduct?.status) {
+          if (dataProduct.result !== product) {
+            dispatch({
+              type: reducerCases.SET_PRODUCT,
+              product: dataProduct.result,
+            });
+          }
         }
       }
     };
-    fetchDataBasedOnCategory();
-  }, [category, params.categoryName]);
 
+    fetchData();
+  }, [categoryName, isValue]);
   const hanlderClick = (e, productId) => {
     if (
       !e.target.classList.contains("product-element_color") &&
@@ -66,16 +78,12 @@ const Product = () => {
     "#005e1f", // xanh lá
     "#c7c7c7", // xám
   ];
-  const getProductWithOption = async (categoryName, option) => {
-    const data = await getProductAndCategoryOption(categoryName, option);
-    dispatch({ product: data, type: reducerCases.SET_PRODUCT });
-  };
+
   return (
     <Container>
       {product?.map((product, index) => (
-        <>
+        <div key={index}>
           <div
-            key={index}
             className="category-title"
             style={{
               display: "flex",
@@ -86,7 +94,7 @@ const Product = () => {
                   : "none",
             }}
           >
-            <h2>{product.name}</h2>
+            <h2>{product.categoryName}</h2>
             {!params.categoryName || params.categoryName == null ? (
               <hr style={{ flex: 1 }} />
             ) : (
@@ -97,21 +105,21 @@ const Product = () => {
                   style={{ fontSize: "14px" }}
                   onChange={(e) => {
                     setIsValue(e.target.value);
-                    getProductWithOption(params.categoryName, e.target.value);
                   }}
                 >
-                  <option value="1" selected>
+                  <option value="" selected>
                     Sản phẩm bán chạy
                   </option>
-                  <option value="2">Giá từ thấp tới cao</option>
-                  <option value="3">Giá từ cao tới thấp</option>
+                  <option value="insc">Giá từ thấp tới cao</option>
+                  <option value="desc">Giá từ cao tới thấp</option>
                 </select>
               </span>
             )}
           </div>
-          <div className="product-element">
+
+          <div className="product-element" key={uuidv4()}>
             <ul>
-              {product?.product.map((p, index) => (
+              {product?.products.map((p, index) => (
                 <li
                   key={index}
                   onClick={(e) => {
@@ -120,7 +128,14 @@ const Product = () => {
                   }}
                 >
                   <div className="product-element_image">
-                    <img src={p.image} alt="" />
+                    <img
+                      src={
+                        p.image?.length > 0
+                          ? processApiImagePath(p.image[0])
+                          : null
+                      }
+                      alt=""
+                    />
                   </div>
                   <div className="product-element_name">{p.name}</div>
                   <div className="product-element_price">
@@ -142,17 +157,18 @@ const Product = () => {
               ))}
             </ul>
           </div>
-        </>
+        </div>
       ))}
     </Container>
   );
 };
 
 const Container = styled.div`
+  padding: 10px;
   z-index: 0;
   .category-title select {
-    width: 140px;
-    height: 40px;
+    padding: 10px;
+    font-size: 12px;
   }
   .category-title:first-child {
     padding-top: 20px;

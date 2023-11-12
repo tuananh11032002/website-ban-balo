@@ -109,7 +109,7 @@ const Container = styled.footer`
     .social div:nth-child(2) .input input {
       outline: none;
       border: none;
-      padding: 5px 0;
+      padding: 5px;
       border-radius: 5px;
       flex: 1;
     }

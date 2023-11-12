@@ -1,82 +1,105 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
+import { GetOrderDone } from "../../Axios/web";
+import processApiImagePath from "../../Helper/EditLinkImage";
+import Pagination from "../../AdminPage/Component/Pagination";
 
 const OrderPage = () => {
   const [data, setData] = useState([
     {
-      orderID: "12345",
+      orderId: "12345",
       customerName: "Nguyễn Văn A",
       orderDate: "2023-09-10",
-      totalAmount: 250.0,
+      totalAmount: 2500,
       status: "Hoàn thành",
+      feeShip: 0,
+      grandTotal: 0,
       shippingAddress: "123 Đường ABC, Quận XYZ, Thành phố HCM",
-      items: [
+      product: [
         {
-          productID: "789",
-          productName: "Sản phẩm A",
+          id: "789",
+          name: "Sản phẩm A",
           quantity: 2,
-          pricePerUnit: 50.0,
-          imageURL:
+          price: 50.0,
+          image:
             "https://down-vn.img.susercontent.com/file/a7fe67a8837d5c1b9d2858fe13d8d66b_tn",
         },
         {
-          productID: "456",
-          productName: "Sản phẩm B",
+          id: "456",
+          name: "Sản phẩm B",
           quantity: 3,
-          pricePerUnit: 30.0,
-          imageURL:
+          price: 30.0,
+          image:
             "https://down-vn.img.susercontent.com/file/a7fe67a8837d5c1b9d2858fe13d8d66b_tn",
         },
         {
-          productID: "789",
-          productName: "Sản phẩm C",
+          id: "789",
+          name: "Sản phẩm C",
           quantity: 1,
-          pricePerUnit: 70.0,
-          imageURL:
+          price: 70.0,
+          image:
             "https://down-vn.img.susercontent.com/file/a7fe67a8837d5c1b9d2858fe13d8d66b_tn",
         },
       ],
     },
     {
-      orderID: "12345",
+      orderId: "12345",
       customerName: "Nguyễn Văn A",
       orderDate: "2023-09-10",
       totalAmount: 250.0,
       status: "Hoàn thành",
+      feeShip: 0,
+      grandTotal: 0,
       shippingAddress: "123 Đường ABC, Quận XYZ, Thành phố HCM",
-      items: [
+      product: [
         {
-          productID: "789",
-          productName: "Sản phẩm A",
+          id: "789",
+          name: "Sản phẩm A",
           quantity: 2,
-          pricePerUnit: 50.0,
-          imageURL:
+          price: 50.0,
+          image:
             "https://down-vn.img.susercontent.com/file/a7fe67a8837d5c1b9d2858fe13d8d66b_tn",
         },
         {
-          productID: "456",
-          productName: "Sản phẩm B",
+          id: "456",
+          name: "Sản phẩm B",
           quantity: 3,
-          pricePerUnit: 30.0,
-          imageURL:
+          price: 30.0,
+          image:
             "https://down-vn.img.susercontent.com/file/a7fe67a8837d5c1b9d2858fe13d8d66b_tn",
         },
         {
-          productID: "789",
-          productName: "Sản phẩm C",
+          id: "789",
+          name: "Sản phẩm C",
           quantity: 1,
-          pricePerUnit: 70.0,
-          imageURL:
+          price: 70.0,
+          image:
             "https://down-vn.img.susercontent.com/file/a7fe67a8837d5c1b9d2858fe13d8d66b_tn",
         },
       ],
     },
   ]);
-  const [activeItem, setActiveItem] = useState(0);
+  const [pageNow, setPageNow] = useState(1);
 
+  const [activeItem, setActiveItem] = useState(0);
+  const [totalOrder, setTotalOrder] = useState(100);
   const handleItemClick = (index) => {
     setActiveItem(index);
   };
+  const fetchData = async () => {
+    const dataApi = await GetOrderDone({ pageNow, pageSize: 3 });
+    if (dataApi?.status === true) {
+      if (JSON.stringify(dataApi.result.data) !== JSON.stringify(data)) {
+        setData(dataApi.result.data);
+        setTotalOrder(dataApi.result.totalOrder);
+      }
+    }
+    console.log(dataApi, "data");
+  };
+  useEffect(() => {
+    fetchData();
+  }, [pageNow]);
+  console.log(data);
   return (
     <Container>
       <div className="navbar">
@@ -116,17 +139,18 @@ const OrderPage = () => {
             return (
               <div className="order-child" key={index}>
                 <div className="header">
-                  <div>Mã số đơn hàng: {da.orderID}</div>
+                  <div>Mã số đơn hàng: #{da.orderId}</div>
                   <div>Tình trạng đơn hàng: {da.status}</div>
                 </div>
                 <div className="body">
-                  {da.items.map((item, index) => {
+                  {da.product.map((item, index2) => {
                     return (
-                      <div className="item">
-                        <img src={item.imageURL} alt="" />
+                      <div className="item" key={index2}>
+                        <img src={processApiImagePath(item.image)} alt="" />
                         <div>
-                          <span>{item.productName}</span>
+                          <span>{item.name}</span>
                           <span>Số lượng {item.quantity}</span>
+                          <span>Giá tiền {item.price.toLocaleString()} đ</span>
                         </div>
                       </div>
                     );
@@ -137,38 +161,42 @@ const OrderPage = () => {
                     <div className="price-total">
                       <div>Tổng tiền: </div>
                       <div className="price-label">
-                        {da.totalAmount.toLocaleString()}đ
+                        {da?.totalAmount.toLocaleString()}đ
                       </div>
                     </div>
                     <div className="price-total">
                       <div>Phí vận chuyển:</div>
                       <div className="price-label">
-                        {da.totalAmount.toLocaleString()}đ
+                        {da?.feeShip.toLocaleString()}đ
                       </div>
                     </div>
                     <div className="price-total">
                       <div>Giảm giá:</div>
                       <div className="price-label">
-                        {da.totalAmount.toLocaleString()}đ
+                        {da?.discount?.toLocaleString()}đ
                       </div>
                     </div>
                     <div className="price-total">
                       <div>Thành tiền: </div>
                       <div className="price-label">
-                        {da.totalAmount.toLocaleString()}đ
+                        {da?.grandTotal.toLocaleString()}đ
                       </div>
                     </div>
                   </div>
 
-                  <div className="button">
+                  {/* <div className="button">
                     <div>Liên hệ người bán</div>
                     <div>Mua lại</div>
-                  </div>
+                  </div> */}
                 </div>
               </div>
             );
           })
         : null}
+      <Pagination
+        obj={{ totalProduct: totalOrder, pageNow, size: 3 }}
+        setPageNow={setPageNow}
+      />
     </Container>
   );
 };
@@ -216,9 +244,12 @@ const Container = styled.div`
           display: grid;
         }
         img {
+          border-radius: 5px;
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1),
+            0 8px 16px rgba(0, 0, 0, 0.1);
           max-width: 80px;
           max-height: 80px;
-          margin-right: 10px;
+          margin: 10px;
         }
         .item-details {
           display: flex;

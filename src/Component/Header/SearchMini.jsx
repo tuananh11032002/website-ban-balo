@@ -1,6 +1,7 @@
 import React from "react";
 import { styled } from "styled-components";
 import { useNavigate } from "react-router-dom";
+import processApiImagePath from "../../Helper/EditLinkImage";
 
 const SearchMini = ({ dataProduct, setProductSearch, inputRef }) => {
   const navigate = useNavigate();
@@ -20,7 +21,7 @@ const SearchMini = ({ dataProduct, setProductSearch, inputRef }) => {
               handlerClick(data, inputRef, setProductSearch);
             }}
           >
-            <img src={data.image} alt={data.name} />
+            <img src={processApiImagePath(data.image[0])} alt={data.name} />
             <div>
               <div>{data.name}</div>
               <div style={{ color: "red" }}>{data.price.toLocaleString()}đ</div>

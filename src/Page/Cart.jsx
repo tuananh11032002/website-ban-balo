@@ -8,13 +8,13 @@ import ProductAddedMessage from "../Component/Body/ProductAddedMessage";
 const Cart = () => {
   console.log("cart");
   return (
-    <div>
+    <>
       <Header />
-      <div className="table">
+      <div className="table" style={{ overflowX: "auto" }}>
         <Table />
       </div>
       <Footer />
-    </div>
+    </>
   );
 };
 

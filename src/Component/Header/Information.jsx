@@ -22,7 +22,7 @@ const Information = () => {
           onClick={() => {
             HandlerClick();
           }}
-          src={require("../../Assets/Image/trantuananh-brand-logo (2).png")}
+          src={require("../../Assets/Image/trantuananh-brand-logo.png")}
           alt="Unable load Image"
         />
       </div>
@@ -52,9 +52,12 @@ const Container = styled.div`
     text-align: center;
   }
   .column img {
-    max-height: 100%;
+    width: 150px;
 
-    object-fit: cover;
+    max-height: 100px;
+    max-width: 150px;
+
+    object-fit: contain;
     cursor: pointer;
   }
   @media screen and (max-width: 756px) {

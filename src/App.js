@@ -1,5 +1,6 @@
 import styled from "styled-components";
 import Home from "./Page/Home";
+import Test from "./Component/Tam";
 import { Route, Routes, Navigate } from "react-router-dom";
 import ProductDetail from "./Component/Body/ProductDetail";
 import WebSocket from "./AppSocket";
@@ -32,6 +33,9 @@ import CustomerDetailPage from "./AdminPage/Page/CustomerDetailPage";
 import DetailOrderPage from "./AdminPage/Page/DetailOrderPage";
 import NotFound from "./Page/NotFound";
 import AccountDetailPage from "./AdminPage/Page/AccountDetailPage";
+import RegistrationPage from "./Page/RegistrationPage";
+import PaymentInfo from "./Page/PaymentInfo";
+import PasswordAccount from "./Page/PasswordAccount";
 
 function App() {
   const [isUserReady, setIsUserReady] = useState(false);
@@ -114,6 +118,11 @@ function App() {
             ></Route>
 
             <Route path="/pay" element={<Slide child={<PayPage />} />}></Route>
+            <Route
+              path="/pay-method"
+              element={<Slide child={<PaymentInfo />} />}
+            ></Route>
+
             <Route path="/cart" element={<Slide child={<Cart />} />}></Route>
             <Route
               path="/about-us"
@@ -132,9 +141,18 @@ function App() {
               path="login"
               element={<>{user ? <Navigate to="/" /> : <LoginPage />}</>}
             />
+            <Route
+              path="register"
+              element={<>{user ? <Navigate to="/" /> : <RegistrationPage />}</>}
+            />
             <Route path="/account/address" element={<AddressAccount />} />
             <Route path="/account/profile" element={<ProfileAccount />} />
             <Route path="/account/order" element={<OrderAccount />} />
+            <Route
+              path="/account/change-password"
+              element={<PasswordAccount />}
+            />
+
             <Route path="/chat" element={<Slide child={<WebSocket />} />} />
             <Route
               path="/register"
@@ -166,7 +184,7 @@ function App() {
             />
 
             <Route
-              path="/admin/add-product"
+              path="/admin/add-product/:id"
               element={<Slide child={<AddProductPage />} />}
             />
             <Route
@@ -177,6 +195,8 @@ function App() {
               path="/admin/order-detail/:id"
               element={<Slide child={<DetailOrderPage />} />}
             />
+            <Route path="/test123" element={<Test />} />
+
             <Route
               path="/admin/account-detail/:id"
               element={<Slide child={<AccountDetailPage />} />}

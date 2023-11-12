@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import Image from "./Image";
-import { getCATEGORYAPI, getCategoryApi } from "../../Axios/web";
+import { getCategoryApi } from "../../Axios/web";
 import { useStateProvider } from "../../StateProvider/StateProvider";
 import { reducerCases } from "../../StateProvider/reducer";
 import { useNavigate } from "react-router-dom";
@@ -10,9 +10,11 @@ const Controller = () => {
   const [data, setData] = useState([]);
   useEffect(() => {
     const fetchData = async () => {
-      const data = await getCATEGORYAPI();
-      if (JSON.stringify(data) != JSON.stringify(category)) {
-        dispatch({ type: reducerCases.SET_CATEGORY, category: data });
+      const data = await getCategoryApi();
+      if (data?.status) {
+        if (JSON.stringify(data.result) != JSON.stringify(category)) {
+          dispatch({ type: reducerCases.SET_CATEGORY, category: data.result });
+        }
       }
     };
     fetchData();

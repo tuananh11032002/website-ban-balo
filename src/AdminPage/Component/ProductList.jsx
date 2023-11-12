@@ -1,13 +1,26 @@
-import React, { useContext, useState } from "react";
-import { AiOutlineClose, AiOutlineHome, AiOutlinePlus } from "react-icons/ai";
+import React, { useContext, useEffect, useState } from "react";
+import {
+  AiFillDelete,
+  AiOutlineClose,
+  AiOutlineHome,
+  AiOutlinePlus,
+} from "react-icons/ai";
 import { BiSolidDiscount } from "react-icons/bi";
 import { TbAffiliate } from "react-icons/tb";
 import { MdWeb } from "react-icons/md";
+import { GrEdit } from "react-icons/gr";
 
 import styled from "styled-components";
 import Pagination from "./Pagination";
 import { useNavigate } from "react-router-dom";
 import { AdminContext } from "../Admin";
+import {
+  ChangeStockApi,
+  deleteProductApi,
+  getCategoryApi,
+  getProductApi,
+} from "../../Axios/web";
+import processApiImagePath from "../../Helper/EditLinkImage";
 
 const ProductList = () => {
   const { closeMenu } = useContext(AdminContext);
@@ -16,11 +29,12 @@ const ProductList = () => {
     {
       title: "Air Jordan is a line of basketball shoes produced by Nike",
       name: "xxxx",
-      image:
+      image: [
         "https://demos.themeselection.com/materio-bootstrap-html-admin-template/assets/img/ecommerce-images/product-9.png",
-      category: "Shoes",
+      ],
+      categoryName: "Shoes",
       price: "$125",
-      qty: 110,
+      soluong: 110,
       stock: true,
       status: "publish",
       action: "none",
@@ -29,11 +43,12 @@ const ProductList = () => {
       title: "Air Jordan is a line of basketball shoes produced by Nike",
 
       name: "xxxx",
-      image:
+      image: [
         "https://demos.themeselection.com/materio-bootstrap-html-admin-template/assets/img/ecommerce-images/product-9.png",
-      category: "Shoes",
+      ],
+      categoryName: "Shoes",
       price: "$125",
-      qty: 110,
+      soluong: 110,
       stock: true,
       status: "publish",
       action: "none",
@@ -42,11 +57,12 @@ const ProductList = () => {
       title: "Air Jordan is a line of basketball shoes produced by Nike",
 
       name: "xxxx",
-      image:
+      image: [
         "https://demos.themeselection.com/materio-bootstrap-html-admin-template/assets/img/ecommerce-images/product-9.png",
-      category: "Shoes",
+      ],
+      categoryName: "Shoes",
       price: "$125",
-      qty: 110,
+      soluong: 110,
       stock: true,
       status: "Scheduled",
       action: "none",
@@ -55,40 +71,108 @@ const ProductList = () => {
       title: "Air Jordan is a line of basketball shoes produced by Nike",
 
       name: "xxxx",
-      image:
+      image: [
         "https://demos.themeselection.com/materio-bootstrap-html-admin-template/assets/img/ecommerce-images/product-9.png",
-      category: "Shoes",
+      ],
+      categoryName: "Shoes",
       price: "$125",
-      qty: 110,
+      soluong: 110,
       stock: true,
       status: "Inactive",
       action: "none",
     },
   ]);
   const [selectAll, setSelectAll] = useState(false);
+
   const [checkStock, setCheckStock] = useState(data.map((item) => item.stock));
 
   const [checkboxes, setCheckboxes] = useState(Array(data.length).fill(false));
+  const [valueSearch, setValueSearch] = useState("");
+  const [selectedValue, setSelectedValue] = useState("7");
+  const [openDetailProduct, setOpenDetailProduct] = useState(false);
+  const [contentDetailProduct, setContentDetailProduct] = useState(null);
+  const [currentIndex, setCurrentIndex] = useState(null);
+  const [selectCategory, setSelectCategory] = useState(null);
+  const [selectStatus, setSelectStatus] = useState("");
+  const [selectStock, setSelectStock] = useState("");
+  const [pageNow, setPageNow] = useState(1);
 
+  const [totalProduct, setTotalProduct] = useState(100);
+  const [category, setCategory] = useState([]);
+  const navigate = useNavigate();
   const toggleSelectAll = () => {
     setSelectAll(!selectAll);
     setCheckboxes(Array(data.length).fill(!selectAll));
   };
-
+  const handleDelete = async (productId) => {
+    const data = await deleteProductApi(productId);
+    if (data?.status) {
+      setData([]);
+      setOpenDetailProduct(false);
+    }
+  };
   const handleCheckboxChange = (index) => {
     const newCheckboxes = [...checkboxes];
     newCheckboxes[index] = !newCheckboxes[index];
+
     setCheckboxes(newCheckboxes);
   };
   const actionButtonClick = (product) => {
     setContentDetailProduct(product);
     setOpenDetailProduct(true);
   };
-  const [selectedValue, setSelectedValue] = useState("7");
-  const [openDetailProduct, setOpenDetailProduct] = useState(false);
-  const [contentDetailProduct, setContentDetailProduct] = useState(null);
-  const [currentIndex, setCurrentIndex] = useState(null);
-  const navigate = useNavigate();
+  const handleToggle = async (index, productId) => {
+    const newCheckStock = [...checkStock];
+    console.log("newCheckStock[index]", newCheckStock[index]);
+    newCheckStock[index] = !newCheckStock[index];
+    console.log("newCheckStock[index]", newCheckStock[index]);
+
+    const data = await ChangeStockApi(newCheckStock[index], productId);
+    setCheckStock(newCheckStock);
+  };
+
+  useEffect(() => {
+    setCheckStock(data.map((item) => item.stock));
+  }, [data]);
+  useEffect(() => {
+    const fetchProduct = async () => {
+      const dataProduct = await getProductApi(
+        valueSearch,
+        null,
+        selectCategory,
+        selectStock,
+        selectStatus,
+        pageNow,
+        selectedValue
+      );
+
+      if (dataProduct?.status === true) {
+        const { product, totalProduct } = dataProduct.result;
+        if (JSON.stringify(data) !== JSON.stringify(product)) {
+          setData(product);
+          setTotalProduct(totalProduct);
+        }
+      }
+    };
+    fetchProduct();
+  }, [
+    data,
+    pageNow,
+    selectedValue,
+    selectStock,
+    selectCategory,
+    selectStatus,
+    valueSearch,
+  ]);
+  useEffect(() => {
+    const fetchCategory = async () => {
+      const data = await getCategoryApi();
+      if (data?.status === true) {
+        setCategory(data.result);
+      }
+    };
+    fetchCategory();
+  }, []);
   return (
     <>
       {openDetailProduct ? (
@@ -112,7 +196,10 @@ const ProductList = () => {
                   <tr>
                     <td>Product</td>
                     <td className="td-flex">
-                      <img src={contentDetailProduct.image} alt="" />
+                      <img
+                        src={processApiImagePath(contentDetailProduct.image[0])}
+                        alt=""
+                      />
                       <div>
                         <div>{contentDetailProduct.name}</div>
                         <div>{contentDetailProduct.title}</div>
@@ -121,7 +208,7 @@ const ProductList = () => {
                   </tr>
                   <tr>
                     <td>Category</td>
-                    <td>{contentDetailProduct.category}</td>
+                    <td>{contentDetailProduct.categoryName}</td>
                   </tr>
                   <tr>
                     <td>Stock</td>
@@ -131,13 +218,10 @@ const ProductList = () => {
                           type="checkbox"
                           checked={checkStock[currentIndex]}
                           onChange={() => {
-                            const newCheckStock = [...checkStock];
-                            newCheckStock[currentIndex] =
-                              !newCheckStock[currentIndex];
-                            setCheckStock(newCheckStock);
+                            handleToggle(currentIndex, contentDetailProduct.id);
                           }}
                         />
-                        <span class="toggle-slider"></span>
+                        <span className="toggle-slider"></span>
                       </label>
                     </td>
                   </tr>
@@ -147,12 +231,29 @@ const ProductList = () => {
                   </tr>
                   <tr>
                     <td>QTY</td>
-                    <td>{contentDetailProduct.qty}</td>
+                    <td>{contentDetailProduct.soluong}</td>
                   </tr>
                   <tr>
                     <td>Status</td>
-                    <td className={contentDetailProduct.status.toLowerCase()}>
+                    <td className={contentDetailProduct.status?.toLowerCase()}>
                       <span> {contentDetailProduct.status}</span>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Actions:</td>
+                    <td>
+                      <GrEdit
+                        onClick={() => {
+                          navigate(
+                            `/admin/add-product/${contentDetailProduct.id}`
+                          );
+                        }}
+                      />
+                      <AiFillDelete
+                        onClick={() => {
+                          handleDelete(contentDetailProduct.id);
+                        }}
+                      />
                     </td>
                   </tr>
                 </tbody>
@@ -220,7 +321,10 @@ const ProductList = () => {
         <div className="datatable">
           <div className="datatable-filter">
             <div className=" product_status">
-              <select>
+              <select
+                value={selectStatus}
+                onChange={(e) => setSelectStatus(e.target.value)}
+              >
                 <option value="">Status</option>
                 <option value="Scheduled">Scheduled</option>
                 <option value="Publish">Publish</option>
@@ -228,32 +332,49 @@ const ProductList = () => {
               </select>
             </div>
             <div className="product_category">
-              <select>
+              <select
+                value={selectCategory}
+                onChange={(e) => setSelectCategory(e.target.value)}
+              >
                 <option value="">Category</option>
-                <option value="Household">Household</option>
-                <option value="Office">Office</option>
-                <option value="Electronics">Electronics</option>
-                <option value="Shoes">Shoes</option>
-                <option value="Accessories">Accessories</option>
-                <option value="Game">Game</option>
+                {category?.map((cat, index) => (
+                  <option value={cat.id} key={index}>
+                    {cat.name}
+                  </option>
+                ))}
               </select>
             </div>
             <div className="product_stock">
-              <select id="ProductStock">
-                <option value=""> Stock </option>
-                <option value="Out_of_Stock">Out of Stock</option>
-                <option value="In_Stock">In Stock</option>
+              <select
+                value={selectStock}
+                onChange={(e) => setSelectStock(e.target.value)}
+              >
+                <option value="" defaultValue>
+                  Stock
+                </option>
+                <option value="Out">Out of Stock</option>
+                <option value="In">In Stock</option>
               </select>
             </div>
           </div>
           <div className="datatable-action">
-            <input className="search-input" type="text" placeholder="Search" />
+            <input
+              className="search-input"
+              type="text"
+              placeholder="Search"
+              value={valueSearch}
+              onChange={(e) => setValueSearch(e.target.value)}
+            />
             <div className="dttable-action-button">
               <select
                 className="action-select"
                 name=""
                 id=""
-                onChange={(e) => setSelectedValue(e.target.value)}
+                onChange={(e) => {
+                  setSelectedValue(e.target.value);
+                  setPageNow(1);
+                  window.scrollTo(0, 200);
+                }}
               >
                 <option value="7">7</option>
                 <option value="10">10</option>
@@ -263,7 +384,7 @@ const ProductList = () => {
               <div
                 className="action-button"
                 onClick={() => {
-                  navigate("/admin/add-product");
+                  navigate("/admin/add-product/add");
                 }}
               >
                 <AiOutlinePlus />
@@ -293,7 +414,7 @@ const ProductList = () => {
                 </tr>
               </thead>
               <tbody>
-                {data.map((product, index) => (
+                {data?.map((product, index) => (
                   <tr key={index}>
                     <td
                       className="td-action"
@@ -317,7 +438,7 @@ const ProductList = () => {
                     <td colSpan="3">
                       <div className="td-flex">
                         <img
-                          src={product.image}
+                          src={processApiImagePath(product?.image[0])}
                           alt=""
                           width="40px"
                           height="40px"
@@ -328,23 +449,21 @@ const ProductList = () => {
                         </div>
                       </div>
                     </td>
-                    <td>{product.category}</td>
+                    <td>{product.categoryName}</td>
                     <td>
                       <label className="toggle-label">
                         <input
                           type="checkbox"
                           checked={checkStock[index]}
                           onChange={() => {
-                            const newCheckStock = [...checkStock];
-                            newCheckStock[index] = !newCheckStock[index];
-                            setCheckStock(newCheckStock);
+                            handleToggle(index, product.id);
                           }}
                         />
-                        <span class="toggle-slider"></span>
+                        <span className="toggle-slider"></span>
                       </label>
                     </td>
-                    <td>{product.price}</td>
-                    <td>{product.qty}</td>
+                    <td>{product.price.toLocaleString()}đ</td>
+                    <td>{product.soluong}</td>
                     <td className={product.status}>
                       <span>{product.status}</span>
                     </td>
@@ -355,10 +474,11 @@ const ProductList = () => {
           </div>
         </div>
         <Pagination
+          setPageNow={setPageNow}
           obj={{
-            pageNow: 1,
+            pageNow: pageNow,
             size: selectedValue,
-            totalProduct: 100,
+            totalProduct: totalProduct || 100,
           }}
         />
       </Container>
@@ -382,40 +502,68 @@ const DetailProduct = styled.div`
   transform: translateY(0%);
 
   .fade {
-    background-color: white;
-    max-width: 40rem;
-
-    border-radius: 10px;
-    background-clip: padding-box;
-    transform: translateY(0%);
-    transition: transform 0.4s;
-    height: auto;
-    max-height: 80%;
-    &.show {
-      transform: translateY(10%);
-    }
-
-    &.hidden {
-      transform: translateY(-100%);
-    }
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    border-radius: 5px;
+    padding: 20px;
+    transition: opacity 0.3s ease;
+    width: 400px;
+    height: 400px;
+    transform: translateY(20%);
   }
-  .fade .fade-close {
+
+  .fade.show {
+    opacity: 1;
+  }
+
+  .fade.hidden {
+    opacity: 0;
+    pointer-events: none; /* Disable interaction when hidden */
+  }
+
+  .fade-close {
     position: absolute;
-    top: 0;
+    top: 10px;
     right: 10px;
-    z-index: 2;
-
     cursor: pointer;
-  }
-  table {
-    border-collapse: collapse;
-  }
-  table tbody tr {
-    border-bottom: 1px solid gray;
+    font-size: 20px;
+    color: #333;
   }
 
-  table tbody tr td {
-    padding: 1.6rem 1.25rem;
+  .fade-header {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 10px;
+  }
+
+  .fade-main {
+    font-size: 14px;
+  }
+
+  /* Add additional styles for the table and other elements as needed */
+  table {
+    width: 100%;
+  }
+
+  td {
+    padding: 5px;
+  }
+
+  td.td-flex {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+  }
+
+  img {
+    max-width: 50px;
+    max-height: 50px;
+    margin-right: 10px;
+    border-radius: 10px;
+  }
+
+  input[type="checkbox"] {
+    visibility: hidden;
   }
   td {
     .toggle-label {
@@ -456,6 +604,7 @@ const DetailProduct = styled.div`
       transform: translateX(20px);
     }
   }
+
   .publish {
     font-weight: bold;
     color: #008000; /* Màu xanh dương cho trạng thái 'Active' */
@@ -494,9 +643,12 @@ const DetailProduct = styled.div`
     }
     img {
       max-width: 40px;
-
+      border-radius: 10px;
       max-height: 40px;
     }
+  }
+  td svg {
+    margin-right: 10px;
   }
 `;
 const Container = styled.div`
@@ -560,10 +712,15 @@ const Container = styled.div`
   .wrapper-table {
     max-width: 100%;
     overflow: scroll;
+    box-shadow: ${boxShadow};
+    border-radius: 5px;
   }
   .datatable {
     background-color: white;
     margin: 10px 0 0 0;
+    & > div {
+      margin-bottom: 10px;
+    }
     .datatable-filter {
       display: flex;
       justify-content: space-between;
@@ -607,19 +764,19 @@ const Container = styled.div`
     .datatable-product thead th {
       background-color: #f5f5f5;
       font-weight: bold;
-      text-align: center;
       padding: 1.5rem;
     }
 
     /* Đặt kiểu cho ô trong tbody */
     .datatable-product tbody td {
       padding: 1.5rem;
-      text-align: center;
     }
 
     /* Đặt kiểu cho checkbox */
     .datatable-product input[type="checkbox"] {
       margin: 0;
+      padding: 0 10px;
+      visibility: hidden;
     }
     input[type="checkbox"] {
       transform: scale(1.5);
@@ -651,7 +808,6 @@ const Container = styled.div`
 
     .datatable-product .td-flex {
       display: flex;
-      justify-content: center;
       div {
         margin-left: 10px;
         text-align: left;

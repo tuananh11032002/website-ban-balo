@@ -1,18 +1,23 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import styled from "styled-components";
+import { v4 as uuidv4 } from "uuid";
 
-function Pagination({ obj }) {
+function Pagination({ obj, setPageNow }) {
   const { totalProduct, pageNow, size } = obj;
+  useEffect(() => {
+    setCurrentPage(pageNow);
+  }, [pageNow]);
   const [currentPage, setCurrentPage] = useState(pageNow);
   const totalPage = Math.ceil(totalProduct / size);
   const onPageChange = useCallback((pageNumber) => {
-    // Cập nhật trang hiện tại
     setCurrentPage(pageNumber);
+    setPageNow(pageNumber);
   }, []);
 
   const renderPaginationButtons = () => {
     const maxButtons = 5;
     const buttons = [];
+    let keyAuto = 0;
     let startPage = currentPage - Math.floor(maxButtons / 2);
 
     if (startPage < 1) {
@@ -28,7 +33,7 @@ function Pagination({ obj }) {
 
       if (startPage > 2) {
         buttons.push(
-          <span key="ellipsis" className="ellipsis">
+          <span key={uuidv4()} className="ellipsis">
             ...
           </span>
         );

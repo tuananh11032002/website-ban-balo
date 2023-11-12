@@ -4,11 +4,13 @@ import { useStateProvider } from "../../StateProvider/StateProvider";
 import {
   AddProductIntoOrder,
   DeleteProductIntoOrder,
+  GetOrder,
   GetProductIntoOrder,
 } from "../../Axios/web";
 import { reducerCases } from "../../StateProvider/reducer";
 import { Link, useNavigate } from "react-router-dom";
 import ProductAddedMessage from "./ProductAddedMessage";
+import processApiImagePath from "../../Helper/EditLinkImage";
 const Table = () => {
   const navigate = useNavigate();
 
@@ -27,47 +29,48 @@ const Table = () => {
   }, [cart]);
 
   const handleIncrease = (index) => {
-    setCount((pre) => {
-      return pre.map((pres, i) =>
-        index == i ? { ...pres, quantity: pres.quantity + 1 } : pres
-      );
-    });
+    const updatedCount = [...count];
+    updatedCount[index] = { ...updatedCount[index] };
+    updatedCount[index].quantity = updatedCount[index].quantity + 1;
+    setCount(updatedCount);
   };
   const handleDecrease = (index) => {
-    setCount((pre) => {
-      return pre.map((pres, i) =>
-        index == i ? { ...pres, quantity: pres.quantity - 1 } : pres
-      );
+    const updatedCount = [...count];
+    updatedCount[index] = { ...updatedCount[index] };
+    updatedCount[index].quantity =
+      updatedCount[index].quantity - 1 >= 0
+        ? updatedCount[index].quantity - 1
+        : 0;
+    setCount(updatedCount);
+  };
+  const SaveData = async (productdetail, dem) => {
+    const response = await AddProductIntoOrder(productdetail.id, {
+      Price: productdetail.price,
+      Quantity: dem,
     });
   };
+  const DeleteData = async (productdetail) => {
+    const response = await DeleteProductIntoOrder(productdetail.id);
+  };
+  const fetchCart = async () => {
+    if (user) {
+      const data = await GetOrder();
+      if (data?.status)
+        dispatch({ type: reducerCases.SET_CART, cart: data.productOrder });
+    } else {
+      const data = localStorage.getItem("webbanbalo_cart");
+      if (data)
+        dispatch({ type: reducerCases.SET_CART, cart: JSON.parse(data) });
+    }
+  };
   const handleClick = (cart, count) => {
-    const SaveData = async (productdetail, dem) => {
-      const response = await AddProductIntoOrder(productdetail.id, {
-        Price: productdetail.price,
-        Quantity: dem,
-      });
-    };
-    const DeleteData = async (productdetail) => {
-      const response = await DeleteProductIntoOrder(productdetail.id);
-    };
-    const fetchCart = async () => {
-      if (user) {
-        const data = await GetProductIntoOrder();
-        if (data) dispatch({ type: reducerCases.SET_CART, cart: data });
-      } else {
-        const data = localStorage.getItem("webbanbalo_cart");
-        if (data)
-          dispatch({ type: reducerCases.SET_CART, cart: JSON.parse(data) });
-      }
-    };
-    cart?.forEach((element, index) => {
+    cart?.forEach(async (element, index) => {
       if (
-        element.quantity != count[index].quantity &&
-        count[index].quantity != 0 &&
-        console.log(count[0])
+        element.quantity !== count[index].quantity &&
+        count[index].quantity !== 0
       ) {
         if (user) {
-          SaveData(element.product, count[index].quantity);
+          await SaveData(element, count[index].quantity);
           dispatch({ type: reducerCases.SET_CART, cart: count });
         } else {
           let cartTemp = JSON.parse(localStorage.getItem("webbanbalo_cart"));
@@ -77,7 +80,7 @@ const Table = () => {
         }
       } else if (count[index].quantity == 0) {
         if (user) {
-          DeleteData(element.product, user.token.accessToken);
+          await DeleteData(element, user.token.accessToken);
           fetchCart();
         } else {
           let cartTemp = JSON.parse(localStorage.getItem("webbanbalo_cart"));
@@ -116,9 +119,9 @@ const Table = () => {
             return (
               <tr key={index}>
                 <td>
-                  <img src={count.product.image} alt="" />
+                  <img src={processApiImagePath(count.image)} alt="" />
                 </td>
-                <td>{count.product.name}</td>
+                <td>{count.name}</td>
                 <td>{count.price.toLocaleString()}đ</td>
                 <td>
                   <div>
@@ -147,6 +150,7 @@ const Table = () => {
       </Container>
       <DivContainer>
         <div
+          className="custom-button update"
           onClick={() => {
             handleClick(cart, count);
           }}
@@ -154,6 +158,7 @@ const Table = () => {
           Cập nhật
         </div>
         <div
+          className="custom-button payment"
           onClick={() => {
             navigate("/pay");
           }}
@@ -170,57 +175,101 @@ const LinkCustome = styled(Link)`
 `;
 const DivContainer = styled.div`
   display: flex;
-  flex-direction: row-reverse;
-  margin: 5% 10%;
-
-  div {
-    margin-right: 2%;
-    height: 2rem;
-    width: 6rem;
-    border: 2px solid;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  flex-direction: row;
+  justify-content: flex-end;
+  margin: 0 auto;
+  margin-top: 20px;
+  max-width: 80%;
+  .custom-button {
     user-select: none;
+    cursor: pointer;
+    padding: 10px 20px;
+    border-radius: 5px;
+    text-align: center;
+    transition: background-color 0.3s;
+    color: #007bff;
+    background-color: #fff;
+  }
+  .custom-button:first-child {
+    margin-right: 10px;
+  }
+
+  .custom-button.update {
+    background-color: #007bff;
+    color: #fff;
+  }
+
+  .custom-button.payment {
+    background-color: #ff6f61;
+    color: #fff;
+  }
+
+  .custom-button.update:hover {
+    background-color: #0056b3;
+    color: #fff;
+  }
+
+  .custom-button.update:active {
+    background-color: #007bff;
+    color: #fff;
+  }
+
+  .custom-button.payment:hover {
+    background-color: #f64333;
+    color: #fff;
+  }
+
+  .custom-button.payment:active {
+    background-color: #ff6f61;
+    color: #fff;
   }
 `;
 const Container = styled.table`
-  margin: 5% 10%;
-
-  thead {
-    tr {
-      th {
-        border: 1px solid;
-        width: 20vw;
-        background-color: black;
-        color: white;
-        text-align: center;
-      }
-    }
+  width: 100%;
+  max-width: 80%;
+  margin: 0 auto;
+  font-family: Arial, sans-serif;
+  margin-top: 10px;
+  thead tr {
+    background-color: #333;
+    color: #fff;
   }
-  tbody {
-    tr {
-      td {
-        border: 2px solid #ddd;
-        text-align: center;
-        div {
-          margin: 0 10%;
-          display: grid;
-          grid-template-columns: 1fr 2fr 1fr;
-          div {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 2px solid;
-            user-select: none;
-          }
-        }
-        img {
-          width: 100%;
-          height: 100%;
-        }
-      }
-    }
+
+  thead th {
+    padding: 10px;
+  }
+
+  tbody td {
+    padding: 10px;
+    border-bottom: 1px solid #ccc;
+  }
+
+  tbody td img {
+    max-width: 100px;
+    max-height: 100px;
+  }
+
+  tbody td div {
+    display: flex;
+    align-items: center;
+  }
+
+  tbody td div > div {
+    cursor: pointer;
+    padding: 5px;
+    width: 20px;
+    height: 20px;
+    justify-content: center;
+    background-color: #007bff;
+    color: #fff;
+    user-select: none;
+
+    border-radius: 50%;
+    margin: 0 5px;
+  }
+
+  tbody td:last-child {
+    font-weight: bold;
   }
 `;
 

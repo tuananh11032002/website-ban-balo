@@ -140,7 +140,7 @@ const AccountDetail = () => {
             </button>
           </div>
         </div>
-        <div className="other">
+        {/* <div className="other">
           <div className="address"></div>
           <div className="payment">
             <div className="payment-header">
@@ -166,7 +166,7 @@ const AccountDetail = () => {
               ))}
             </div>
           </div>
-        </div>
+        </div> */}
       </Container>
     </>
   );

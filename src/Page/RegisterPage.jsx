@@ -126,4 +126,5 @@ const Container = styled.div`
     background-color: #0056b3;
   }
 `;
+
 export default RegisterPage;

@@ -32,8 +32,10 @@ const Admin = ({ Child, indexActive = 0, ...props }) => {
 
   useEffect(() => {
     const mainHeight = menuRef.current.clientHeight;
+
     const headerHeight = headerRef.current.clientHeight;
-    const calculatedBodyHeight = mainHeight - headerHeight;
+
+    const calculatedBodyHeight = 100 - headerHeight;
     setBodyHeight(calculatedBodyHeight);
   }, []);
   useEffect(() => {});
@@ -86,7 +88,7 @@ const Admin = ({ Child, indexActive = 0, ...props }) => {
       navigate("/admin/customer-list");
     }
     if (index === 8) {
-      navigate("/admin/add-product");
+      navigate("/admin/add-product/add");
     }
     if (index == 8 && !isPhone) {
       setIsPhone(true);
@@ -338,12 +340,13 @@ const Container = styled.div`
     transform: translateX(-100%);
     transition: transform 0.3s ease-in-out;
     background-color: ${backgroundColor};
-    z-index: 3;
+    z-index: 1;
     * {
       color: black;
     }
     overflow: hidden;
   }
+
   .menu-not-phone {
     transform: translateX(0);
   }

@@ -1,21 +1,54 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import { Navigate, useNavigate, useParams } from "react-router-dom";
 import styled from "styled-components";
-
+import {
+  createProductAPI,
+  getCategoryApi,
+  getProductApiById,
+  updateProductAPI,
+} from "../../Axios/web";
+import { useStateProvider } from "../../StateProvider/StateProvider";
+import { reducerCases } from "../../StateProvider/reducer";
+import { IoRemoveCircleOutline } from "react-icons/io5";
+import { AiOutlineLoading3Quarters } from "react-icons/ai";
+import processApiImagePath from "../../Helper/EditLinkImage";
+import ProcessDate from "../../Helper/ProcessDate";
 export const AddProduct = () => {
+  const [{ category }, dispatch] = useStateProvider();
   const imageInputRef = useRef(null);
   const [selectedImage, setSelectedImage] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState();
-  const [quantity, setQuantity] = useState(0);
-
+  const { id } = useParams();
   const [dataCategory, setDataCategory] = useState([
     "Electric",
     "Household",
     "Shoes",
   ]);
   const [options, setOptions] = useState([{ type: "", value: "" }]);
+  const [price, setPrice] = useState(0);
+  const [discountPrice, setDiscountPrice] = useState(0);
+  const [productEdit, setProductEdit] = useState();
+  const [inputName, setInputName] = useState("");
+  const [description, setDescription] = useState("");
+  const [calcTax, setCalcTax] = useState(false);
+  const [imageLink, setImageLink] = useState([]);
+  const [soLuongThem, setSoLuongThem] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleAddOption = () => {
     setOptions([...options, { type: "", value: "" }]);
+  };
+  const hanldeRemoveImageLink = (e, index) => {
+    e.stopPropagation();
+    const imageFilter = imageLink.filter((image, i) => i !== index);
+    setImageLink(imageFilter);
+  };
+
+  const handRemoveImageLocal = (e, index) => {
+    e.stopPropagation();
+    const imageFilter = selectedImage.filter((image, i) => i !== index);
+    setSelectedImage(imageFilter);
   };
   const handleDelOption = (index) => {
     const newOption = options?.filter((temp, indexTemp) => index !== indexTemp);
@@ -43,10 +76,10 @@ export const AddProduct = () => {
   };
   const handleImageChange = (event) => {
     const file = event.target.files[0];
-    setSelectedImage([...selectedImage, file]);
+    if (file) setSelectedImage([...selectedImage, file]);
   };
   const handleDrop = (event) => {
-    event.preventDefault(); // Ngăn chặn hành động mặc định khi thả tệp vào trình duyệt
+    event.preventDefault();
 
     const files = event.dataTransfer.files;
     if (files.length > 0) {
@@ -56,17 +89,106 @@ export const AddProduct = () => {
   };
 
   const handleDragOver = (event) => {
-    event.preventDefault(); // Ngăn chặn hành động mặc định khi kéo tệp qua trình duyệt
+    event.preventDefault();
   };
+  //function call update api
+  const handleSubmit = async () => {
+    const formData = new FormData();
+
+    for (const file of selectedImage) {
+      formData.append("productInput.ImageFiles", file);
+    }
+
+    formData.append("productInput.Name", inputName);
+    formData.append("productInput.CategoryId", selectedCategory);
+    console.log("selectedCategory", selectedCategory);
+    formData.append("productInput.Description", description);
+
+    formData.append("productInput.Discount", discountPrice);
+
+    formData.append("productInput.Price", price);
+
+    formData.append("productInput.SoLuong", soLuongThem);
+
+    setIsLoading(true);
+    let data;
+    if (id !== "add") {
+      for (const file of imageLink) {
+        formData.append("productInput.linkImage", file);
+      }
+      data = await updateProductAPI(id, formData);
+
+      if (data?.status) {
+        setSelectedImage([]);
+      }
+    } else {
+      data = await createProductAPI(formData);
+    }
+
+    setIsLoading(false);
+
+    console.log(data);
+    if (data?.status) {
+      if (id !== "add") {
+        setProductEdit({});
+      } else {
+        navigate(`/admin/add-product/${data.result.id}`);
+      }
+    }
+  };
+  useEffect(() => {
+    const fetchCategory = async () => {
+      console.log(category.length);
+      if (category.length === 0) {
+        const categoryTemp = await getCategoryApi();
+        console.log(categoryTemp, "temps");
+        setSelectedCategory(categoryTemp.result[0].id);
+        dispatch({
+          type: reducerCases.SET_CATEGORY,
+          category: categoryTemp.result,
+        });
+      }
+    };
+    fetchCategory();
+  }, []);
+
+  useEffect(() => {
+    const fetchProduct = async () => {
+      if (id !== "add") {
+        const productTemp = await getProductApiById(id);
+        console.log(productTemp, "productTemp");
+        if (productTemp?.status) {
+          setImageLink(productTemp.result.image);
+          setInputName(productTemp.result.name);
+          setPrice(productTemp.result.price);
+          setDiscountPrice(productTemp.result.discount);
+          setDescription(productTemp.result.description);
+          setSelectedCategory(productTemp.result.categoryId);
+          if (
+            JSON.stringify(productTemp.result) !== JSON.stringify(productEdit)
+          )
+            setProductEdit(productTemp.result);
+        }
+      }
+    };
+    fetchProduct();
+  }, [productEdit]);
   return (
     <Container>
+      {isLoading ? (
+        <div className="loading">
+          <AiOutlineLoading3Quarters />
+        </div>
+      ) : null}
       <div className="header-add">
-        <div class="left-content">
-          <div class="bold-text">Add a new Product</div>
+        <div className="left-content">
+          <div className="bold-text">Add a new Product</div>
           Orders placed across your store
         </div>
-        <div class="right-content">
-          <button class="publish-button">PUBLISH PRODUCT</button>
+        <div className="right-content">
+          <button className="publish-button" onClick={() => handleSubmit()}>
+            {id === "add" ? "PUBLISH" : "UPDATE"} PRODUCT
+          </button>
         </div>
       </div>
       <div className="content">
@@ -75,14 +197,30 @@ export const AddProduct = () => {
             <div className="card-header">PRODUCT INFORMATION</div>
             <div className="card-body">
               <div>
-                <input type="text" placeholder="Name" />
+                <input
+                  type="text"
+                  placeholder="Name"
+                  value={inputName}
+                  onChange={(e) => setInputName(e.target.value)}
+                />
               </div>
               <div>
-                <input type="text" className="col" placeholder="Comment" />
-                <select defaultValue="" className="col">
-                  {dataCategory?.map((data, index) => (
-                    <option key={index} value={data}>
-                      {data}
+                <input
+                  type="text"
+                  className="col"
+                  placeholder="Description"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                />
+                <select
+                  defaultValue=""
+                  className="col"
+                  value={selectedCategory}
+                  onChange={(e) => setSelectedCategory(e.target.value)}
+                >
+                  {category?.map((data, index) => (
+                    <option key={index} value={data.id}>
+                      {data.name}
                     </option>
                   ))}
                 </select>
@@ -111,14 +249,36 @@ export const AddProduct = () => {
                     className="dropzone-div"
                     onClick={() => handleBrowseImageClick()}
                   >
+                    <div className="image-list">
+                      {imageLink?.map((im, index) => (
+                        <div className="image">
+                          <img src={processApiImagePath(im)} alt="Selected" />
+                          <div className="remove-image">
+                            <span style={{ fontSize: "10px" }}>
+                              Ảnh hiện tại
+                            </span>
+                            <IoRemoveCircleOutline
+                              onClick={(e) => {
+                                hanldeRemoveImageLink(e, index);
+                              }}
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                     {selectedImage.length > 0 ? (
                       <div className="image-list">
                         {selectedImage?.map((image, index) => (
-                          <div className="image">
+                          <div className="image" key={index}>
                             <img
                               src={URL.createObjectURL(image)}
                               alt="Selected"
                             />
+                            <div className="remove-image">
+                              <IoRemoveCircleOutline
+                                onClick={(e) => handRemoveImageLocal(e, index)}
+                              />
+                            </div>
                           </div>
                         ))}
                       </div>
@@ -177,24 +337,19 @@ export const AddProduct = () => {
             <div className="card-header">QUANTITY</div>
             <div className="card-body">
               <div className="input-row ">
+                <label htmlFor="">Nhập số lượng cần thêm : </label>
                 <input
                   type="number"
                   placeholder="Nhập số lượng cần thêm"
-                  onChange={(e) => setQuantity(e.target.value)}
+                  value={soLuongThem}
+                  onChange={(e) => setSoLuongThem(e.target.value)}
                 />
-                <button
-                  onClick={() =>
-                    alert(`Bạn đã thêm ${quantity} sản phẩm vào kho!`)
-                  }
-                >
-                  Confirm
-                </button>
               </div>
               <div className="product-info">
-                <p>Product in stock now: 54</p>
+                <p>Product in stock now: {productEdit?.soluong}</p>
                 <p>Product in transit: 390</p>
-                <p>Last time restocked: 24th June, 2023</p>
-                <p>Total stock over lifetime: 2430</p>
+                <p>Last time restocked: {ProcessDate(productEdit?.createAt)}</p>
+                <p>Total stock over lifetime: {productEdit?.totalProduct}</p>
               </div>
             </div>
           </div>
@@ -203,22 +358,41 @@ export const AddProduct = () => {
           <div className="card-header">PRICE INFORMATION</div>
           <div className="card-body">
             <div className="input-container">
+              <label>Price</label>
               <input
                 type="text"
                 placeholder="Best Price"
                 className="price-input"
+                value={price}
+                onChange={(e) => setPrice(e.target.value)}
               />
             </div>
             <div className="input-container">
+              <label>Discount Price</label>
+
               <input
                 type="text"
                 placeholder="Discounted Price"
                 className="price-input"
+                value={discountPrice}
+                onChange={(e) => setDiscountPrice(e.target.value)}
               />
             </div>
-            <div className="input-container">
-              <input type="checkbox" className="calculate-button" />
-              Tính thuế cho sản phẩm này
+            <div className="">
+              <div>
+                <input
+                  type="checkbox"
+                  className="calculate-button"
+                  onChange={(e) => setCalcTax(e.target.checked)}
+                />
+                &nbsp;Tính thuế cho sản phẩm này
+              </div>
+              {calcTax ? (
+                <div>
+                  Thuế của sản phẩm tính ra là:{" "}
+                  {((price * 8) / 100).toLocaleString()}đ
+                </div>
+              ) : null}
             </div>
           </div>
         </div>
@@ -323,7 +497,15 @@ const Container = styled.div`
       .input-container {
         display: flex;
         width: 100%;
+        flex-wrap: wrap;
         margin-bottom: 10px;
+      }
+      .input-container input {
+        width: 100%;
+      }
+      .input-container label {
+        font-weight: bold;
+        color: blue;
       }
     }
 
@@ -333,7 +515,8 @@ const Container = styled.div`
       .dropzone-div {
         font-size: 2.25rem;
         display: flex;
-        flex-direction: column;
+        flex-direction: row;
+        flex-wrap: wrap;
         justify-content: center;
         align-items: center;
         padding: 1.25rem;
@@ -348,7 +531,12 @@ const Container = styled.div`
         justify-content: center;
         gap: 10px;
       }
-
+      .dropzone-div .image-list .remove-image {
+        position: absolute;
+        top: -2px;
+        right: 5px;
+        transform: scale(1.25);
+      }
       .dropzone-div .image {
         max-width: 25%;
         max-height: 25%;
@@ -421,13 +609,15 @@ const Container = styled.div`
 
       .input-row {
         display: flex;
-        justify-content: space-between;
+        flex-direction: row;
         width: 100%;
         margin-bottom: 10px;
+        align-items: center;
       }
-
-      input,
-      button {
+      label {
+        margin-right: 10px;
+      }
+      input {
         width: 45%;
       }
 

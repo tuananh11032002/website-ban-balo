@@ -1,13 +1,18 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
 
 import styled from "styled-components";
-import Pagination from "./Pagination";
 import { AddCategory } from "./AddCategory";
 import { AdminContext } from "../Admin";
+import { deleteCategoryApi, getCategoryApiForAdmin } from "../../Axios/web";
+import { RiDeleteBin3Line } from "react-icons/ri";
+import { FiEdit2 } from "react-icons/fi";
+import processApiImagePath from "../../Helper/EditLinkImage";
 
 const CategoryList = () => {
+  // const [mode, setMode] = useState("add");
   const { closeMenu } = useContext(AdminContext);
+  const [categoryId, setCategoryId] = useState(null);
   const [data, setData] = useState([
     {
       id: 1,
@@ -61,7 +66,6 @@ const CategoryList = () => {
     },
   ]);
   const [selectAll, setSelectAll] = useState(false);
-  const [checkStock, setCheckStock] = useState(data.map((item) => item.stock));
 
   const [checkboxes, setCheckboxes] = useState(Array(data.length).fill(false));
 
@@ -75,20 +79,42 @@ const CategoryList = () => {
     newCheckboxes[index] = !newCheckboxes[index];
     setCheckboxes(newCheckboxes);
   };
-
+  const handleDelete = async (categoryId) => {
+    await deleteCategoryApi(categoryId);
+    setData([]);
+  };
   const [selectedValue, setSelectedValue] = useState("7");
   const [addCategory, setAddCategory] = useState(false);
+  useEffect(() => {
+    const fetchCategory = async () => {
+      const response = await getCategoryApiForAdmin();
+
+      if (response?.status === true) {
+        if (JSON.stringify(data) !== JSON.stringify(response.result)) {
+          console.log("response.result", response.result);
+          setData(response.result);
+        }
+      }
+    };
+    fetchCategory();
+  }, [data]);
   return (
     <Container>
-      {addCategory ? <AddCategory setAddCategory={setAddCategory} /> : null}
+      {addCategory ? (
+        <AddCategory
+          setAddCategory={setAddCategory}
+          categoryId={categoryId}
+          setCategoryId={setCategoryId}
+        />
+      ) : null}
       <h1>eCommerce / Category List</h1>
 
       <div className="datatable">
-        <div class="datatable-action">
-          <input class="search-input" type="text" placeholder="Search" />
-          <div class="dttable-action-button">
+        <div className="datatable-action">
+          <input className="search-input" type="text" placeholder="Search" />
+          <div className="dttable-action-button">
             <select
-              class="action-select"
+              className="action-select"
               name=""
               id=""
               onChange={(e) => setSelectedValue(e.target.value)}
@@ -99,7 +125,7 @@ const CategoryList = () => {
               <option value="50">50</option>
             </select>
             <div
-              class="action-button"
+              className="action-button"
               onClick={(e) => {
                 e.preventDefault();
                 setAddCategory(true);
@@ -143,7 +169,9 @@ const CategoryList = () => {
                   <td>
                     <div className="td-flex">
                       <img
-                        src={category.image}
+                        src={
+                          processApiImagePath(category.image) || category.image
+                        }
                         alt=""
                         width="40px"
                         height="40px"
@@ -151,28 +179,32 @@ const CategoryList = () => {
                       <div>{category.category}</div>
                     </div>
                   </td>
-                  <td>{category.totalProduct}</td>
+                  <td>{category.totalProduct} products</td>
 
-                  <td>{category.totalEarning}</td>
+                  <td>{category.totalEarning.toLocaleString()}đ</td>
 
-                  <td>{category.action}</td>
+                  <td className="td-action">
+                    <FiEdit2
+                      onClick={() => {
+                        setAddCategory(true);
+                        setCategoryId(category.id);
+                      }}
+                    />
+                    <RiDeleteBin3Line
+                      onClick={() => {
+                        handleDelete(category.id);
+                      }}
+                    />
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
       </div>
-      <Pagination
-        obj={{
-          pageNow: 1,
-          size: selectedValue,
-          totalProduct: 100,
-        }}
-      />
     </Container>
   );
 };
-const borderRadius = "0.375rem";
 
 const Container = styled.div`
   height: 100%;
@@ -231,6 +263,10 @@ const Container = styled.div`
     /* Đặt kiểu cho cột "ACTIONS" */
     .datatable-product td:last-child {
       text-align: center;
+    }
+    .datatable-product .td-action svg {
+      margin-right: 10px;
+      font-size: 20px;
     }
     .datatable-product td:nth-child(2) {
       .td-flex {

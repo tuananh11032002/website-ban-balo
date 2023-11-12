@@ -6,13 +6,14 @@ import { styled } from "styled-components";
 import {
   AddProductIntoOrder,
   GetProductIntoOrder,
-  getProductApi,
+  getProductApiById,
 } from "../../Axios/web";
 
 import { useStateProvider } from "../../StateProvider/StateProvider";
 import { reducerCases } from "../../StateProvider/reducer";
 import { useLocation } from "react-router-dom";
 import ProductAddedMessage from "./ProductAddedMessage";
+import processApiImagePath from "../../Helper/EditLinkImage";
 
 const ProductDetail = () => {
   const [count, setCount] = useState(1);
@@ -22,7 +23,6 @@ const ProductDetail = () => {
   const params = useParams();
   const { pathname } = useLocation();
   const [showProductAdded, setShowProductAdded] = useState(false);
-  console.log("productdetail", user);
 
   const handleAddToCart = () => {
     setShowProductAdded(true);
@@ -32,19 +32,13 @@ const ProductDetail = () => {
     setShowProductAdded(false);
   };
   useEffect(() => {
-    window.scrollTo(0, 100);
+    window.scrollTo(0, 0);
   }, [pathname]);
-  useEffect(() => {
-    const fetchdata = async () => {
-      const data = await getProductApi(params.productId);
-      dispatch({ type: reducerCases.SET_PRODUCTDETAIL, productdetail: data });
-    };
-    fetchdata();
-  }, [params.productId]);
+
   const handlerClick = () => {
     const SaveData = async (productdetail) => {
       const datafilter = cart?.filter((cart) => {
-        return cart?.product.id == productdetail.id;
+        return cart.id == productdetail.id;
       });
       let response;
       if (user) {
@@ -63,50 +57,50 @@ const ProductDetail = () => {
             Quantity: count,
           });
         }
-        dispatch({ type: reducerCases.SET_CART, loading: true });
+        dispatch({ type: reducerCases.SET_LOADING, loading: true });
 
         const data = await GetProductIntoOrder();
         setTimeout(() => {
           dispatch({ type: "SET_LOADING", loading: false });
         }, 20000);
-        dispatch({ type: reducerCases.SET_CART, cart: data });
+        dispatch({ type: reducerCases.SET_CART, cart: data.result });
       } else {
-        var cartTemp = localStorage.getItem("webbanbalo_cart");
-
-        if (datafilter?.length > 0) {
-          const result = JSON.stringify(
-            JSON.parse(cartTemp)?.map((pro) =>
-              datafilter[0].product.id == pro.product.id
-                ? {
-                    quantity: count + pro.quantity,
-                    product: productdetail,
-                    price: pro.price,
-                  }
-                : pro
-            )
-          );
-          localStorage.setItem("webbanbalo_cart", result);
-          dispatch({
-            type: reducerCases.SET_CART,
-            cart: JSON.parse(localStorage.getItem("webbanbalo_cart")),
-          });
-        } else {
-          localStorage.setItem(
-            "webbanbalo_cart",
-            JSON.stringify([
-              ...JSON.parse(cartTemp),
-              {
-                price: productdetail.price,
-                quantity: count,
-                product: productdetail,
-              },
-            ])
-          );
-          dispatch({
-            type: reducerCases.SET_CART,
-            cart: JSON.parse(localStorage.getItem("webbanbalo_cart")),
-          });
-        }
+        navigate("/login");
+        // var cartTemp = localStorage.getItem("webbanbalo_cart");
+        // if (datafilter?.length > 0) {
+        //   const result = JSON.stringify(
+        //     JSON.parse(cartTemp)?.map((pro) =>
+        //       datafilter[0].product.id == pro.product.id
+        //         ? {
+        //             quantity: count + pro.quantity,
+        //             product: productdetail,
+        //             price: pro.price,
+        //           }
+        //         : pro
+        //     )
+        //   );
+        //   localStorage.setItem("webbanbalo_cart", result);
+        //   dispatch({
+        //     type: reducerCases.SET_CART,
+        //     cart: JSON.parse(localStorage.getItem("webbanbalo_cart")),
+        //   });
+        // } else {
+        //   localStorage.setItem(
+        //     "webbanbalo_cart",
+        //     JSON.stringify([
+        //       ...JSON.parse(cartTemp),
+        //       {
+        //         price: productdetail.price,
+        //         quantity: count,
+        //         product: productdetail,
+        //       },
+        //     ])
+        //   );
+        //   dispatch({
+        //     type: reducerCases.SET_CART,
+        //     cart: JSON.parse(localStorage.getItem("webbanbalo_cart")),
+        //   });
+        // }
       }
 
       handleAddToCart();
@@ -122,6 +116,19 @@ const ProductDetail = () => {
 
     SaveData(productdetail);
   };
+  useEffect(() => {
+    const fetchData = async () => {
+      const dataDetail = await getProductApiById(params.productId);
+      if (productdetail?.result !== dataDetail) {
+        dispatch({
+          type: reducerCases.SET_PRODUCTDETAIL,
+          productdetail: dataDetail.result,
+        });
+      }
+    };
+    fetchData();
+  }, [params.productId]);
+
   return (
     <div>
       <Header />
@@ -133,7 +140,7 @@ const ProductDetail = () => {
 
         <div className="body">
           <div className="productdetail__image">
-            <img src={productdetail?.image || null} />
+            <img src={processApiImagePath(productdetail?.image[0]) || null} />
           </div>
           <div className="productdetail__infor">
             <div style={{ fontSize: "2rem", borderBottom: "1px solid black" }}>
@@ -164,56 +171,67 @@ const ProductDetail = () => {
               <span className="color"></span>
               <span className="color"></span>
             </div>
-            <div style={{ display: "flex" }}>
-              Số lượng: &nbsp;
+            <div className="quantity-container">
+              <span className="quantity-label">Số lượng:</span>
               <div className="total">
                 <button
                   className="add"
-                  onClick={() => {
-                    setCount((pre) => {
-                      if (pre > 0) {
-                        setCount(pre - 1);
-                      } else {
-                        setCount(0);
-                      }
-                    });
-                  }}
+                  onClick={() => setCount(Math.max(0, count - 1))}
                 >
                   -
                 </button>
-                <div>{count}</div>
+                <div className="count-container">
+                  <input
+                    className="count"
+                    value={count}
+                    type="number"
+                    onChange={(e) => {
+                      setCount(
+                        e.target.value > productdetail?.soluong
+                          ? productdetail?.soluong
+                          : e.target.value
+                      );
+                    }}
+                  />
+                </div>
                 <button
                   className="add"
-                  onClick={() => {
-                    setCount(count + 1);
-                  }}
+                  onClick={() =>
+                    setCount(
+                      count + 1 > productdetail?.soluong
+                        ? productdetail?.soluong
+                        : count + 1
+                    )
+                  }
                 >
                   +
                 </button>
               </div>
-            </div>
-            <div className="button-parent">
-              <>
-                <div
-                  className="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handlerClick();
-                  }}
-                >
-                  Thêm vào giỏ hàng
-                </div>
-                <div
-                  className="button red"
-                  onClick={() => {
-                    navigate("/pay");
-                  }}
-                >
-                  Mua ngay
-                </div>
-              </>
+
+              <span className="quantity-label">
+                {productdetail?.soluong} sản phẩm có sẵn
+              </span>
             </div>
             {/* <div className="button-parent">
+              <div
+                className="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handlerClick();
+                }}
+              >
+                Thêm vào giỏ hàng
+              </div>
+              <div
+                className="button red"
+                onClick={() => {
+                  navigate("/pay");
+                }}
+              >
+                Mua ngay
+              </div>
+            </div> */}
+            <div className="button-parent">
               {productdetail?.soluong != 0 ? (
                 <>
                   <div
@@ -235,9 +253,11 @@ const ProductDetail = () => {
                   </div>
                 </>
               ) : (
-                <div className="button">Hàng tạm hết</div>
+                <div className="button" style={{ backgroundColor: "red" }}>
+                  Hàng tạm hết
+                </div>
               )}
-            </div> */}
+            </div>
           </div>
         </div>
       </Container>
@@ -257,7 +277,6 @@ const Container = styled.div`
     display: flex;
     flex-wrap: wrap;
     justify-content: space-evenly;
-    align-items: center;
     padding: 0 20px;
   }
   .red {
@@ -272,23 +291,32 @@ const Container = styled.div`
   }
   .button-parent {
     display: flex;
-    justify-content: flex-start;
     margin-top: 20px;
     .button {
-      border: 1px solid;
-      width: 50%;
-      height: 47px;
-      border-color: red;
       cursor: pointer;
+      padding: 10px 20px;
+      background-color: #3498db;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      font-size: 1rem;
+      transition: background-color 0.3s;
+      text-align: center;
       display: flex;
       align-items: center;
-      font-weight: bold;
-
       justify-content: center;
-      &:first-child {
-        margin-right: 20px;
-      }
-      flex: 1;
+      margin-right: 10px;
+    }
+
+    .button.red {
+      background-color: #e74c3c;
+    }
+
+    .button.red:hover {
+      background-color: red;
+    }
+    .button:hover {
+      background-color: #2980b9;
     }
   }
 
@@ -300,33 +328,64 @@ const Container = styled.div`
     display: flex;
     justify-content: center;
     align-items: center;
-    max-width: 70%;
+    max-width: 50%;
   }
   .productdetail__image img {
     width: 100%;
   }
-  .total {
-    width: 9rem;
-    border: 1px solid;
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-  }
-  .add {
-    outline: none;
-    border: none;
-    width: 4rem;
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
 
-    &:hover {
+  .quantity-container {
+    display: flex;
+    align-items: center;
+    .quantity-label {
+      font-size: 1.2rem;
+      margin-right: 10px;
+    }
+
+    .total {
+      display: flex;
+      align-items: center;
+    }
+
+    .count-container {
+      background-color: #f2f2f2;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      padding: 5px 10px;
+      display: flex;
+      align-items: center;
+    }
+
+    .count {
+      background-color: #f2f2f2;
+      border: none;
+      outline: none;
+      font-size: 1.2rem;
+      margin: 0 10px;
+      max-width: 50px;
+    }
+
+    .add {
+      width: 30px;
+      height: 30px;
+      background-color: #3498db;
+      color: #fff;
+      border: none;
       cursor: pointer;
-      color: red;
+      font-weight: bold;
+      font-size: 1.2rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border-radius: 50%;
+      margin: 0 10px;
+    }
+
+    .add:hover {
+      background-color: #2980b9;
     }
   }
+
   @media screen and (max-width: 756px) {
     flex-direction: column;
     justify-content: center;

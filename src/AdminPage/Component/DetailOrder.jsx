@@ -124,43 +124,43 @@ const DetailOrder = () => {
               ))}
             </tbody>
           </table>
-          <div class="fee-container">
-            <div class="fee-item">
+          <div className="fee-container">
+            <div className="fee-item">
               <div>Subtotal:</div>
               <div>{fee.subtotal}</div>
             </div>
-            <div class="fee-item">
+            <div className="fee-item">
               <div>Discount:</div>
               <div>{fee.discount}</div>
             </div>
-            <div class="fee-item">
+            <div className="fee-item">
               <div>Tax:</div>
               <div>{fee.tax}</div>
             </div>
-            <div class="fee-item">
+            <div className="fee-item">
               <div>Total:</div>
               <div>{fee.total}</div>
             </div>
           </div>
         </div>
-        <div class="timeline">
-          <div class="timeline-item">
-            <div class="timeline-circle"></div>
-            <div class="timeline-content">
+        <div className="timeline">
+          <div className="timeline-item">
+            <div className="timeline-circle"></div>
+            <div className="timeline-content">
               <p>Đã đặt hàng</p>
               <p>1/10/2023</p>
             </div>
           </div>
-          <div class="timeline-item">
-            <div class="timeline-circle"></div>
-            <div class="timeline-content">
+          <div className="timeline-item">
+            <div className="timeline-circle"></div>
+            <div className="timeline-content">
               <p>Đang xử lý</p>
               <p>2/10/2023</p>
             </div>
           </div>
-          <div class="timeline-item">
-            <div class="timeline-circle"></div>
-            <div class="timeline-content ">
+          <div className="timeline-item">
+            <div className="timeline-circle"></div>
+            <div className="timeline-content ">
               <p>Đang giao hàng</p>
               <p>3/10/2023</p>
             </div>

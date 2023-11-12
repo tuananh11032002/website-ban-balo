@@ -4,27 +4,34 @@ import { styled } from "styled-components";
 import { useStateProvider } from "../StateProvider/StateProvider";
 import { reducerCases } from "../StateProvider/reducer";
 import { GetOrder, GetProductIntoOrder } from "../Axios/web";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import processApiImagePath from "../Helper/EditLinkImage";
+import PaymentInfo from "./PaymentInfo";
 const PayPage = () => {
-  const [selectedProvince, setSelectedProvince] = useState("");
-  const [selectedDistrict, setSelectedDistrict] = useState("");
-  const [selectedWard, setSelectedWard] = useState("");
-
   const [provinces, setProvinces] = useState([]);
   const [districts, setDistricts] = useState([]);
   const [wards, setWards] = useState([]);
 
   const [order, setOrder] = useState(null);
+  const [customerInfor, setCustomerInfo] = useState(
+    JSON.parse(localStorage.getItem("webbanbalo-shippingInfor")) || {
+      customerName: "",
+      customerEmail: "",
+      customerPhone: "",
+      customerProvince: "",
+      customerWard: "",
+      customerDistrict: "",
+    }
+  );
 
   useEffect(() => {
     //api province
     const fetchData = async () => {
       try {
         const response = await axios.get(
-          "https://provinces.open-api.vn/api/p/"
+          "https://vapi.vnappmob.com/api/province/"
         );
-        console.log("response", response);
-        setProvinces(response.data);
+        setProvinces(response.data.results);
       } catch (error) {
         console.error(error);
       }
@@ -35,11 +42,10 @@ const PayPage = () => {
   const fetchDataDistrict = async (code) => {
     try {
       const response = await axios.get(
-        `https://provinces.open-api.vn/api/p/${code}`
+        `https://vapi.vnappmob.com/api/province/district/${code}`
       );
-      console.log("response", response);
 
-      setDistricts([]);
+      setDistricts(response.data.results);
     } catch (error) {
       console.error(error);
     }
@@ -48,25 +54,32 @@ const PayPage = () => {
   const fetchDataWard = async (code) => {
     try {
       const response = await axios.get(
-        `https://provinces.open-api.vn/api/w/{code}${code}`
+        `https://vapi.vnappmob.com/api/province/ward/${code}`
       );
-      setWards(response.data);
+      setWards(response.data.results);
     } catch (error) {
       console.error(error);
     }
   };
   const [{ cart, user }, dispatch] = useStateProvider();
+
   useEffect(() => {
     const fetchCart = async () => {
       if (user) {
-        const data = await GetProductIntoOrder();
-
-        if (JSON.stringify(data) !== JSON.stringify(cart)) {
-          dispatch({ type: reducerCases.SET_CART, cart: data });
-        }
         const orderAPi = await GetOrder();
-        if (orderAPi) {
-          setOrder(orderAPi);
+        if (orderAPi?.status) {
+          console.log(orderAPi.result);
+          setOrder(orderAPi.result);
+          if (
+            JSON.stringify(orderAPi.result.productOrder) !==
+              JSON.stringify(cart) &&
+            JSON.stringify(orderAPi.result.productOrder)
+          ) {
+            dispatch({
+              type: reducerCases.SET_CART,
+              cart: orderAPi.result.productOrder,
+            });
+          }
         }
       } else {
         const data = JSON.parse(localStorage.getItem("webbanbalo_cart"));
@@ -94,183 +107,226 @@ const PayPage = () => {
       spanRef.current.style.width = `${spanHeight}px`;
     }
   }, []);
+  const [numberState, setNumberState] = useState(1);
+  console.log("customer", customerInfor);
+  useEffect(() => {
+    const data = localStorage.getItem("webbanbalo-shippingInfor");
+
+    try {
+      if (data) {
+        const parsedData = JSON.parse(data);
+        if (parsedData != null) {
+          setCustomerInfo({ ...parsedData });
+        }
+      }
+    } catch (error) {
+      console.error("Lỗi phân tích cú pháp JSON:", error);
+    }
+  }, []);
+  useEffect(() => {
+    localStorage.setItem(
+      "webbanbalo-shippingInfor",
+      JSON.stringify(customerInfor)
+    );
+  }, [customerInfor]);
   return (
     <Container>
       <div className="column">
-        <div className="introduce">
-          <h2>TranTuanAnh Brand</h2>
-          <h3>Thông tin thanh toán</h3>
-        </div>
-        <div className="input-container">
-          <div className="input-row">
-            <input type="text" className="input" placeholder="Tên của bạn" />
-          </div>
-          <div className="input-row">
-            <div className="input-column">
-              <input type="text" className="input" placeholder="Email" />
+        <nav>
+          <span>Pay &gt; </span>
+          <span
+            onClick={() => setNumberState(1)}
+            className={numberState === 1 ? "active" : ""}
+          >
+            Thông tin khách hàng
+          </span>
+          {numberState === 2 ? (
+            <span className={numberState === 2 ? "active" : ""}>
+              {" "}
+              &gt; Phương thức thanh toán
+            </span>
+          ) : null}
+        </nav>
+        {numberState === 1 ? (
+          <>
+            <div className="introduce">
+              <i>TranTuanAnh Brand</i>
+              <h3>Thông tin thanh toán</h3>
             </div>
-            <div className="input-column">
-              <input
-                type="text"
-                className="input"
-                placeholder="Số điện thoại"
-              />
+            <div className="input-container">
+              <div className="input-row">
+                <input
+                  type="text"
+                  className="input"
+                  placeholder="Tên của bạn"
+                  name="name"
+                  value={customerInfor.customerName}
+                  onChange={(e) =>
+                    setCustomerInfo({
+                      ...customerInfor,
+                      customerName: e.target.value,
+                    })
+                  }
+                />
+              </div>
+              <div className="input-row">
+                <div className="input-column">
+                  <input
+                    type="text"
+                    className="input"
+                    placeholder="Email"
+                    name="email"
+                    value={customerInfor.customerEmail}
+                    onChange={(e) =>
+                      setCustomerInfo({
+                        ...customerInfor,
+                        customerEmail: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+                <div className="input-column">
+                  <input
+                    type="text"
+                    className="input"
+                    placeholder="Số điện thoại"
+                    name="phone"
+                    value={customerInfor.customerPhone}
+                    onChange={(e) =>
+                      setCustomerInfo({
+                        ...customerInfor,
+                        customerPhone: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+              </div>
+              <div className="input-row">
+                <input
+                  type="text"
+                  className="input"
+                  placeholder="Số nhà và tên đường"
+                />
+              </div>
             </div>
-          </div>
-          <div className="input-row">
-            <input
-              type="text"
-              className="input"
-              placeholder="Số nhà và tên đường"
-            />
-          </div>
-        </div>
+            <div className="select">
+              <select
+                className="custom-select"
+                value={customerInfor.customerProvince}
+                onChange={(e) => {
+                  setCustomerInfo({
+                    ...customerInfor,
+                    customerProvince: e.target.value,
+                  });
 
-        <div className="select">
-          <select
-            className="custom-select"
-            value={selectedProvince}
-            onChange={(e) => {
-              setSelectedProvince(e.target.value);
-              const code = e.target.selectedOptions[0].getAttribute("data-key");
-              fetchDataDistrict(code);
-              //setDistricts(provinces[key].districts);
-            }}
-          >
-            <option value="">Chọn Tỉnh</option>
-            {provinces?.map((province, index) => (
-              <option
-                key={index}
-                value={province.name}
-                data-key={province.code}
+                  const code =
+                    e.target.selectedOptions[0].getAttribute("data-key");
+                  fetchDataDistrict(code);
+                }}
               >
-                {province.name}
-              </option>
-            ))}
-          </select>
-          <select
-            className="custom-select"
-            value={selectedDistrict}
-            onChange={(e) => {
-              setSelectedDistrict(e.target.value);
-              const code = e.target.selectedOptions[0].getAttribute("data-key");
-              fetchDataWard(code);
-            }}
-          >
-            <option value="">Chọn Huyện</option>
-            {districts.map((district, index) => (
-              <option
-                key={index}
-                value={district.name}
-                data-key={district.code}
+                <option value="">Chọn Tỉnh</option>
+                {provinces?.map((province, index) => (
+                  <option
+                    key={index}
+                    value={province.province_name}
+                    data-key={province.province_id}
+                  >
+                    {province.province_name}
+                  </option>
+                ))}
+              </select>
+              <select
+                className="custom-select"
+                value={customerInfor.customerDistrict}
+                onChange={(e) => {
+                  setCustomerInfo({
+                    ...customerInfor,
+                    customerDistrict: e.target.value,
+                  });
+
+                  const code =
+                    e.target.selectedOptions[0].getAttribute("data-key");
+                  fetchDataWard(code);
+                }}
               >
-                {district.name}
-              </option>
-            ))}
-          </select>
-          <select
-            className="custom-select"
-            value={selectedWard}
-            onChange={(e) => {
-              setSelectedWard(e.target.value);
-            }}
-          >
-            <option value="">Chọn Xã</option>
-            {wards.map((ward, index) => (
-              <option key={index} value={ward.name}>
-                {ward.name}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div
-          className="button-container"
-          style={{
-            width: "100%",
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-          }}
-        >
-          <div>
-            <Link to="/cart">Quay lại giỏ hàng</Link>
-          </div>
-          <button
-            style={{
-              backgroundColor: "#338dbc",
-              color: "white",
-              height: "60px",
-            }}
-          >
-            <h6>Phương thức thanh toán</h6>
-          </button>
-        </div>
+                <option value="">Chọn Huyện</option>
+                {districts.map((district, index) => (
+                  <option
+                    key={index}
+                    value={district.district_name}
+                    data-key={district.district_id}
+                  >
+                    {district.district_name}
+                  </option>
+                ))}
+              </select>
+              <select
+                className="custom-select"
+                value={customerInfor.customerWard}
+                onChange={(e) => {
+                  setCustomerInfo({
+                    ...customerInfor,
+                    customerWard: e.target.value,
+                  });
+                }}
+              >
+                <option value="">Chọn Xã</option>
+                {wards.map((ward, index) => (
+                  <option key={index} value={ward.ward_name}>
+                    {ward.ward_name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="button-container">
+              <div>
+                <Link to="/cart">Quay lại giỏ hàng</Link>
+              </div>
+              <button onClick={() => setNumberState(2)}>
+                Phương thức thanh toán
+              </button>
+            </div>
+          </>
+        ) : (
+          <PaymentInfo customerInfor={customerInfor} orderId={order.id} />
+        )}
       </div>
 
       <div className="column">
-        <ul
-          className="cart"
-          style={{ height: "50vh", overflow: "auto", paddingTop: "10px" }}
-        >
+        <ul className="cart">
           {cart?.map((ca, index) => (
-            <li
-              key={index}
-              style={{
-                height: "50px",
-                width: "100%",
-                marginBottom: "5vh",
-                borderBottom: "1px solid",
-              }}
-            >
+            <li key={index}>
               <div className="image">
-                <img
-                  src={ca.product.image}
-                  alt=""
-                  style={{ height: "90%", width: "50px" }}
-                />
-                <span
-                  ref={spanRef}
-                  style={{
-                    borderRadius: "50%",
-                    backgroundColor: "gray",
-                    position: "absolute",
-                    color: "white",
-                    height: "45%",
-                    width: "22px",
-                    textAlign: "center",
-                    left: "30%",
-                    top: "-10%",
-                  }}
-                >
-                  {ca.quantity}
-                </span>
+                {console.log("ca", ca)}
+                <img src={processApiImagePath(ca.image)} alt="" />
+                <span className="quantity-badge">{ca.quantity}</span>
               </div>
 
-              <span>{ca.product.name}</span>
-              <span style={{ textAlign: "right" }}>
-                {(ca.product.price * ca.quantity).toLocaleString()}đ
-              </span>
+              <span>{ca.name}</span>
+              <span>{(ca.price * ca.quantity).toLocaleString()}đ</span>
             </li>
           ))}
         </ul>
-        <div class="code-container">
-          <input
-            type="text"
-            placeholder="Nhập mã giảm giá tại đây"
-            class="discount-input"
-          />
-          <button class="apply-button">Áp dụng</button>
-        </div>
+        {numberState === 1 ? (
+          <div className="code-container">
+            <input
+              type="text"
+              placeholder="Nhập mã giảm giá tại đây"
+              className="discount-input"
+            />
+            <button className="apply-button">Áp dụng</button>
+          </div>
+        ) : null}
         <div className="price-ship">
           <div className="price">
             <div>Tạm tính</div>
-            <div>1000 đ</div>
-          </div>
-          <div className="ship">
-            <div>Phí ship</div>
             <div>
               {order ? `${order.totalAmount.toLocaleString()}đ` : "-----"}
             </div>
+          </div>
+          <div className="ship">
+            <div>Phí ship</div>
+            <div>{order?.feeShip.toLocaleString()}đ</div>
           </div>
           <hr />
           <div className="ship">
@@ -286,19 +342,82 @@ const Container = styled.div`
   margin: 15vh 10%;
   display: flex;
   flex-direction: row;
-  height: auto;
-  > .column > div {
-    padding-left: 2rem;
+  .column {
+    flex: 1;
+    margin: 0 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    padding: 10px;
   }
-  li {
-    list-style-type: none;
-  }
+
   .cart {
-    width: 100%;
+    max-height: 300px;
+    overflow: auto;
+    padding: 10px;
+    margin-bottom: 10px !important;
+    list-style: none;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+
+    margin: 0;
+    padding: 0;
+
     li {
-      display: grid;
-      grid-template-columns: 1fr 3fr 1fr;
+      display: flex;
+      align-items: center;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      padding: 10px;
     }
+
+    .image {
+      display: flex;
+      align-items: center;
+      margin-right: 10px;
+    }
+
+    .image img {
+      height: 90%;
+      width: 50px;
+      border-radius: 8px;
+    }
+
+    .quantity-badge {
+      position: absolute;
+      background-color: #3498db;
+      color: #fff;
+      border-radius: 50%;
+      width: 22px;
+      height: 22px;
+      text-align: center;
+      line-height: 22px;
+      top: -10px;
+      right: -10px;
+    }
+
+    span {
+      flex: 1;
+    }
+
+    span:last-child {
+      text-align: center;
+    }
+  }
+  nav span:first-child {
+    color: #333;
+    margin-right: 5px;
+  }
+
+  nav span.active {
+    font-weight: bold;
+    color: #0099ff;
+    cursor: pointer;
+  }
+
+  nav span:last-child {
+    margin-left: 5px;
+  }
+  nav span {
+    cursor: pointer;
   }
   .input-container {
     width: 100%;
@@ -317,17 +436,16 @@ const Container = styled.div`
 
       .input-column {
         width: 100%;
-
         margin-bottom: 10px;
-        &:not(:last-child) {
-          margin-bottom: 10px;
-        }
-        &:last-child {
-          margin-bottom: 0px;
-        }
-        &:not(:first-child) {
-          margin-left: 0px;
-        }
+      }
+      .input-column:not(:last-child) {
+        margin-bottom: 10px;
+      }
+      .input-column:last-child {
+        margin-bottom: 0px;
+      }
+      .input-column:not(:first-child) {
+        margin-left: 0px;
       }
     }
   }
@@ -359,58 +477,36 @@ const Container = styled.div`
     }
   }
 
-  .column {
-    flex: 1;
+  .button-container {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
   }
-  @media (max-width: 768px) {
-    flex-direction: column-reverse;
-    margin: 15vh 0;
-    padding: 0 5%;
-    box-sizing: border-box;
-    .select {
-      select {
-        width: 100%;
-        margin: 0 0 10px 0;
-      }
-      flex: 1;
+  .button-container button {
+    background-color: #338dbc;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    border: none;
+  }
 
-      flex-direction: column;
-    }
-    > .column > div {
-      padding-left: 0;
-    }
-    .select,
-    .input-column {
-      margin: auto;
-    }
-  }
   .select {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 5%;
+    margin-bottom: 10px;
+
+    * {
+      color: black;
+    }
   }
   .custom-select {
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    width: 30%; /* Chiều dài cố định */
-    height: 40px; /* Chiều cao cố định */
-    max-width: 100%;
-    padding: 5px 30px 5px 5px;
+    width: 100%;
+    padding: 10px;
     border: 1px solid gray;
-    background: linear-gradient(
-        90deg,
-        transparent 0,
-        transparent calc(100% - 30px),
-        gray calc(100% - 30px),
-        gray calc(100% - 28px),
-        transparent calc(100% - 28px),
-        transparent 100%
-      ),
-      url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='7'><polygon points='0,0 10,0 5,7' fill='gray'/></svg>")
-        no-repeat right center / 14px 7px; /* Thay đổi kích thước của tam giác */
-    background-position-x: calc(100% - 17px);
+    border-radius: 5px;
+    margin-right: 10px;
   }
 
   .custom-select:focus {
@@ -418,40 +514,81 @@ const Container = styled.div`
   }
 
   .code-container {
-    width: 100%;
     display: flex;
-    align-items: center; /* Căn giữa theo chiều dọc */
-  }
+    align-items: center;
+    .discount-input {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 1rem;
+    }
 
-  .discount-input {
-    flex: 1; /* Để input chiếm phần còn lại của flex container */
-    padding: 0.5rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    margin-right: 0.5rem;
-  }
+    .apply-button {
+      background-color: #3498db;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      font-size: 1rem;
+      padding: 10px 20px;
+      cursor: pointer;
+      margin-left: 10px;
+    }
 
-  .apply-button {
-    background-color: #007bff;
-    color: white;
-    padding: 0.5rem 1rem;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-  }
-
-  .apply-button:hover {
-    background-color: #0056b3;
+    .apply-button:hover {
+      background-color: #2980b9;
+    }
   }
 
   .price-ship {
-    .ship,
-    .price {
-      margin: 20px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
 
+    .price,
+    .ship {
+      width: 100%;
       display: flex;
       justify-content: space-between;
+      margin: 5px 0;
+    }
+
+    .price div,
+    .ship div {
+      font-size: 1.2rem;
+    }
+
+    hr {
+      border: 1px solid #ccc;
+      width: 100%;
+    }
+
+    .ship h3 {
+      font-size: 1.4rem;
+      color: #3498db;
+      font-weight: bold;
+    }
+  }
+  @media (max-width: 768px) {
+    flex-direction: column-reverse;
+    margin: 15vh 0;
+    padding: 0 5%;
+    box-sizing: border-box;
+    .select {
+      flex: 1;
+
+      flex-direction: column;
+    }
+    .select select {
+      width: 100%;
+      margin: 0 0 10px 0;
+    }
+    > .column > div {
+      padding-left: 0;
+    }
+    .select,
+    .input-column {
+      margin: auto;
     }
   }
 `;

@@ -1,8 +1,63 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import { MdClose } from "react-icons/md";
 import styled from "styled-components";
+import {
+  createCategoryApi,
+  getCategoryApiById,
+  putCategory,
+} from "../../Axios/web";
+import processApiImagePath from "../../Helper/EditLinkImage";
 
-export const AddCategory = ({ setAddCategory }) => {
+export const AddCategory = ({ setAddCategory, setCategoryId, categoryId }) => {
+  const [category, setCategory] = useState({ name: "", title: "" });
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setCategory({ ...category, [name]: value });
+  };
+  useEffect(() => {
+    if (categoryId !== null) {
+      console.log("fetch");
+      fetchCategoryById();
+    }
+  }, []);
+  const handleChangeImage = (e) => {
+    let temp;
+    if (e.target.name === "image") {
+      temp = "imageShow";
+    } else {
+      temp = "imageReplaceShow";
+    }
+    setCategory((pre) => ({
+      ...pre,
+      [e.target.name]: URL.createObjectURL(e.target.files[0]),
+      [temp]: e.target.files[0],
+    }));
+  };
+  const fetchCategoryById = async () => {
+    const data = await getCategoryApiById(categoryId);
+    if (data?.status) {
+      if (JSON.stringify(data.result) !== JSON.stringify(category)) {
+        setCategory(data.result);
+      }
+    }
+  };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const formData = new FormData();
+    formData.append("category.Name", category.name);
+    formData.append("category.Image", category.imageShow);
+    formData.append("category.ImageReplace", category.imageReplaceShow);
+    formData.append("category.Title", category.title);
+
+    if (categoryId === null) {
+      const data = await createCategoryApi(formData);
+      console.log("data", data);
+    } else {
+      formData.append("category.Id", category.id);
+      const data = await putCategory(formData);
+      console.log("data", data);
+    }
+  };
   return (
     <Container>
       <form>
@@ -10,13 +65,45 @@ export const AddCategory = ({ setAddCategory }) => {
           className="close-button"
           onClick={() => {
             setAddCategory(false);
+            setCategoryId(null);
           }}
         >
           <MdClose />
         </span>
-        <input type="text" placeholder="Name Category" />
-        <input type="text" placeholder="Title" />
-        <input type="file" />
+        <input
+          type="text"
+          placeholder="Name Category"
+          name="name"
+          value={category?.name}
+          onChange={handleChange}
+        />
+        <input
+          type="text"
+          placeholder="Title"
+          name="title"
+          value={category.title}
+          onChange={handleChange}
+        />
+        <div className="input-container">
+          <input type="file" name="image" onChange={handleChangeImage} />
+
+          <img
+            src={processApiImagePath(category.image) || category.image}
+            alt=""
+          />
+        </div>
+        <div className="input-container">
+          <input type="file" name="imageReplace" onChange={handleChangeImage} />
+
+          <img
+            src={
+              processApiImagePath(category.imageReplace) ||
+              category.imageReplace
+            }
+            alt=""
+          />
+        </div>
+
         <div className="select-wrapper">
           <label>Status</label>
           <select>
@@ -25,7 +112,7 @@ export const AddCategory = ({ setAddCategory }) => {
             <option value="option3">Option 3</option>
           </select>
         </div>
-        <button>Add</button>
+        <button onClick={(e) => handleSubmit(e)}>Add</button>
       </form>
     </Container>
   );
@@ -74,6 +161,21 @@ const Container = styled.div`
       padding: 10px;
       border: 1px solid #ccc;
       border-radius: 5px;
+    }
+    .input-container {
+      display: flex;
+      flex-direction: row;
+    }
+    .input-container img {
+      width: 50px;
+      height: 50px;
+      object-fit: contain;
+      max-width: 100%;
+      max-height: 100%;
+    }
+    .input-container input {
+      flex: 1;
+      margin-right: 10px;
     }
 
     label {

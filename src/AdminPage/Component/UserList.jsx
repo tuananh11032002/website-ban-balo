@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { AiOutlineUser, AiOutlinePlus } from "react-icons/ai";
 import { BiSolidDiscount, BiUser, BiUserCheck } from "react-icons/bi";
 import { TbAffiliate } from "react-icons/tb";
@@ -11,6 +11,7 @@ import Pagination from "./Pagination";
 import { useNavigate } from "react-router-dom";
 import { AdminContext } from "../Admin";
 import { GrUserAdmin } from "react-icons/gr";
+import { getCategoryApi } from "../../Axios/web";
 
 const UserList = () => {
   const [data, setData] = useState([
@@ -64,6 +65,8 @@ const UserList = () => {
       action: "none",
     },
   ]);
+  const { closeMenu } = useContext(AdminContext);
+  const [isOpenEditUser, setIsOpenEditUser] = useState(false);
   const navigate = useNavigate();
   const [selectAll, setSelectAll] = useState(false);
 
@@ -96,8 +99,7 @@ const UserList = () => {
     e.preventDefault();
     // Xử lý logic gửi biểu mẫu ở đây
   };
-  const { closeMenu } = useContext(AdminContext);
-  const [isOpenEditUser, setIsOpenEditUser] = useState(false);
+
   return (
     <>
       {isOpenEditUser ? (
@@ -234,23 +236,23 @@ const UserList = () => {
             <div className="product_stock">
               <select>
                 <option value=""> Select Status </option>
-                <option value="Pending" class="text-capitalize">
+                <option value="Pending" className="text-capitalize">
                   Pending
                 </option>
-                <option value="Active" class="text-capitalize">
+                <option value="Active" className="text-capitalize">
                   Active
                 </option>
-                <option value="Inactive" class="text-capitalize">
+                <option value="Inactive" className="text-capitalize">
                   Inactive
                 </option>
               </select>
             </div>
           </div>
-          <div class="datatable-action">
-            <input class="search-input" type="text" placeholder="Search" />
-            <div class="dttable-action-button">
+          <div className="datatable-action">
+            <input className="search-input" type="text" placeholder="Search" />
+            <div className="dttable-action-button">
               <select
-                class="action-select"
+                className="action-select"
                 name=""
                 id=""
                 onChange={(e) => setSelectedValue(e.target.value)}
@@ -261,7 +263,7 @@ const UserList = () => {
                 <option value="50">50</option>
               </select>
               <div
-                class="action-button"
+                className="action-button"
                 onClick={() => {
                   setIsOpenEditUser(true);
                 }}

@@ -124,11 +124,11 @@ const OrderList = () => {
         </div>
       </div>
       <div className="datatable">
-        <div class="datatable-action">
-          <input class="search-input" type="text" placeholder="Search" />
-          <div class="dttable-action-button">
+        <div className="datatable-action">
+          <input className="search-input" type="text" placeholder="Search" />
+          <div className="dttable-action-button">
             <select
-              class="action-select"
+              className="action-select"
               name=""
               id=""
               onChange={(e) => setSelectedValue(e.target.value)}

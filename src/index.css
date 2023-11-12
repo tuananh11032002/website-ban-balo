@@ -37,7 +37,9 @@ html {
   height: 10vh;
   animation: spin 2s linear infinite; /* Áp dụng animation tên "spin" */
 }
-
+.errol {
+  color: red;
+}
 /* Định nghĩa animation "spin" */
 @keyframes spin {
   0% {

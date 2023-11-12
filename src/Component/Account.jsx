@@ -49,6 +49,9 @@ const Account = ({ component, indexActive = 1 }) => {
             className={`sidebar-child ${
               indexActive === 2 ? "active-choose" : ""
             }`}
+            onClick={() => {
+              navigate("/account/change-password");
+            }}
           >
             <MdOutlinePassword />
             Đổi mật khẩu

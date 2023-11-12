@@ -106,13 +106,14 @@ const Address = () => {
                 </div>
                 <div>
                   <i
+                    style={{ color: "Highlight" }}
                     onClick={() => {
                       handleEdit(da.id);
                     }}
                   >
                     Chính sửa &nbsp;
                   </i>
-                  <i>Xoá</i>
+                  <i style={{ color: "red" }}>Xoá</i>
                 </div>
               </div>
             ))}
@@ -152,36 +153,34 @@ const Container = styled.div`
   }
 
   .data {
-    overflow-y: auto;
-    height: auto;
+    display: flex;
+    flex-direction: column;
 
-    * {
-      font-size: 14px;
-    }
     .data-child {
       display: flex;
       justify-content: space-between;
-      align-items: center;
-      padding: 1rem;
-      border-bottom: 1px solid;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      padding: 10px;
+      margin: 10px 0;
+      background-color: #f2f2f2;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     }
-    .data-child > div {
+
+    .infomation {
       flex: 1;
     }
-    .data-child > div:last-child {
-      display: flex;
-      justify-content: flex-end;
+
+    .infomation div {
+      font-size: 1rem;
     }
-    .data-child > div:not(:last-child) {
-      margin-bottom: 10px;
+
+    .infomation b {
+      font-weight: bold;
     }
+
     .data-child i {
-      color: blue;
-    }
-    .data-child i:hover {
       cursor: pointer;
-      text-decoration: underline;
-      transform: scale(1.25);
     }
   }
   .edit-form-overlay {

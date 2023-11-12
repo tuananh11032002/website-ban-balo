@@ -1,8 +1,5 @@
 import React, { useState } from "react";
-import { AiOutlineHome, AiOutlinePlus } from "react-icons/ai";
-import { BiSolidDiscount } from "react-icons/bi";
-import { TbAffiliate } from "react-icons/tb";
-import { MdWeb } from "react-icons/md";
+import { AiOutlinePlus } from "react-icons/ai";
 
 import styled from "styled-components";
 import Pagination from "./Pagination";
@@ -77,11 +74,11 @@ const CustomerList = () => {
       <h1>eCommerce / Customer List</h1>
 
       <div className="datatable">
-        <div class="datatable-action">
-          <input class="search-input" type="text" placeholder="Search" />
-          <div class="dttable-action-button">
+        <div className="datatable-action">
+          <input className="search-input" type="text" placeholder="Search" />
+          <div className="dttable-action-button">
             <select
-              class="action-select"
+              className="action-select"
               name=""
               id=""
               onChange={(e) => setSelectedValue(e.target.value)}
@@ -91,7 +88,7 @@ const CustomerList = () => {
               <option value="20">20</option>
               <option value="50">50</option>
             </select>
-            <div class="action-button">
+            <div className="action-button">
               <AiOutlinePlus />
               <span>Add User</span>
             </div>

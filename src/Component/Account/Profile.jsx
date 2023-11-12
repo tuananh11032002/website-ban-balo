@@ -1,13 +1,86 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { styled } from "styled-components";
 import User from "../../Assets/Image/User";
 import { DatePicker } from "antd";
+import { useStateProvider } from "../../StateProvider/StateProvider";
+import { getUser, getUserWithId } from "../../Axios/web";
+import axios from "axios";
+import processApiImagePath from "../../Helper/EditLinkImage";
 
 const Profile = () => {
   const [email, setEmail] = useState("ttuananh372@gmail.com");
   const [phone, setPhone] = useState("039345679");
+  const [userName, setUserName] = useState("");
+  const [hoTen, setHoTen] = useState("");
+
   const [selectedImage, setSelectedImage] = useState();
 
+  //To show
+  const [image, setImage] = useState();
+  const [selectedGender, setselectedGender] = useState();
+  const [isValid, setIsValid] = useState(false);
+  const [{ user }, dispatch] = useStateProvider();
+  const [userInfor, setUserInfor] = useState({});
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const userId = JSON.parse(localStorage.getItem("webbanbalo_user")).userId;
+      const userTemp = await getUserWithId(userId);
+      console.log("userTemp", userTemp);
+      if (userTemp?.status === true) {
+        setUserInfor(userTemp.result);
+        setHoTen(userTemp.result.hoTen);
+        setEmail(userTemp.result.email);
+        setPhone(userTemp.result.phone || "");
+        setUserName(userTemp.result.userName);
+        setselectedGender(userTemp.result.gender || "");
+        setImage(userTemp.result.image);
+      }
+    };
+    if (user) {
+      fetchUser();
+    }
+  }, []);
+
+  const handleSaveChange = async () => {
+    try {
+      const response = await axios.put(
+        `${process.env.REACT_APP_URL_API}/User`,
+        {
+          phone,
+          email,
+          hoTen,
+          gender: selectedGender,
+          phone,
+          image: selectedImage,
+          id: userInfor.id,
+        },
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            // Authorization: `Bearer ${yourAccessToken}`,
+          },
+        }
+      );
+
+      console.log("API response:", response.data);
+    } catch (error) {
+      console.error("API error:", error);
+    }
+  };
+  const validateEmail = (email) => {
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+    const isValidEmail = emailRegex.test(email);
+
+    return isValidEmail;
+  };
+  const handleChangeEmail = (e) => {
+    const inputEmail = e.target.value;
+    setEmail(inputEmail);
+    const isValidEmail = validateEmail(inputEmail);
+    setIsValid(isValidEmail);
+  };
   const handleBrowseImageClick = () => {
     if (imageInputRef.current) {
       imageInputRef.current.click();
@@ -16,37 +89,93 @@ const Profile = () => {
   const handleImageChange = (event) => {
     const file = event.target.files[0];
     setSelectedImage(file);
+    setImage(URL.createObjectURL(file));
   };
   const imageInputRef = useRef();
+  const [isValidPhone, setIsValidPhone] = useState(true);
+  const validatePhoneNumber = (phoneNumber) => {
+    const phoneRegex = /^\d{10}$/;
+
+    const isValidPhoneNumber = phoneRegex.test(phoneNumber);
+
+    return isValidPhoneNumber;
+  };
+
+  const handlePhoneNumberChange = (e) => {
+    const inputPhoneNumber = e.target.value;
+    setPhone(inputPhoneNumber);
+    const isValidPhoneNumber = validatePhoneNumber(inputPhoneNumber);
+    setIsValidPhone(isValidPhoneNumber);
+  };
   return (
     <Container>
       <div className="title">
-        <h2>Hồ sơ của tôi </h2>
-        <p>Quản lý thông tin hồ sơ để bảo mật tài khoản</p>
+        <div>
+          <h2>Hồ sơ của tôi </h2>
+          <p>Quản lý thông tin hồ sơ để bảo mật tài khoản</p>
+        </div>
+        <button
+          onClick={() => {
+            handleSaveChange();
+          }}
+        >
+          Lưu thay đổi
+        </button>
       </div>
       <div className="content">
         <div className="user-info">
           <div className="user-info-item">
             <label htmlFor="username">Tên đăng nhập</label>
-            <input id="username" className="full-width-input" />
+            <input
+              id="username"
+              className="full-width-input"
+              value={userName}
+              onChange={(e) => setUserName(e.target.value)}
+            />
           </div>
           <div className="user-info-item">
             <label htmlFor="fullname">Họ và tên</label>
-            <input id="fullname" className="full-width-input" />
+            <input
+              id="fullname"
+              className="full-width-input"
+              value={hoTen}
+              onChange={(e) => setHoTen(e.target.value)}
+            />
           </div>
           <div className="user-info-item">
             <label htmlFor="email">Email</label>
-            <input className="full-width-input" type="text" value={email} />
+            <input
+              className="full-width-input"
+              type="text"
+              value={email}
+              onChange={(e) => handleChangeEmail(e)}
+            />
+            {isValid ? (
+              <p style={{ color: "green" }}>Email hợp lệ.</p>
+            ) : (
+              <p style={{ color: "red" }}>Email không hợp lệ.</p>
+            )}
           </div>
           <div className="user-info-item">
             <label htmlFor="phone">Số điện thoại</label>
 
-            <input type="text" value={phone} className="full-width-input" />
+            <input
+              type="text"
+              value={phone}
+              className="full-width-input"
+              onChange={(e) => handlePhoneNumberChange(e)}
+            />
+            {!isValidPhone ? (
+              <p style={{ color: "red" }}>Số điện thoại không hợp lệ.</p>
+            ) : null}
           </div>
 
           <div className="user-info-item">
             <label htmlFor="gender">Giới tính</label>
-            <select>
+            <select
+              value={selectedGender}
+              onChange={(e) => setselectedGender(e.target.value)}
+            >
               <option value="">Chọn giới tính </option>
               <option value="nam">Nam </option>
               <option value="nu">Nữ </option>
@@ -65,8 +194,8 @@ const Profile = () => {
 
         <div className="update-image">
           <div className="image">
-            {selectedImage ? (
-              <img src={URL.createObjectURL(selectedImage)} alt="Selected" />
+            {image ? (
+              <img src={processApiImagePath(image)} alt="Selected" />
             ) : null}
           </div>
           <div
@@ -94,7 +223,27 @@ const Profile = () => {
 const Container = styled.div`
   overflow-y: hidden;
   .title {
+    display: flex;
+    padding-bottom: 10px;
     border-bottom: 1px solid #3e3b3ba0;
+    justify-content: space-between;
+    button {
+      background-color: #0074d9;
+      color: #fff;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    button:focus {
+      outline: none;
+    }
   }
 
   .content {
@@ -183,10 +332,12 @@ const Container = styled.div`
         border-radius: 50%;
         background-color: #f5f5f5;
         margin-bottom: 20px;
+        overflow: hidden;
       }
       .image img {
-        max-width: 100%;
-        max-height: 100%;
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
       }
     }
   }

@@ -9,7 +9,6 @@ import { reducerCases } from "../StateProvider/reducer";
 const LoginContainer = styled.div`
   display: flex;
   justify-content: center;
-  align-items: center;
   height: 100vh;
   background-color: #e0e0e0;
 `;
@@ -23,6 +22,8 @@ const LoginForm = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
+  height: 400px;
+  transform: translateY(10%);
 `;
 
 const Title = styled.h2`
@@ -53,12 +54,28 @@ const Button = styled.button`
   &:hover {
     background-color: #0056b3;
   }
+  &:active {
+    background-color: #3c6c9e;
+  }
 `;
+const P = styled.p`
+  text-align: center;
+  margin-top: 10px;
 
+  a {
+    color: #007bff;
+    text-decoration: none;
+  }
+
+  a:hover {
+    text-decoration: underline;
+  }
+`;
 const LoginPage = () => {
   var temp = null;
   localStorage.setItem("myTempValue", JSON.stringify(temp));
   const result = localStorage.getItem("myTempValue");
+  const [errol, setErrol] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [{}, dispatch] = useStateProvider();
@@ -71,15 +88,16 @@ const LoginPage = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    console.log("login");
     const data = await Login({ password, username });
-    if (data.success) {
+    if (data?.status) {
       setShowProductAdded(true);
-      dispatch({ type: reducerCases.SET_USER, user: data });
-      localStorage.setItem("webbanbalo_user", JSON.stringify(data));
+      dispatch({ type: reducerCases.SET_USER, user: data.result });
+      localStorage.setItem("webbanbalo_user", JSON.stringify(data.result));
       setTimeout(() => {
         navigate("/");
-      }, 500);
+      }, 1000);
+    } else {
+      setErrol(data.result || "Đăng nhập thất bại");
     }
   };
   const [showProductAdded, setShowProductAdded] = useState(false);
@@ -111,6 +129,10 @@ const LoginPage = () => {
             onKeyPress={handleKeyPress}
           />
           <Button onClick={(e) => handleLogin(e)}>Login</Button>
+          {errol ? <div className="errol">{errol}</div> : null}
+          <P>
+            Tôi chưa có tài khoản? <a href="/register">Tạo tài khoản</a>
+          </P>
         </LoginForm>
       </LoginContainer>
     </>
