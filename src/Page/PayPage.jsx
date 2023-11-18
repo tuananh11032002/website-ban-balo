@@ -3,26 +3,37 @@ import React, { useState, useEffect, useRef } from "react";
 import { styled } from "styled-components";
 import { useStateProvider } from "../StateProvider/StateProvider";
 import { reducerCases } from "../StateProvider/reducer";
-import { GetOrder, GetProductIntoOrder } from "../Axios/web";
-import { Link, useNavigate } from "react-router-dom";
+import { GetOrder } from "../Axios/web";
+import { Link } from "react-router-dom";
 import processApiImagePath from "../Helper/EditLinkImage";
 import PaymentInfo from "./PaymentInfo";
+import { validateEmail, validatePhone } from "../Helper/CheckInput";
 const PayPage = () => {
   const [provinces, setProvinces] = useState([]);
   const [districts, setDistricts] = useState([]);
   const [wards, setWards] = useState([]);
 
   const [order, setOrder] = useState(null);
-  const [customerInfor, setCustomerInfo] = useState(
-    JSON.parse(localStorage.getItem("webbanbalo-shippingInfor")) || {
+  const [customerInfor, setCustomerInfo] = useState(() => {
+    const data = JSON.parse(
+      localStorage.getItem("webbanbalo-shippingInfor")
+    ) || {
       customerName: "",
       customerEmail: "",
       customerPhone: "",
       customerProvince: "",
       customerWard: "",
       customerDistrict: "",
-    }
-  );
+      orderNote: "",
+    };
+    const dataNew = {
+      ...data,
+      customerProvince: "",
+      customerWard: "",
+      customerDistrict: "",
+    };
+    return dataNew;
+  });
 
   useEffect(() => {
     //api province
@@ -142,7 +153,6 @@ const PayPage = () => {
           </span>
           {numberState === 2 ? (
             <span className={numberState === 2 ? "active" : ""}>
-              {" "}
               &gt; Phương thức thanh toán
             </span>
           ) : null}
@@ -155,22 +165,31 @@ const PayPage = () => {
             </div>
             <div className="input-container">
               <div className="input-row">
-                <input
-                  type="text"
-                  className="input"
-                  placeholder="Tên của bạn"
-                  name="name"
-                  value={customerInfor.customerName}
-                  onChange={(e) =>
-                    setCustomerInfo({
-                      ...customerInfor,
-                      customerName: e.target.value,
-                    })
-                  }
-                />
+                <div className="input-column">
+                  <label>Tên người nhận </label>
+                  <input
+                    type="text"
+                    className="input"
+                    placeholder="Tên của bạn"
+                    name="name"
+                    value={customerInfor.customerName}
+                    onChange={(e) =>
+                      setCustomerInfo({
+                        ...customerInfor,
+                        customerName: e.target.value,
+                      })
+                    }
+                  />
+                  {customerInfor.customerName === "" ? (
+                    <p className="red">Nhập giá trị cho Name</p>
+                  ) : (
+                    <p className="green">Đã nhập giá trị cho Name</p>
+                  )}
+                </div>
               </div>
               <div className="input-row">
                 <div className="input-column">
+                  <label htmlFor="">Email </label>
                   <input
                     type="text"
                     className="input"
@@ -184,8 +203,16 @@ const PayPage = () => {
                       })
                     }
                   />
+                  {customerInfor.customerEmail === "" ? (
+                    <p className="red">Nhập giá trị cho Mail</p>
+                  ) : !validateEmail(customerInfor.customerEmail) ? (
+                    <p className="red">Mail chưa hợp lệ</p>
+                  ) : (
+                    <p className="green">Email hợp lệ</p>
+                  )}
                 </div>
                 <div className="input-column">
+                  <label htmlFor="">Phone </label>
                   <input
                     type="text"
                     className="input"
@@ -199,90 +226,151 @@ const PayPage = () => {
                       })
                     }
                   />
+
+                  {customerInfor.customerPhone === "" ? (
+                    <p className="red">Nhập giá trị cho Phone</p>
+                  ) : !validatePhone(customerInfor.customerPhone) ? (
+                    <p className="red">Số điện thoại chưa hợp lệ</p>
+                  ) : (
+                    <p className="green">Số điện thoại hợp lệ</p>
+                  )}
                 </div>
               </div>
               <div className="input-row">
-                <input
-                  type="text"
-                  className="input"
-                  placeholder="Số nhà và tên đường"
-                />
+                <div className="input-column">
+                  <label htmlFor="">Số nhà </label>
+                  <input
+                    type="text"
+                    className="input"
+                    placeholder="Số nhà và tên đường"
+                  />
+                </div>
               </div>
             </div>
             <div className="select">
-              <select
-                className="custom-select"
-                value={customerInfor.customerProvince}
-                onChange={(e) => {
-                  setCustomerInfo({
-                    ...customerInfor,
-                    customerProvince: e.target.value,
-                  });
+              <div>
+                <label htmlFor="">Chọn tỉnh</label>
 
-                  const code =
-                    e.target.selectedOptions[0].getAttribute("data-key");
-                  fetchDataDistrict(code);
-                }}
-              >
-                <option value="">Chọn Tỉnh</option>
-                {provinces?.map((province, index) => (
-                  <option
-                    key={index}
-                    value={province.province_name}
-                    data-key={province.province_id}
-                  >
-                    {province.province_name}
-                  </option>
-                ))}
-              </select>
-              <select
-                className="custom-select"
-                value={customerInfor.customerDistrict}
-                onChange={(e) => {
-                  setCustomerInfo({
-                    ...customerInfor,
-                    customerDistrict: e.target.value,
-                  });
+                <select
+                  className="custom-select"
+                  value={customerInfor.customerProvince}
+                  onChange={(e) => {
+                    setCustomerInfo({
+                      ...customerInfor,
+                      customerProvince: e.target.value,
+                      customerDistrict: "",
+                      customerWard: "",
+                    });
 
-                  const code =
-                    e.target.selectedOptions[0].getAttribute("data-key");
-                  fetchDataWard(code);
-                }}
-              >
-                <option value="">Chọn Huyện</option>
-                {districts.map((district, index) => (
-                  <option
-                    key={index}
-                    value={district.district_name}
-                    data-key={district.district_id}
-                  >
-                    {district.district_name}
-                  </option>
-                ))}
-              </select>
-              <select
-                className="custom-select"
-                value={customerInfor.customerWard}
-                onChange={(e) => {
-                  setCustomerInfo({
-                    ...customerInfor,
-                    customerWard: e.target.value,
-                  });
-                }}
-              >
-                <option value="">Chọn Xã</option>
-                {wards.map((ward, index) => (
-                  <option key={index} value={ward.ward_name}>
-                    {ward.ward_name}
-                  </option>
-                ))}
-              </select>
+                    const code =
+                      e.target.selectedOptions[0].getAttribute("data-key");
+                    fetchDataDistrict(code);
+                  }}
+                >
+                  <option value="">Chọn Tỉnh</option>
+                  {provinces?.map((province, index) => (
+                    <option
+                      key={index}
+                      value={province.province_name}
+                      data-key={province.province_id}
+                    >
+                      {province.province_name}
+                    </option>
+                  ))}
+                </select>
+
+                {customerInfor.customerProvince === "" ? (
+                  <p className="red">Chọn tỉnh đi bạn yêu</p>
+                ) : (
+                  <p className="green">Đã chọn tỉnh</p>
+                )}
+              </div>
+
+              <div>
+                <label htmlFor="">Chọn huyện</label>
+
+                <select
+                  className="custom-select"
+                  value={customerInfor.customerDistrict}
+                  onChange={(e) => {
+                    setCustomerInfo({
+                      ...customerInfor,
+                      customerDistrict: e.target.value,
+                      customerWard: "",
+                    });
+
+                    const code =
+                      e.target.selectedOptions[0].getAttribute("data-key");
+                    fetchDataWard(code);
+                  }}
+                >
+                  <option value="">Chọn Huyện</option>
+                  {districts.map((district, index) => (
+                    <option
+                      key={index}
+                      value={district.district_name}
+                      data-key={district.district_id}
+                    >
+                      {district.district_name}
+                    </option>
+                  ))}
+                </select>
+
+                {customerInfor.customerDistrict === "" ? (
+                  <p className="red">Chọn huyện đi bạn yêu </p>
+                ) : (
+                  <p className="green">Đã chọn huyện </p>
+                )}
+              </div>
+              <div>
+                <label htmlFor="">Chọn xã</label>
+
+                <select
+                  className="custom-select"
+                  value={customerInfor.customerWard}
+                  onChange={(e) => {
+                    setCustomerInfo({
+                      ...customerInfor,
+                      customerWard: e.target.value,
+                    });
+                  }}
+                >
+                  <option value="">Chọn Xã</option>
+                  {wards.map((ward, index) => (
+                    <option key={index} value={ward.ward_name}>
+                      {ward.ward_name}
+                    </option>
+                  ))}
+                </select>
+
+                {customerInfor.customerWard === "" ? (
+                  <p className="red">Chọn xã đi bạn yêu</p>
+                ) : (
+                  <p className="green">Đã chọn xã</p>
+                )}
+              </div>
             </div>
             <div className="button-container">
               <div>
                 <Link to="/cart">Quay lại giỏ hàng</Link>
               </div>
-              <button onClick={() => setNumberState(2)}>
+              <button
+                onClick={() => {
+                  if (
+                    customerInfor.customerDistrict === "" ||
+                    customerInfor.customerProvince === "" ||
+                    customerInfor.customerWard === "" ||
+                    customerInfor.customerEmail === "" ||
+                    validateEmail(customerInfor.customerEmail) === false ||
+                    customerInfor.customerName === "" ||
+                    customerInfor.customerPhone === "" ||
+                    validatePhone(customerInfor.customerPhone) === false
+                  ) {
+                  } else {
+                    setNumberState(2);
+                  }
+                }}
+              >
                 Phương thức thanh toán
               </button>
             </div>
@@ -428,6 +516,7 @@ const Container = styled.div`
   .input-row {
     display: flex;
     margin-bottom: 10px;
+    flex-wrap: wrap;
 
     @media (max-width: 768px) {
       flex-direction: column;
@@ -459,7 +548,17 @@ const Container = styled.div`
       margin-left: 10px;
     }
   }
+  .green {
+    color: green !important;
+  }
+  .red {
+    color: red !important;
+  }
 
+  label::after {
+    content: " *";
+    color: red;
+  }
   .input {
     flex: 1;
     padding: 10px;
@@ -500,6 +599,10 @@ const Container = styled.div`
     * {
       color: black;
     }
+  }
+  .select > div {
+    flex: 1;
+    margin: 10px;
   }
   .custom-select {
     width: 100%;
@@ -579,7 +682,7 @@ const Container = styled.div`
 
       flex-direction: column;
     }
-    .select select {
+    .select > div {
       width: 100%;
       margin: 0 0 10px 0;
     }

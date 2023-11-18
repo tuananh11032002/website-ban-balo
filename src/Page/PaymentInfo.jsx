@@ -3,15 +3,21 @@ import styled from "styled-components";
 import processApiImagePath from "../Helper/EditLinkImage";
 import { ConfirmOrder } from "../Axios/web";
 import axios from "axios";
+import { VscLoading } from "react-icons/vsc";
+import { useNavigate } from "react-router-dom";
 
 function PaymentInfo({ customerInfor, orderId }) {
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("COD");
+  const [loading, setLoading] = useState(false);
 
+  const navigate = useNavigate();
   const handlePaymentMethodSelect = (method) => {
     setSelectedPaymentMethod(method);
   };
   console.log(customerInfor);
+
   const handleSubmit = async () => {
+    setLoading(true);
     const data = await ConfirmOrder({
       id: orderId,
       feeShip: 30000,
@@ -22,21 +28,15 @@ function PaymentInfo({ customerInfor, orderId }) {
       billingAddress: selectedPaymentMethod.toString(),
       orderNote: customerInfor.customerPhone,
       paymentMethod: selectedPaymentMethod.toString(),
+      customerName: customerInfor.customerName,
+      customerPhone: customerInfor.customerPhone,
     });
+    setLoading(false);
+    if (data?.status) {
+      navigate("/account/order");
+    }
+
     console.log("data", data);
-
-    // try {
-    //   const result = await axios.post(
-    //     "https://localhost:44301/api/Order/test",
-    //     {
-    //       status: "Success",
-    //     }
-    //   );
-
-    //   console.log(result.data);
-    // } catch (error) {
-    //   console.error("Error submitting data:", error);
-    // }
   };
 
   return (
@@ -87,7 +87,12 @@ function PaymentInfo({ customerInfor, orderId }) {
             handleSubmit();
           }}
         >
-          Hoàn tất
+          <span>Hoàn tất</span>
+          {loading ? (
+            <span className="loading-icons">
+              <VscLoading />
+            </span>
+          ) : null}
         </button>
       </div>
     </Container>
@@ -151,5 +156,11 @@ const Container = styled.div`
 
   .complete-button button:hover {
     background-color: #0077cc;
+  }
+  .loading-icons {
+    margin-left: 10px;
+  }
+  .loading-icons svg {
+    animation: spin 2s linear infinite;
   }
 `;

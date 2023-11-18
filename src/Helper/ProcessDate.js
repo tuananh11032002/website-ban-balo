@@ -1,9 +1,20 @@
-import { format } from "date-fns";
+import { format } from 'date-fns';
 
-const ProcessDate = (date) => {
-  const originalDate = "2023-07-04T04:43:54.452";
-  const dateObject = new Date(originalDate);
-  const formattedDate = format(dateObject, "do MMMM, yyyy");
-  return formattedDate;
+const ProcessDate = (dateString) => {
+   try {
+      const dateObject = new Date(dateString);
+
+      // Lấy giờ và phút từ đối tượng Date
+      const hours = dateObject.getHours();
+      const minutes = dateObject.getMinutes();
+
+      // Format ngày với thêm giờ và phút
+      const formattedDate = format(dateObject, `HH'h'mm'p'  dd/MM/yyyy`);
+
+      return formattedDate;
+   } catch {
+      return null;
+   }
 };
+
 export default ProcessDate;

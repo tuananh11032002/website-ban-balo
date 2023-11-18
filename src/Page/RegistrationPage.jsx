@@ -141,8 +141,8 @@ function RegistrationPage() {
         <label>Giới tính</label>
         <select value={gender} onChange={(e) => setGender(e.target.value)}>
           <option value="">Chọn giới tính</option>
-          <option value="Nam">Nam</option>
-          <option value="Nữ">Nữ</option>
+          <option value="Male">Nam</option>
+          <option value="Female">Nữ</option>
         </select>
       </div>
       <button onClick={handleRegistration}>Đăng ký</button>
