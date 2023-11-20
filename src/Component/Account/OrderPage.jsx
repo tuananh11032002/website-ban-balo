@@ -81,13 +81,13 @@ const OrderPage = () => {
    const [activeItem, setActiveItem] = useState(0);
    const [totalOrder, setTotalOrder] = useState(100);
    const [isOpenRating, setIsOpenRating] = useState(false);
-   const [productEdit, setProductEdit] = useState({});
+   const [productEdit, setProductEdit] = useState({ orderId: null });
    const handleItemClick = (index) => {
       setActiveItem(index);
    };
-   const handleRating = async (item) => {
+   const handleRating = async (item, orderId) => {
       setIsOpenRating(true);
-      setProductEdit(item);
+      setProductEdit({ ...item, orderId: orderId });
    };
    const fetchData = async () => {
       const dataApi = await GetOrderDone({ pageNow, pageSize: 3 });
@@ -102,7 +102,7 @@ const OrderPage = () => {
    useEffect(() => {
       fetchData();
    }, [pageNow]);
-   console.log(data);
+   console.log('data', data);
    return (
       <Container>
          <div className="navbar">
@@ -137,91 +137,89 @@ const OrderPage = () => {
                Đã hủy
             </div>
          </div>
-         {data?.length >= 0
-            ? data.map((da, index) => {
-                 return (
-                    <div className="order-child" key={index}>
-                       <div className="header">
-                          <div>Mã số đơn hàng: #{da.orderId}</div>
-                          <div>Tình trạng đơn hàng: {da.orderStatus}</div>
-                       </div>
-                       <div className="body">
-                          {da.product.map((item, index2) => {
-                             return (
-                                <div className="review">
-                                   <div className="item" key={index2}>
-                                      <img
-                                         src={processApiImagePath(item.image)}
-                                         alt=""
-                                      />
-                                      <div>
-                                         <span>{item.name}</span>
-                                         <span>Số lượng {item.quantity}</span>
-                                         <span>
-                                            Giá tiền{' '}
-                                            {item.price.toLocaleString()} đ
-                                         </span>
-                                      </div>
-                                   </div>
-                                   {da.orderStatus === 'Delivered' &&
-                                   item.isReview === false ? (
-                                      <button
-                                         className="product-review"
-                                         onClick={() => handleRating(item)}
-                                      >
-                                         Đánh giá
-                                      </button>
-                                   ) : null}
-                                   {isOpenRating ? (
-                                      <Rating
-                                         product={{
-                                            ...productEdit,
-                                            orderId: da.orderId,
-                                         }}
-                                         onClose={() => setIsOpenRating(false)}
-                                      />
-                                   ) : null}
-                                </div>
-                             );
-                          })}
-                       </div>
-                       <div className="footer">
-                          <div className="price">
-                             <div className="price-total">
-                                <div>Tổng tiền: </div>
-                                <div className="price-label">
-                                   {da?.totalAmount.toLocaleString()}đ
-                                </div>
-                             </div>
-                             <div className="price-total">
-                                <div>Phí vận chuyển:</div>
-                                <div className="price-label">
-                                   {da?.feeShip.toLocaleString()}đ
-                                </div>
-                             </div>
-                             <div className="price-total">
-                                <div>Giảm giá:</div>
-                                <div className="price-label">
-                                   {da?.discount?.toLocaleString()}đ
-                                </div>
-                             </div>
-                             <div className="price-total">
-                                <div>Thành tiền: </div>
-                                <div className="price-label">
-                                   {da?.grandTotal.toLocaleString()}đ
-                                </div>
-                             </div>
-                          </div>
+         {data.map((da, index) => {
+            return (
+               <div className="order-child" key={index}>
+                  <div className="header">
+                     <div>Mã số đơn hàng: #{da.orderId}</div>
+                     <div>Tình trạng đơn hàng: {da.orderStatus}</div>
+                  </div>
+                  <div className="body">
+                     {da.product.map((item, index2) => {
+                        return (
+                           <div className="review">
+                              <div className="item" key={index2}>
+                                 <img
+                                    src={processApiImagePath(item.image)}
+                                    alt=""
+                                 />
+                                 <div>
+                                    <span>{item.name}</span>
+                                    <span>Số lượng {item.quantity}</span>
+                                    <span>
+                                       Giá tiền {item.price.toLocaleString()} đ
+                                    </span>
+                                 </div>
+                              </div>
+                              {da.orderStatus === 'Delivered' &&
+                              item.isReview === false ? (
+                                 <button
+                                    className="product-review"
+                                    onClick={() =>
+                                       handleRating(item, da.orderId)
+                                    }
+                                 >
+                                    Đánh giá
+                                 </button>
+                              ) : null}
+                              {isOpenRating ? (
+                                 <Rating
+                                    product={{
+                                       ...productEdit,
+                                    }}
+                                    onClose={() => setIsOpenRating(false)}
+                                 />
+                              ) : null}
+                           </div>
+                        );
+                     })}
+                  </div>
+                  <div className="footer">
+                     <div className="price">
+                        <div className="price-total">
+                           <div>Tổng tiền: </div>
+                           <div className="price-label">
+                              {da?.totalAmount.toLocaleString()}đ
+                           </div>
+                        </div>
+                        <div className="price-total">
+                           <div>Phí vận chuyển:</div>
+                           <div className="price-label">
+                              {da?.feeShip.toLocaleString()}đ
+                           </div>
+                        </div>
+                        <div className="price-total">
+                           <div>Giảm giá:</div>
+                           <div className="price-label">
+                              {da?.discount?.toLocaleString()}đ
+                           </div>
+                        </div>
+                        <div className="price-total">
+                           <div>Thành tiền: </div>
+                           <div className="price-label">
+                              {da?.grandTotal.toLocaleString()}đ
+                           </div>
+                        </div>
+                     </div>
 
-                          {/* <div className="button">
+                     {/* <div className="button">
                     <div>Liên hệ người bán</div>
                     <div>Mua lại</div>
                   </div> */}
-                       </div>
-                    </div>
-                 );
-              })
-            : null}
+                  </div>
+               </div>
+            );
+         })}
          <Pagination
             obj={{ totalProduct: totalOrder, pageNow, size: 3 }}
             setPageNow={setPageNow}
@@ -264,6 +262,10 @@ const Container = styled.div`
          padding-bottom: 10px;
          font-weight: bold;
       }
+      .header div:nth-child(2) {
+         text-align: right;
+      }
+
       .body {
          .review {
             display: flex;

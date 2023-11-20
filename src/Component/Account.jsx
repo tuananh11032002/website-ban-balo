@@ -209,6 +209,10 @@ const Container = styled.div`
       }
    }
    @media screen and (max-width: 756px) {
+      padding: 0;
+      .main {
+         padding: 5px;
+      }
       .sidebar-child {
          min-width: 50%;
       }

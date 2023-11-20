@@ -18,6 +18,7 @@ import { reducerCases } from '../../StateProvider/reducer';
 import { useLocation } from 'react-router-dom';
 import processApiImagePath from '../../Helper/EditLinkImage';
 import ReviewList from './ReviewList';
+import RatingStars from './RatingStar';
 
 const ProductDetail = () => {
    const [{ productdetail, cart, user }, dispatch] = useStateProvider();
@@ -34,7 +35,7 @@ const ProductDetail = () => {
    }, [pathname]);
 
    const SaveData = async (productdetail) => {
-      const datafilter = cart?.filter((cart) => {
+      const datafilter = cart?.productOrder?.filter((cart) => {
          return cart.id == productdetail.id;
       });
       let response;
@@ -55,13 +56,10 @@ const ProductDetail = () => {
 
          const dataApi = await GetOrder();
          if (dataApi.status) {
-            if (
-               JSON.stringify(dataApi.result.productOrder) !==
-               JSON.stringify(cart)
-            ) {
+            if (JSON.stringify(dataApi.result) !== JSON.stringify(cart)) {
                dispatch({
                   type: reducerCases.SET_CART,
-                  cart: dataApi.result.productOrder,
+                  cart: dataApi.result,
                });
             }
          }
@@ -91,11 +89,14 @@ const ProductDetail = () => {
    useEffect(() => {
       const fetchData = async () => {
          const dataDetail = await getProductApiById(params.productId);
-         if (productdetail?.result !== dataDetail) {
-            dispatch({
-               type: reducerCases.SET_PRODUCTDETAIL,
-               productdetail: dataDetail.result,
-            });
+         console.log('dataDetail', dataDetail);
+         if (dataDetail?.status) {
+            if (productdetail !== dataDetail.result) {
+               dispatch({
+                  type: reducerCases.SET_PRODUCTDETAIL,
+                  productdetail: dataDetail.result,
+               });
+            }
          }
       };
       fetchData();
@@ -142,13 +143,16 @@ const ProductDetail = () => {
                   >
                      {productdetail?.name}
                   </div>
-                  <div
-                     style={{
-                        color: 'red',
-                        fontSize: '1.5rem',
-                     }}
-                  >
-                     {productdetail?.price.toLocaleString()}đ
+                  <div className="price-container">
+                     <div className="price">
+                        {productdetail?.price.toLocaleString() || 0}đ
+                     </div>
+                     <div className="rating">
+                        <RatingStars
+                           rating={productdetail?.ratingPoint || 0}
+                           totalRating={productdetail?.totalRating || 0}
+                        />
+                     </div>
                   </div>
                   <div className="introduce">
                      Chẳng ai muốn phải lục tìm món đồ mình cần trong một chiếc
@@ -183,8 +187,8 @@ const ProductDetail = () => {
                               type="number"
                               onChange={(e) => {
                                  setCount(
-                                    e.target.value > productdetail?.soluong
-                                       ? productdetail?.soluong
+                                    e.target.value > productdetail?.soLuong
+                                       ? productdetail?.soLuong
                                        : e.target.value
                                  );
                               }}
@@ -194,8 +198,8 @@ const ProductDetail = () => {
                            className="add"
                            onClick={() =>
                               setCount(
-                                 count + 1 > productdetail?.soluong
-                                    ? productdetail?.soluong
+                                 count + 1 > productdetail?.soLuong
+                                    ? productdetail?.soLuong
                                     : count + 1
                               )
                            }
@@ -204,13 +208,13 @@ const ProductDetail = () => {
                         </button>
                      </div>
 
-                     <span className="quantity-label">
-                        {productdetail?.soluong} sản phẩm có sẵn
-                     </span>
+                     <div className="quantity-label">
+                        {productdetail?.soLuong} sản phẩm có sẵn
+                     </div>
                   </div>
 
                   <div className="button-parent">
-                     {productdetail?.soluong != 0 ? (
+                     {productdetail?.soLuong !== 0 ? (
                         <>
                            <div
                               className="button"
@@ -325,10 +329,28 @@ const Container = styled.div`
       border-radius: 10px;
       box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
    }
-
+   .productdetail__infor .price-container {
+      display: flex;
+      align-items: center;
+   }
+   .price-container > .price {
+      color: red;
+      font-weight: bold;
+      font-size: 20px;
+      padding: 10px;
+   }
+   .price-container .rating {
+      display: flex;
+      align-items: center;
+      padding: 10px;
+   }
+   .price-container .rating .div {
+      margin: 0 5px;
+   }
    .quantity-container {
       display: flex;
       align-items: center;
+      flex-wrap: wrap;
       .quantity-label {
          font-size: 1.2rem;
          margin-right: 10px;
@@ -404,6 +426,12 @@ const Container = styled.div`
       }
    }
    @media screen and (max-width: 765px) {
+      .body {
+         padding: 0;
+      }
+      img {
+         padding: 0 20px;
+      }
       .productdetail__image,
       .productdetail__infor {
          min-width: 100%;

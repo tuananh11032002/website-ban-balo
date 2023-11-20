@@ -16,7 +16,7 @@ const Footer = () => {
          <div className="footer-info">
             <div className="address info-child">
                <div>
-                  <a href="#">CAMELIA BRAND</a>
+                  <a href="#">TUANANH BRAND</a>
                </div>
                <div>Store 1: 633 Nguyễn Đình Chiểu, P.2, Q.3.HCM</div>
                <div>Store 2: 71 Trần Quang Diệu, P14, Q3, HCM</div>

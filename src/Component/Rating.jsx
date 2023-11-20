@@ -4,6 +4,7 @@ import { IoMdClose } from 'react-icons/io';
 import processApiImagePath from '../Helper/EditLinkImage';
 import { InsertReview } from '../Axios/web';
 import { useStateProvider } from '../StateProvider/StateProvider';
+import { toast, ToastContainer } from 'react-toastify';
 const Rating = ({ product, onClose }) => {
    const [{ user }] = useStateProvider();
    const [rating, setRating] = useState(1);
@@ -41,14 +42,24 @@ const Rating = ({ product, onClose }) => {
          userName: user.displayName,
       });
       if (data.status) {
+         toast.info('Bình luận thành công', {
+            position: toast.POSITION.TOP_CENTER,
+            autoClose: 1000,
+         });
          setComment('');
          setIsCommentValid(true);
+      } else {
+         toast.error(`${data.result}`, {
+            position: toast.POSITION.TOP_CENTER,
+            autoClose: 1000,
+         });
       }
-      console.log(data);
+      // console.log(data);
    };
    console.log(user, 'product');
    return (
-      <Container className="rating-container">
+      <Container>
+         <ToastContainer />
          <div className="rating">
             <div
                className="close-button"
@@ -103,7 +114,7 @@ const Container = styled.div`
    justify-content: center;
    height: 100vh;
    width: 100%;
-   z-index: 2;
+   z-index: 1000;
    background: rgba(255, 255, 255, 0.7);
 
    .rating {

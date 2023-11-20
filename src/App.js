@@ -18,7 +18,6 @@ import { reducerCases } from './StateProvider/reducer';
 import ProfileAccount from './Page/ProfileAccount';
 import AddressAccount from './Page/AddressAccount';
 import OrderAccount from './Page/OrderAccount';
-import RegisterPage from './Page/RegisterPage';
 import * as signalR from '@microsoft/signalr';
 import checkAndRenewToken from './Token/token';
 import { AiOutlineLoading3Quarters } from 'react-icons/ai';
@@ -43,11 +42,22 @@ function App() {
    const [isUserReady, setIsUserReady] = useState(false);
    const [{ user, loading }, dispatch] = useStateProvider();
    const fetchData = async () => {
-      const renewToken = RenewToken();
-      const userLocal = localStorage.getItem('webbanbalo_user');
-
-      if (userLocal !== JSON.stringify(user) && userLocal !== null) {
-         dispatch({ type: reducerCases.SET_USER, user: JSON.parse(userLocal) });
+      const userLocal = JSON.parse(localStorage.getItem('webbanbalo_user'));
+      if (userLocal) {
+         const token = JSON.parse(
+            localStorage.getItem('webbanbalo_user')
+         ).token;
+         const renewToken = await RenewToken(token);
+         console.log(renewToken, ' renewToken');
+         if (
+            JSON.stringify(userLocal) !== JSON.stringify(user) &&
+            JSON.stringify(userLocal) !== null
+         ) {
+            dispatch({
+               type: reducerCases.SET_USER,
+               user: userLocal,
+            });
+         }
       }
       setIsUserReady(true);
    };
@@ -178,10 +188,7 @@ function App() {
                      path="/chat"
                      element={<Slide child={<WebSocket />} />}
                   />
-                  <Route
-                     path="/register"
-                     element={<Slide child={<RegisterPage />} />}
-                  />
+
                   <Route
                      path="/admin"
                      element={<Slide child={<ProductListPage />} />}

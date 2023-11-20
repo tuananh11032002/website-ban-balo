@@ -28,7 +28,14 @@ const CustomerDetail = () => {
       {
          id: '#9957',
          date: 'Nov 29, 2022',
-         status: 'Out for delivery',
+         status: {
+            id: 11,
+            orderId: 1080,
+            order: null,
+            status: 'Delivered',
+            updateTime: '2023-11-15T21:03:52.5289741',
+         },
+
          spent: '59.28',
       },
       {
@@ -36,17 +43,38 @@ const CustomerDetail = () => {
          date: 'Nov 29, 2022',
          status: 'Out for delivery',
          spent: '59.28',
+         status: {
+            id: 11,
+            orderId: 1080,
+            order: null,
+            status: 'Delivered',
+            updateTime: '2023-11-15T21:03:52.5289741',
+         },
       },
       {
          id: '#9959',
          date: 'Nov 29, 2022',
-         status: 'Out for delivery',
+         status: {
+            id: 11,
+            orderId: 1080,
+            order: null,
+            status: 'Delivered',
+            updateTime: '2023-11-15T21:03:52.5289741',
+         },
+
          spent: '59.28',
       },
       {
          id: '#9960',
          date: 'Nov 29, 2022',
-         status: 'Out for delivery',
+         status: {
+            id: 11,
+            orderId: 1080,
+            order: null,
+            status: 'Delivered',
+            updateTime: '2023-11-15T21:03:52.5289741',
+         },
+
          spent: '59.28',
       },
    ]);
@@ -103,6 +131,7 @@ const CustomerDetail = () => {
                dataApi.result.orderList !== JSON.stringify(orderList)
             )
          ) {
+            console.log('dataApi.result.orderList', dataApi.result.orderList);
             setOrderList(dataApi.result.orderList);
          }
       }
@@ -155,11 +184,11 @@ const CustomerDetail = () => {
                               <td>Status</td>
                               <td>
                                  <span
-                                    className={contentDetailProduct.status
+                                    className={contentDetailProduct.status.status
                                        .toLowerCase()
                                        .substring(0, 3)}
                                  >
-                                    {contentDetailProduct.status}
+                                    {contentDetailProduct.status.status}
                                  </span>
                               </td>
                            </tr>
@@ -237,7 +266,7 @@ const CustomerDetail = () => {
                   <div className="info">Username: {customerData.userName}</div>
                   <div className="info">Email: {customerData.email}</div>
                   <div
-                     className={`status ${customerData?.status?.toLowerCase()}`}
+                     className={`status ${customerData?.status.toLowerCase()}`}
                   >
                      Status: <span>{customerData?.status}</span>
                   </div>
@@ -307,11 +336,11 @@ const CustomerDetail = () => {
                               <td>{ProcessDate(order.date)}</td>
                               <td>
                                  <span
-                                    className={order.status
-                                       .toLocaleLowerCase()
+                                    className={order.status?.status
+                                       ?.toLocaleLowerCase()
                                        .substring(0, 3)}
                                  >
-                                    {order.status}
+                                    {order.status?.status}
                                  </span>
                               </td>
                               <td>{order.spent.toLocaleString()}đ</td>

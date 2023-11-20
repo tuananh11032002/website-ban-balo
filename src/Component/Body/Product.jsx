@@ -6,6 +6,7 @@ import { styled } from 'styled-components';
 import { useParams, useNavigate } from 'react-router-dom';
 import processApiImagePath from '../../Helper/EditLinkImage';
 import { v4 as uuidv4 } from 'uuid';
+import RatingStars from './RatingStar';
 const Product = () => {
    const params = useParams();
    const { categoryName } = params;
@@ -68,16 +69,6 @@ const Product = () => {
          navigate(`/products/${productId}`);
       }
    };
-   const colors = [
-      '#e4d3be', // hồng nhẹ
-      '#000000', // đen
-      '#9b5513', // nâu
-      '#c99541', // nâu cam
-      '#13014d', // danh dương đậm
-      '#f5b79f', // hồng
-      '#005e1f', // xanh lá
-      '#c7c7c7', // xám
-   ];
 
    return (
       <Container>
@@ -94,7 +85,7 @@ const Product = () => {
                            : 'none',
                   }}
                >
-                  <h2>{product.categoryName}</h2>
+                  <h2>{product.name}</h2>
                   {!params.categoryName || params.categoryName == null ? (
                      <hr style={{ flex: 1 }} />
                   ) : (
@@ -107,11 +98,13 @@ const Product = () => {
                               setIsValue(e.target.value);
                            }}
                         >
-                           <option value="" selected>
+                           <option value="popularity" selected>
                               Sản phẩm bán chạy
                            </option>
-                           <option value="insc">Giá từ thấp tới cao</option>
-                           <option value="desc">Giá từ cao tới thấp</option>
+                           <option value="priceasc">Giá từ thấp tới cao</option>
+                           <option value="pricedesc">
+                              Giá từ cao tới thấp
+                           </option>
                         </select>
                      </span>
                   )}
@@ -138,17 +131,15 @@ const Product = () => {
                               />
                            </div>
                            <div>{p.name}</div>
-                           <div>{p.price.toLocaleString()}đ</div>
-                           <div className="product-element_color">
-                              {colors.map((color, i) => (
-                                 <div
-                                    key={i}
-                                    className="product-element_color__child "
-                                    style={{ backgroundColor: color }}
-                                 ></div>
-                              ))}
+                           <RatingStars
+                              rating={p.ratingPoint}
+                              totalRating={p.totalRating}
+                           />
+                           <div style={{ fontWeight: 'bold' }}>
+                              {p.price.toLocaleString()}đ
                            </div>
-                           {p.soluong === 0 ? (
+
+                           {p.soLuong === 0 ? (
                               <span className="stock-label">Hết</span>
                            ) : null}
                         </li>
@@ -202,22 +193,22 @@ const Container = styled.div`
          text-align: center;
          background-color: black;
       }
-      li .product-element_color {
-         display: flex;
-         flex-wrap: wrap;
-         .product-element_color__child {
-            height: 20px;
-            width: 20px;
-            border-radius: 50%;
-         }
-         .product-element_color__child:hover {
-            transform: scale(1.05);
-            transition: transform 0.5s;
-         }
-         .product-element_color__child:first-child {
-            border: 1px solid red;
-         }
+
+      display: flex;
+      flex-wrap: wrap;
+      .product-element_color__child {
+         height: 20px;
+         width: 20px;
+         border-radius: 50%;
       }
+      .product-element_color__child:hover {
+         transform: scale(1.05);
+         transition: transform 0.5s;
+      }
+      .product-element_color__child:first-child {
+         border: 1px solid red;
+      }
+
       li > div {
          padding: 5px;
          font-size: 16px;

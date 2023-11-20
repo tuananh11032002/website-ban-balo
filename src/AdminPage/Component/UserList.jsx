@@ -132,6 +132,19 @@ const UserList = () => {
       e.preventDefault();
       const data = await insertUserforAdmin(formData);
       console.log('api:', data);
+      if (data?.status) {
+         toast.info('Thao tác thành công', {
+            position: toast.POSITION.TOP_CENTER,
+            autoClose: 1000,
+         });
+         setIsOpenEditUser(false);
+         fetchData();
+      } else {
+         toast.error(`${data.result}`, {
+            position: toast.POSITION.TOP_CENTER,
+            autoClose: 3000,
+         });
+      }
    };
    const [search, setSearch] = useState('');
    const fetchData = async () => {
@@ -168,7 +181,7 @@ const UserList = () => {
                <div className="form-container">
                   <form onSubmit={handleSubmit}>
                      <div className="form-group">
-                        <label htmlFor="fullName" className="require">
+                        <label htmlFor="fullName" className="require force">
                            Nhập username:
                         </label>
                         <input
@@ -180,8 +193,8 @@ const UserList = () => {
                      </div>
 
                      <div className="form-group">
-                        <label htmlFor="password">
-                           Nhập password, mặc định: "123456":
+                        <label className="force" htmlFor="password">
+                           Nhập password:
                         </label>
                         <input
                            name="password"
@@ -190,7 +203,9 @@ const UserList = () => {
                         />
                      </div>
                      <div className="form-group">
-                        <label htmlFor="fullName">Nhập họ tên:</label>
+                        <label htmlFor="fullName" className="force">
+                           Nhập họ tên:
+                        </label>
                         <input
                            type="text"
                            name="hoTen"
@@ -210,7 +225,9 @@ const UserList = () => {
                      </div>
 
                      <div className="form-group">
-                        <label htmlFor="role">Chọn vai trò:</label>
+                        <label htmlFor="role" className="force">
+                           Chọn vai trò:
+                        </label>
                         <select
                            name="role"
                            value={formData.role}
@@ -257,7 +274,7 @@ const UserList = () => {
                </div>
                <div className="card">
                   <div>
-                     <p> Pending Users</p>
+                     <p> Inactive Users</p>
                      <h1>$8,345.23</h1>
                      <p>
                         <span> 150 orders</span>
@@ -480,7 +497,10 @@ const Overlay = styled.div`
    label {
       display: block;
    }
-
+   .force::after {
+      color: red;
+      content: ' *';
+   }
    input,
    select {
       width: 100%;

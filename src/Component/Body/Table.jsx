@@ -16,10 +16,10 @@ const Table = () => {
    const navigate = useNavigate();
 
    const [{ cart, user }, dispatch] = useStateProvider();
-   const [count, setCount] = useState(cart);
+   const [count, setCount] = useState(cart?.productOrder);
 
    useEffect(() => {
-      setCount(cart);
+      setCount(cart?.productOrder);
    }, [cart]);
 
    const handleIncrease = (index) => {
@@ -50,17 +50,16 @@ const Table = () => {
    const fetchCart = async () => {
       if (user) {
          const data = await GetOrder();
+         console.log(data, 'data');
          if (data?.status)
-            dispatch({ type: reducerCases.SET_CART, cart: data.productOrder });
+            dispatch({ type: reducerCases.SET_CART, cart: data.result });
       } else {
-         const data = localStorage.getItem('webbanbalo_cart');
-         if (data)
-            dispatch({ type: reducerCases.SET_CART, cart: JSON.parse(data) });
+         navigate('/');
       }
    };
    const handleClick = (cart, count) => {
       let messageError = '';
-      cart?.forEach(async (element, index) => {
+      cart?.productOrder?.forEach(async (element, index) => {
          if (
             element.quantity !== count[index].quantity &&
             count[index].quantity !== 0
