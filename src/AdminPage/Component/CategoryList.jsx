@@ -62,6 +62,7 @@ const CategoryList = () => {
          action: 'none',
       },
    ]);
+   const [search, setSearch] = useState('');
    const [selectAll, setSelectAll] = useState(false);
 
    const [checkboxes, setCheckboxes] = useState(Array(data.length).fill(false));
@@ -69,7 +70,7 @@ const CategoryList = () => {
 
    const handleYes = async () => {
       await deleteCategoryApi(categoryId);
-      setData([]);
+      fetchCategory();
    };
 
    const handleNo = () => {};
@@ -87,20 +88,19 @@ const CategoryList = () => {
       messageBoxRef.current.show();
       setCategoryId(categoryId);
    };
-
-   useEffect(() => {
-      const fetchCategory = async () => {
-         const response = await getCategoryApiForAdmin();
-
-         if (response?.status === true) {
-            if (JSON.stringify(data) !== JSON.stringify(response.result)) {
-               console.log('response.result', response.result);
-               setData(response.result);
-            }
+   const fetchCategory = async () => {
+      const response = await getCategoryApiForAdmin(search);
+      console.log(response, 'respnse');
+      if (response?.status === true) {
+         if (JSON.stringify(data) !== JSON.stringify(response.result)) {
+            console.log('response.result', response.result);
+            setData(response.result);
          }
-      };
+      }
+   };
+   useEffect(() => {
       fetchCategory();
-   }, [data]);
+   }, [search]);
    return (
       <Container>
          <ConfirmationDialog
@@ -123,6 +123,10 @@ const CategoryList = () => {
                   className="search-input"
                   type="text"
                   placeholder="Search"
+                  value={search}
+                  onChange={(e) => {
+                     setSearch(e.target.value);
+                  }}
                />
                <div className="dttable-action-button">
                   <select
@@ -161,6 +165,8 @@ const CategoryList = () => {
                            />
                         </th>
                         <th>CATEGORY</th>
+                        <th>IMAGE</th>
+                        <th>IMAGE REPLACE</th>
 
                         <th>TOTAL PRODUCT</th>
 
@@ -178,6 +184,7 @@ const CategoryList = () => {
                                  onChange={() => handleCheckboxChange(index)}
                               />
                            </td>
+                           <td>{category.name}</td>
                            <td>
                               <div className="td-flex">
                                  <img
@@ -185,6 +192,19 @@ const CategoryList = () => {
                                        processApiImagePath(category.image) ||
                                        category.image
                                     }
+                                    alt=""
+                                    width="40px"
+                                    height="40px"
+                                 />
+                                 <div>{category.category}</div>
+                              </div>
+                           </td>
+                           <td>
+                              <div className="td-flex">
+                                 <img
+                                    src={processApiImagePath(
+                                       category.imageReplace
+                                    )}
                                     alt=""
                                     width="40px"
                                     height="40px"

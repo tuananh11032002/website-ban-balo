@@ -43,13 +43,13 @@ const ProductDetail = () => {
       if (user) {
          setLoading(true);
          if (datafilter?.length > 0) {
-            response = await AddProductIntoOrder(params.productId, {
-               Price: productdetail.price,
+            response = await AddProductIntoOrder({
+               ProdductId: params.productId,
                Quantity: datafilter[0].quantity + count,
             });
          } else {
-            response = await AddProductIntoOrder(params.productId, {
-               Price: productdetail.price,
+            response = await AddProductIntoOrder({
+               ProdductId: params.productId,
                Quantity: count,
             });
          }
@@ -145,7 +145,10 @@ const ProductDetail = () => {
                   </div>
                   <div className="price-container">
                      <div className="price">
-                        {productdetail?.price.toLocaleString() || 0}đ
+                        {productdetail?.priceNow.toLocaleString() || 0}đ
+                     </div>
+                     <div className="original-price">
+                        {productdetail?.price.toLocaleString() || 0}đ{' '}
                      </div>
                      <div className="rating">
                         <RatingStars
@@ -338,6 +341,10 @@ const Container = styled.div`
       font-weight: bold;
       font-size: 20px;
       padding: 10px;
+   }
+   .price-container > .original-price {
+      text-decoration: line-through;
+      color: #999;
    }
    .price-container .rating {
       display: flex;

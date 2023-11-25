@@ -139,6 +139,7 @@ const Profile = () => {
                      className="full-width-input"
                      value={userName}
                      onChange={(e) => setUserName(e.target.value)}
+                     readOnly
                   />
                </div>
                <div className="user-info-item">
@@ -190,15 +191,6 @@ const Profile = () => {
                      <option value="Male">Nam </option>
                      <option value="Female">Nữ </option>
                   </select>
-               </div>
-               <div className="user-info-item">
-                  <label htmlFor="birthdate">Ngày sinh</label>
-                  <input
-                     type="date"
-                     name="birthday"
-                     id=""
-                     className="full-width-input"
-                  />
                </div>
             </div>
 

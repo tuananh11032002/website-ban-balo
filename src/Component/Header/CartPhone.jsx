@@ -34,7 +34,7 @@ const CartPhone = ({ cart, onClose }) => {
                            <img src={processApiImagePath(cart?.image)} alt="" />
                            <div>
                               <div>{cart?.name}</div>
-                              <div>{cart?.price.toLocaleString()}đ</div>
+                              <div>{cart?.priceNow.toLocaleString()}đ</div>
                               <div>Số lượng: {cart?.quantity}</div>
                            </div>
                            <button

@@ -36,18 +36,28 @@ html {
 .loading svg {
    width: 10vw;
    height: 10vh;
-   animation: spin 2s linear infinite; /* Áp dụng animation tên "spin" */
+   animation: spin 2s linear infinite;
 }
 .errol {
    color: red;
 }
 
-/* Định nghĩa animation "spin" */
 @keyframes spin {
    0% {
-      transform: rotate(0deg); /* Góc ban đầu */
+      transform: rotate(0deg);
    }
    100% {
-      transform: rotate(360deg); /* Góc sau khi quay 1 vòng đầy đủ */
+      transform: rotate(360deg);
    }
+}
+::-webkit-scrollbar {
+   width: 5px;
+}
+
+::-webkit-scrollbar-thumb {
+   background-color: #888;
+}
+body {
+   overflow: auto;
+   scrollbar-color: #888 transparent;
 }

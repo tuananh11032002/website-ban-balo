@@ -19,6 +19,7 @@ import {
    deleteProductApi,
    getCategoryApi,
    getProductApi,
+   getSalesRevenue,
 } from '../../Axios/web';
 import processApiImagePath from '../../Helper/EditLinkImage';
 
@@ -163,6 +164,24 @@ const ProductList = () => {
       selectStatus,
       valueSearch,
    ]);
+   const [venue, setVenue] = useState({
+      inWebsite: {
+         totalAmount: 0,
+         totalOrder: 0,
+      },
+      inStore: {
+         totalAmount: 0,
+         totalOrder: 0,
+      },
+      inDiscount: {
+         totalAmount: 0,
+         totalOrder: 0,
+      },
+      inAffiliate: {
+         totalAmount: 0,
+         totalOrder: 0,
+      },
+   });
    useEffect(() => {
       const fetchCategory = async () => {
          const data = await getCategoryApi();
@@ -171,6 +190,14 @@ const ProductList = () => {
          }
       };
       fetchCategory();
+      const fetchVenue = async () => {
+         const data = await getSalesRevenue();
+         console.log(data, 'venue');
+         if (data?.status) {
+            setVenue(data.result);
+         }
+      };
+      fetchVenue();
    }, []);
    return (
       <>
@@ -274,9 +301,9 @@ const ProductList = () => {
                <div className="card">
                   <div>
                      <p>In Store Sales</p>
-                     <h1>$5,345.43</h1>
+                     <h1>{venue.inStore.totalAmount.toLocaleString()}đ</h1>
                      <p>
-                        <span> 5k orders</span>
+                        <span> {venue.inStore.totalOrder} orders</span>
                         <span className="card-widget-rate-increase">+5.7%</span>
                      </p>
                   </div>
@@ -287,9 +314,9 @@ const ProductList = () => {
                <div className="card">
                   <div>
                      <p> Website Sales</p>
-                     <h1>$674,347.12</h1>
+                     <h1>{venue.inWebsite.totalAmount.toLocaleString()}đ</h1>
                      <p>
-                        <span> 21k orders</span>
+                        <span> {venue.inWebsite.totalOrder} orders</span>
                         <span className="card-widget-rate-increase">
                            +12.4%
                         </span>
@@ -302,9 +329,9 @@ const ProductList = () => {
                <div className="card">
                   <div>
                      <p>Discount</p>
-                     <h1>$14,235.12</h1>
+                     <h1>{venue.inDiscount.totalAmount.toLocaleString()}đ</h1>
                      <p>
-                        <span> 6k orders</span>
+                        <span> {venue.inDiscount.totalOrder} orders</span>
                         <span className="card-widget-rate-increase">+5.7%</span>
                      </p>
                   </div>
@@ -315,9 +342,9 @@ const ProductList = () => {
                <div className="card">
                   <div>
                      <p> Affiliate</p>
-                     <h1>$8,345.23</h1>
+                     <h1>{venue.inAffiliate.totalAmount.toLocaleString()}đ</h1>
                      <p>
-                        <span> 150 orders</span>
+                        <span> {venue.inAffiliate.totalOrder} orders</span>
                         <span className="card-widget-rate-decrease">-3.5%</span>
                      </p>
                   </div>

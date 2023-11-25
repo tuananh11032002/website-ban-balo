@@ -8,13 +8,14 @@ const END_POINT = {
    USER: 'User',
    MESSAGE: 'Message',
    REVIEW: 'Review',
+   PAYMENT: 'Payment',
 };
 export const getCategoryApi = () => {
    return axiosClient.get(`${END_POINT.CATEGORY}`);
 };
 
-export const getCategoryApiForAdmin = () => {
-   return axiosClient.get(`${END_POINT.CATEGORY}/admin`);
+export const getCategoryApiForAdmin = (search) => {
+   return axiosClient.get(`${END_POINT.CATEGORY}/admin?search=${search}`);
 };
 export const createCategoryApi = (category) => {
    return axiosClient.post(`${END_POINT.CATEGORY}`, category, {
@@ -112,14 +113,14 @@ export const updateProductAPI = async (productId, productInput) => {
    );
 };
 
-export const AddProductIntoOrder = async (idProduct, orderItemDto) => {
+export const AddProductIntoOrder = async (orderItemDto) => {
    try {
       // Chờ cho đến khi checkAndRenewToken hoàn thành
       await checkAndRenewToken();
 
       // Tiếp tục với cuộc gọi axios sau khi đã cấp mới token
       const response = await axiosClient.post(
-         `${END_POINT.ORDER}/${END_POINT.PRODUCT}/${idProduct}`,
+         `${END_POINT.ORDER}/${END_POINT.PRODUCT}`,
          orderItemDto,
          {
             headers: {
@@ -236,12 +237,12 @@ export const DeleteProductIntoOrder = async (productid) => {
    });
 };
 
-export const GetOrderDone = async ({ pageNow, pageSize }) => {
+export const GetOrderDone = async ({ status, pageNow, pageSize }) => {
    try {
       await checkAndRenewToken();
 
       const response = await axiosClient.get(
-         `${END_POINT.ORDER}/${END_POINT.PRODUCT}/Done?pageSize=${pageSize}&pageIndex=${pageNow}`,
+         `${END_POINT.ORDER}/${END_POINT.PRODUCT}/Done?pageSize=${pageSize}&pageIndex=${pageNow}&status=${status}`,
          {
             headers: {
                Authorization: `Bearer ${
@@ -269,7 +270,93 @@ export const GetOrderDetailAndCustomerInfo = async (orderId) => {
 export const UpdateStatusOrder = async (orderId) => {
    return axiosClient.put(`${END_POINT.ORDER}/${orderId}`);
 };
+export const CancelOrder = async (orderId) => {
+   try {
+      console.log(
+         JSON.parse(localStorage.getItem('webbanbalo_user')).token.accessToken
+      );
+      await checkAndRenewToken();
 
+      const response = await axiosClient.put(
+         `${END_POINT.ORDER}/cancel-order/${orderId}`,
+         {
+            headers: {
+               Authorization: `Bearer ${
+                  JSON.parse(localStorage.getItem('webbanbalo_user')).token
+                     .accessToken
+               }`,
+            },
+         }
+      );
+
+      return response;
+   } catch (error) {
+      console.error(
+         'Lỗi trong quá trình kiểm tra và cấp mới token hoặc cuộc gọi axios:',
+         error
+      );
+      throw error;
+   }
+};
+export const getSalesRevenue = async (orderId) => {
+   try {
+      await checkAndRenewToken();
+
+      const response = await axiosClient.get(
+         `${END_POINT.ORDER}/get-sale-revenue`,
+         {
+            headers: {
+               Authorization: `Bearer ${
+                  JSON.parse(localStorage.getItem('webbanbalo_user')).token
+                     .accessToken
+               }`,
+            },
+         }
+      );
+
+      return response;
+   } catch (error) {
+      console.error(
+         'Lỗi trong quá trình kiểm tra và cấp mới token hoặc cuộc gọi axios:',
+         error
+      );
+      throw error;
+   }
+};
+
+export const DeleteOrder = async (orderId) => {
+   try {
+      await checkAndRenewToken();
+
+      const response = await axiosClient.delete(
+         `${END_POINT.ORDER}/${orderId}`,
+         {
+            headers: {
+               Authorization: `Bearer ${
+                  JSON.parse(localStorage.getItem('webbanbalo_user')).token
+                     .accessToken
+               }`,
+            },
+         }
+      );
+
+      return response;
+   } catch (error) {
+      console.error(
+         'Lỗi trong quá trình kiểm tra và cấp mới token hoặc cuộc gọi axios:',
+         error
+      );
+      throw error;
+   }
+};
+
+export const getCoupon = async (coupon) => {
+   return axiosClient.get(`${END_POINT.ORDER}/coupon?coupon=${coupon}`);
+};
+export const getVNPayLink = async (data) => {
+   console.log(data);
+   return axiosClient.post(`${END_POINT.PAYMENT}`, data);
+};
 export const getProdctFromCategoryApi = (id) => {
    return axiosClient.get(`${END_POINT.CATEGORY}/${id}/product`);
 };
@@ -294,23 +381,18 @@ export const updateUserInfo = (infor) => {
    return axiosClient.put(`${END_POINT.USER}`, infor, {
       headers: {
          'Content-Type': 'multipart/form-data',
-         // Authorization: `Bearer ${yourAccessToken}`,
       },
    });
 };
 
 export const updateUserInfoforAdmin = (infor) => {
    return axiosClient.put(`${END_POINT.USER}/for-admin`, infor, {
-      headers: {
-         // Authorization: `Bearer ${yourAccessToken}`,
-      },
+      headers: {},
    });
 };
 export const insertUserforAdmin = (infor) => {
    return axiosClient.post(`${END_POINT.USER}/add-user-for-admin`, infor, {
-      headers: {
-         // Authorization: `Bearer ${yourAccessToken}`,
-      },
+      headers: {},
    });
 };
 export const deleteUser = (userId) => {
@@ -333,7 +415,35 @@ export const RenewToken = async (tokenModel) => {
    );
    return data;
 };
+export const ChangePasswordApi = async (data) => {
+   try {
+      // Chờ cho đến khi checkAndRenewToken hoàn thành
+      await checkAndRenewToken();
 
+      // Tiếp tục với cuộc gọi axios sau khi đã cấp mới token
+      const response = await axiosClient.put(
+         `${END_POINT.USER}/change-password`,
+         data,
+         {
+            headers: {
+               Authorization: `Bearer ${
+                  JSON.parse(localStorage.getItem('webbanbalo_user')).token
+                     .accessToken
+               }`,
+            },
+         }
+      );
+
+      return response;
+   } catch (error) {
+      // Xử lý lỗi ở đây nếu có
+      console.error(
+         'Lỗi trong quá trình kiểm tra và cấp mới token hoặc cuộc gọi axios:',
+         error
+      );
+      throw error;
+   }
+};
 export const getCustomerApi = async (search, pageIndex, pageSize) => {
    console.log('search', search);
 

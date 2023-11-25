@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
+import processApiImagePath from '../../Helper/EditLinkImage';
 const Image = ({ src, message, replace, key_name, id_image }) => {
    const [imageSrc, setImageSrc] = useState(src);
    const handleMouseOver = () => {
@@ -11,12 +12,12 @@ const Image = ({ src, message, replace, key_name, id_image }) => {
       setImageSrc(src);
    };
    const handlerClick = async (id, name) => {
-      navigator(`/collections/${name}`);
+      navigator(`/collections/${id}`);
    };
    return (
       <Container>
          <img
-            src={imageSrc}
+            src={processApiImagePath(imageSrc)}
             id={`image${key_name}`}
             alt={message}
             onMouseOver={handleMouseOver}

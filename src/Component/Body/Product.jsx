@@ -7,33 +7,28 @@ import { useParams, useNavigate } from 'react-router-dom';
 import processApiImagePath from '../../Helper/EditLinkImage';
 import { v4 as uuidv4 } from 'uuid';
 import RatingStars from './RatingStar';
+import processPrice from '../../Helper/ProcessPrice';
 const Product = () => {
    const params = useParams();
-   const { categoryName } = params;
+   const { id } = params;
    const [{ product, category }, dispatch] = useStateProvider();
 
    const navigate = useNavigate();
    const [isValue, setIsValue] = useState(1);
    const fetchData = async () => {
-      if (categoryName !== undefined) {
+      if (id !== undefined) {
          window.scrollTo(0, 200);
-         let categoryId;
          if (!category) {
             const categoryApi = await getCategoryApi();
-            categoryId = categoryApi.result?.filter(
-               (p) => p.name === categoryName
-            );
 
             dispatch({
                type: reducerCases.SET_CATEGORY,
                category: categoryApi.result,
             });
-         } else {
-            categoryId = category.filter((p) => p.name === categoryName);
          }
 
          const dataProduct = await getProductApiWithNameCategory(
-            categoryId[0].id,
+            id,
             '',
             isValue,
             15,
@@ -60,7 +55,7 @@ const Product = () => {
    };
    useEffect(() => {
       fetchData();
-   }, [categoryName, isValue]);
+   }, [id, isValue]);
    const hanlderClick = (e, productId) => {
       if (
          !e.target.classList.contains('product-element_color') &&
@@ -80,7 +75,7 @@ const Product = () => {
                      display: 'flex',
                      alignItems: 'center',
                      justifyContent:
-                        params.categoryName || params.categoryName != null
+                        params.id || params.id != null
                            ? 'space-between'
                            : 'none',
                   }}
@@ -136,11 +131,16 @@ const Product = () => {
                               totalRating={p.totalRating}
                            />
                            <div style={{ fontWeight: 'bold' }}>
-                              {p.price.toLocaleString()}đ
+                              {p.priceNow.toLocaleString()}đ
                            </div>
 
                            {p.soLuong === 0 ? (
                               <span className="stock-label">Hết</span>
+                           ) : null}
+                           {p.soLuong !== 0 ? (
+                              <div className="percent-discount">
+                                 -{processPrice(p.price, p.discount)}%
+                              </div>
                            ) : null}
                         </li>
                      ))}
@@ -192,6 +192,16 @@ const Container = styled.div`
          font-weight: bold;
          text-align: center;
          background-color: black;
+      }
+      li .percent-discount {
+         position: absolute;
+         top: 0;
+         right: 0;
+         color: red;
+         color: white;
+         background-color: green;
+         padding: 5px 10px;
+         border-radius: 5px;
       }
 
       display: flex;

@@ -1,18 +1,22 @@
-import axios from 'axios';
 import React, { useState, useEffect, useRef } from 'react';
 import { styled } from 'styled-components';
 import { useStateProvider } from '../StateProvider/StateProvider';
 import { reducerCases } from '../StateProvider/reducer';
-import { GetOrder } from '../Axios/web';
+import { GetOrder, getCoupon } from '../Axios/web';
 import { Link, useNavigate } from 'react-router-dom';
 import processApiImagePath from '../Helper/EditLinkImage';
 import PaymentInfo from './PaymentInfo';
 import { validateEmail, validatePhone } from '../Helper/CheckInput';
+import ProvinceList from '../Data/Province';
+import { ToastContainer, toast } from 'react-toastify';
+import { VscLoading } from 'react-icons/vsc';
+
 const PayPage = () => {
+   const [loading, setLoading] = useState(false);
+   const [error, setError] = useState('');
    const [provinces, setProvinces] = useState([]);
    const [districts, setDistricts] = useState([]);
    const [wards, setWards] = useState([]);
-
    const [order, setOrder] = useState(null);
    const [customerInfor, setCustomerInfo] = useState(() => {
       const data = JSON.parse(
@@ -25,24 +29,51 @@ const PayPage = () => {
          customerWard: '',
          customerDistrict: '',
          orderNote: '',
+         coupon: '',
       };
       const dataNew = {
          ...data,
          customerProvince: '',
          customerWard: '',
+         coupon: '',
+
          customerDistrict: '',
       };
       return dataNew;
    });
+   const [discount, setDiscount] = useState(0);
+   const couponRef = useRef();
+   const handleUseCoupon = async () => {
+      setLoading(true);
+      const data = await getCoupon(couponRef.current.value);
 
+      setLoading(false);
+      console.log(data);
+      if (data?.status) {
+         setDiscount(data.result);
+         setCustomerInfo({ ...customerInfor, coupon: couponRef.current.value });
+      } else {
+         setError(data.result);
+      }
+   };
+
+   useEffect(() => {
+      console.log('Đã vào');
+      if (error) {
+         toast.error(`${error}`, {
+            position: toast.POSITION.TOP_CENTER,
+            autoClose: 3000,
+         });
+      }
+   }, [error]);
    useEffect(() => {
       //api province
       const fetchData = async () => {
          try {
-            const response = await axios.get(
-               `https://provinces.open-api.vn/api/p/30?depth=3`
-            );
-            console.log('district', response);
+            const province = ProvinceList.map((item, index) => {
+               return { name: item.name, index: index };
+            });
+            setProvinces(province);
          } catch (error) {
             console.error(error);
          }
@@ -50,24 +81,27 @@ const PayPage = () => {
       fetchData();
    }, []);
    //api district
-   const fetchDataDistrict = async (code) => {
+   const fetchDataDistrict = (code) => {
       try {
-         const response = await axios.get(
-            `https://provinces.open-api.vn/api/p/30?depth=3`
-         );
-         console.log('district', response);
-         setDistricts(response.data.results);
+         const district = ProvinceList[code].districts.map((item, index) => {
+            return {
+               name: item.name,
+               index: index,
+               wards: item.wards,
+            };
+         });
+
+         setDistricts(district);
       } catch (error) {
          console.error(error);
       }
    };
    //api wards
-   const fetchDataWard = async (code) => {
+   const fetchDataWard = (code) => {
       try {
-         const response = await axios.get(
-            `https://vapi.vnappmob.com/api/province/ward/${code}`
-         );
-         setWards(response.data.results);
+         const wards = districts[code].wards;
+         console.log('ward', districts.wards);
+         setWards(wards);
       } catch (error) {
          console.error(error);
       }
@@ -99,7 +133,9 @@ const PayPage = () => {
       fetchCart();
    }, [cart]);
    const spanRef = useRef(null);
-
+   const updateParentState = (newState) => {
+      setError(newState);
+   };
    useEffect(() => {
       if (spanRef.current) {
          const spanHeight = spanRef.current.clientHeight;
@@ -130,6 +166,7 @@ const PayPage = () => {
    }, [customerInfor]);
    return (
       <Container>
+         <ToastContainer />
          <div className="column">
             <nav>
                <span>Pay &gt; </span>
@@ -261,10 +298,10 @@ const PayPage = () => {
                            {provinces?.map((province, index) => (
                               <option
                                  key={index}
-                                 value={province.province_name}
-                                 data-key={province.province_id}
+                                 value={province.name}
+                                 data-key={province.index}
                               >
-                                 {province.province_name}
+                                 {province.name}
                               </option>
                            ))}
                         </select>
@@ -300,10 +337,10 @@ const PayPage = () => {
                            {districts.map((district, index) => (
                               <option
                                  key={index}
-                                 value={district.district_name}
-                                 data-key={district.district_id}
+                                 value={district.name}
+                                 data-key={district.index}
                               >
-                                 {district.district_name}
+                                 {district.name}
                               </option>
                            ))}
                         </select>
@@ -329,8 +366,8 @@ const PayPage = () => {
                         >
                            <option value="">Chọn Xã</option>
                            {wards.map((ward, index) => (
-                              <option key={index} value={ward.ward_name}>
-                                 {ward.ward_name}
+                              <option key={index} value={ward.name}>
+                                 {ward.name}
                               </option>
                            ))}
                         </select>
@@ -349,9 +386,9 @@ const PayPage = () => {
                      <button
                         onClick={() => {
                            if (
-                              // customerInfor.customerDistrict === '' ||
-                              // customerInfor.customerProvince === '' ||
-                              // customerInfor.customerWard === '' ||
+                              customerInfor.customerDistrict === '' ||
+                              customerInfor.customerProvince === '' ||
+                              customerInfor.customerWard === '' ||
                               customerInfor.customerEmail === '' ||
                               validateEmail(customerInfor.customerEmail) ===
                                  false ||
@@ -384,18 +421,33 @@ const PayPage = () => {
                      </div>
 
                      <span>{ca.name}</span>
-                     <span>{(ca.price * ca.quantity).toLocaleString()}đ</span>
+                     <span>
+                        {(ca.priceNow * ca.quantity).toLocaleString()}đ
+                     </span>
                   </li>
                ))}
             </ul>
             {numberState === 1 ? (
                <div className="code-container">
                   <input
+                     ref={couponRef}
                      type="text"
                      placeholder="Nhập mã giảm giá tại đây"
                      className="discount-input"
                   />
-                  <button className="apply-button">Áp dụng</button>
+                  <button
+                     className="apply-button"
+                     onClick={(e) => {
+                        handleUseCoupon();
+                     }}
+                  >
+                     <span>Áp dụng</span>
+                     {loading ? (
+                        <span className="loading-icons">
+                           <VscLoading />
+                        </span>
+                     ) : null}
+                  </button>
                </div>
             ) : null}
             <div className="price-ship">
@@ -403,7 +455,7 @@ const PayPage = () => {
                   <div>Tạm tính</div>
                   <div>
                      {order
-                        ? `${order.totalAmount.toLocaleString()}đ`
+                        ? `${order?.totalAmount.toLocaleString()}đ`
                         : '-----'}
                   </div>
                </div>
@@ -411,10 +463,23 @@ const PayPage = () => {
                   <div>Phí ship</div>
                   <div>{order?.feeShip.toLocaleString()}đ</div>
                </div>
+               <div className="ship">
+                  <div>Giảm giá</div>
+                  <div>-{discount.toLocaleString()}đ</div>
+               </div>
                <hr />
                <div className="ship">
                   <h3>Tổng tiền</h3>
-                  <div></div>
+                  {numberState == 2 ? (
+                     <div>
+                        {(
+                           order?.totalAmount +
+                           order?.feeShip -
+                           discount
+                        ).toLocaleString()}
+                        đ
+                     </div>
+                  ) : null}
                </div>
             </div>
          </div>
@@ -635,6 +700,12 @@ const Container = styled.div`
 
       .apply-button:hover {
          background-color: #2980b9;
+      }
+      .apply-button .loading-icons {
+         margin-left: 10px;
+      }
+      .apply-button .loading-icons svg {
+         animation: spin 2s linear infinite;
       }
    }
 

@@ -38,8 +38,9 @@ const Table = () => {
       setCount(updatedCount);
    };
    const SaveData = async (productdetail, dem) => {
-      const response = await AddProductIntoOrder(productdetail.id, {
-         Price: productdetail.price,
+      const response = await AddProductIntoOrder({
+         ProdductId: productdetail.id,
+
          Quantity: dem,
       });
       return response;
@@ -116,7 +117,7 @@ const Table = () => {
                            <img src={processApiImagePath(count.image)} alt="" />
                         </td>
                         <td>{count.name}</td>
-                        <td>{count.price.toLocaleString()}đ</td>
+                        <td>{count.priceNow.toLocaleString()}đ</td>
                         <td>
                            <div>
                               <div

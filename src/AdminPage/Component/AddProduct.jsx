@@ -84,7 +84,6 @@ export const AddProduct = () => {
       console.log(file, 'fil');
       if (file) setSelectedImage([...selectedImage, file]);
    };
-   console.log('SelectedImage', selectedImage);
    const handleDrop = (event) => {
       event.preventDefault();
 
@@ -127,6 +126,7 @@ export const AddProduct = () => {
          formData.append('productInput.status', selectedStatus);
 
          data = await updateProductAPI(id, formData);
+         console.log('data', data);
 
          if (data?.status) {
             setSelectedImage([]);
@@ -150,7 +150,7 @@ export const AddProduct = () => {
       const fetchCategory = async () => {
          console.log(category.length);
          const categoryTemp = await getCategoryApi();
-         setSelectedCategory(category[0]?.id);
+         setSelectedCategory(category[1]?.id);
 
          if (categoryTemp.status) {
             if (
@@ -332,7 +332,7 @@ export const AddProduct = () => {
                      </div>
                   </div>
                </div>
-               <div className="option">
+               {/* <div className="option">
                   <div className="card-header">Option</div>
                   <div className="card-body">
                      {options.map((option, index) => (
@@ -366,7 +366,7 @@ export const AddProduct = () => {
                         Thêm Option
                      </button>
                   </div>
-               </div>
+               </div> */}
 
                <div className="status">
                   <div className="card-header">Status</div>
@@ -376,7 +376,7 @@ export const AddProduct = () => {
                            value={selectedStatus}
                            onChange={(e) => setSelectedStatus(e.target.value)}
                         >
-                           <option value={null}>Chọn trạng thái</option>
+                           <option value="">Chọn trạng thái</option>
                            <option value="Publish">Publish</option>
                            <option value="Inactive">Inactive</option>
                            <option value="Scheduled">Scheduled</option>
@@ -397,16 +397,12 @@ export const AddProduct = () => {
                         />
                      </div>
                      <div className="product-info">
-                        <p>Product in stock now: {productEdit?.soluong}</p>
-                        <p>Product in transit: 390</p>
+                        <p>Sản phẩm đang có: {productEdit?.soLuong}</p>
                         <p>
-                           Last time restocked:{' '}
+                           Thời gian cập nhật cuối:
                            {ProcessDate(productEdit?.createAt)}
                         </p>
-                        <p>
-                           Total stock over lifetime:{' '}
-                           {productEdit?.totalProduct}
-                        </p>
+                        <p>Tổng sản phẩm đã bán: {productEdit?.totalProduct}</p>
                      </div>
                   </div>
                </div>

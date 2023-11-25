@@ -18,6 +18,8 @@ import { FaProductHunt } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import processApiImagePath from '../Helper/EditLinkImage';
 import { useStateProvider } from '../StateProvider/StateProvider';
+import { GrProductHunt } from 'react-icons/gr';
+
 export const AdminContext = createContext();
 
 const Admin = ({ Child, indexActive = 0, ...props }) => {
@@ -40,7 +42,6 @@ const Admin = ({ Child, indexActive = 0, ...props }) => {
       const calculatedBodyHeight = 100 - headerHeight;
       setBodyHeight(calculatedBodyHeight);
    }, []);
-   useEffect(() => {});
    useEffect(() => {
       const handleScroll = () => {
          setScrollPosition(window.scrollY);
@@ -72,6 +73,9 @@ const Admin = ({ Child, indexActive = 0, ...props }) => {
    }, [scrollPosition]);
    const handleLiClick = (index) => {
       if (index === 1) {
+         navigate('/');
+      }
+      if (index === 2) {
          navigate('/admin');
       }
       if (index === 3) {
@@ -216,8 +220,8 @@ const Admin = ({ Child, indexActive = 0, ...props }) => {
                         className={activeIndex === 2 ? 'active' : ''}
                         onClick={() => handleLiClick(2)}
                      >
-                        <AiOutlineMail />
-                        Email
+                        <GrProductHunt />
+                        Product
                      </li>
                      <li
                         className={activeIndex === 3 ? 'active' : ''}

@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useRef, useContext } from 'react';
-import * as signalR from '@microsoft/signalr';
 import styled from 'styled-components';
 import { useStateProvider } from './StateProvider/StateProvider';
-import checkAndRenewToken from './Token/token';
 import { getMessageWithUserId, getUserMessage } from './Axios/web';
 import { FcHome } from 'react-icons/fc';
 import { useNavigate } from 'react-router-dom';
@@ -11,14 +9,13 @@ import processApiImagePath from './Helper/EditLinkImage';
 function App() {
    const [messages, setMessages] = useState([]);
    const [newMessage, setNewMessage] = useState('');
-   const [role, setRole] = useState('user');
    const [user, setUser] = useState([]);
    const [selectedUser, setSelectedUser] = useState(null);
 
    const messageListRef = useRef(null);
    const inputRef = useRef(null);
    const navigate = useNavigate();
-   const [{ connection }, dispatch] = useStateProvider();
+   const [{ connection }] = useStateProvider();
    const [dataContext, setDataContext] = useState({
       closeMenu: null,
       occupy: null,
@@ -64,6 +61,8 @@ function App() {
    //connect server hub
    useEffect(() => {
       // Đăng ký lắng nghe sự kiện từ Hub
+      console.log('cone', connection);
+
       if (connection) {
          connection.on('ErrorMessage', (message) => {
             setMessages((pre) => [...pre, message]);
@@ -72,6 +71,7 @@ function App() {
 
          connection.on('ReceiveMessage', (message) => {
             const messageJSON = JSON.parse(message);
+            console.log('tin nhan nhan duoc ', messageJSON);
             setMessages((pre) => [
                ...pre,
                {
@@ -94,7 +94,7 @@ function App() {
             connection.off('ReceiveMessage');
          }
       };
-   }, []);
+   }, [connection]);
 
    const getMessage = async () => {
       if (selectedUser) {

@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { FaCartPlus } from 'react-icons/fa';
 import {
+   DeleteOrder,
    GetOrderDetailAndCustomerInfo,
    UpdateStatusOrder,
 } from '../../Axios/web';
@@ -63,7 +64,14 @@ const DetailOrder = () => {
    const [checkboxes, setCheckboxes] = useState(
       Array(detailData.length).fill(false)
    );
-
+   const navigate = useNavigate();
+   const handleDeleteOrder = async () => {
+      const data = await DeleteOrder(id);
+      console.log(data);
+      if (data?.status) {
+         navigate('/admin/order-list');
+      }
+   };
    const toggleSelectAll = () => {
       setSelectAll(!selectAll);
       setCheckboxes(Array(detailData.length).fill(!selectAll));
@@ -114,7 +122,12 @@ const DetailOrder = () => {
                   </button>
                </>
             ) : null}
-            <button className="delete-button">Xóa</button>
+            <button
+               className="delete-button"
+               onClick={() => handleDeleteOrder()}
+            >
+               Xóa
+            </button>
          </div>
          <div className="container-order">
             <div className="col1">
@@ -187,7 +200,7 @@ const DetailOrder = () => {
                      </div>
                   </div>
                </div>
-               <div className="timeline">
+               {/* <div className="timeline">
                   <div className="timeline-item">
                      <div className="timeline-circle"></div>
                      <div className="timeline-content">
@@ -209,7 +222,7 @@ const DetailOrder = () => {
                         <p>3/10/2023</p>
                      </div>
                   </div>
-               </div>
+               </div> */}
             </div>
             <div className="col2">
                <div className="customer-detail">
@@ -255,10 +268,11 @@ const DetailOrder = () => {
                      <span className="edit">Edit</span>
                   </div>
                   <div>
-                     <div>{customer.payment}</div>
-                     {customer.methodPayment === 'online' ? (
-                        <div>Card Number:{customer.cardNumber} </div>
-                     ) : null}
+                     <div>
+                        {customer.payment === 'Momo'
+                           ? 'VNPAY'
+                           : customer.payment}
+                     </div>
                   </div>
                </div>
             </div>

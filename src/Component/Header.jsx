@@ -253,6 +253,15 @@ const Header = () => {
                                     >
                                        Thông tin cá nhân
                                     </div>
+                                    {user.role === 'Admin' ? (
+                                       <div
+                                          onClick={() => {
+                                             navigate('/admin');
+                                          }}
+                                       >
+                                          Trang quản trị
+                                       </div>
+                                    ) : null}
                                     <div onClick={() => handleLogout()}>
                                        Đăng xuất
                                     </div>

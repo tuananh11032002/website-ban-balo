@@ -5,7 +5,7 @@ import processApiImagePath from '../Helper/EditLinkImage';
 import { InsertReview } from '../Axios/web';
 import { useStateProvider } from '../StateProvider/StateProvider';
 import { toast, ToastContainer } from 'react-toastify';
-const Rating = ({ product, onClose }) => {
+const Rating = ({ product, onClose, onLoad }) => {
    const [{ user }] = useStateProvider();
    const [rating, setRating] = useState(1);
    const [comment, setComment] = useState('');
@@ -48,6 +48,8 @@ const Rating = ({ product, onClose }) => {
          });
          setComment('');
          setIsCommentValid(true);
+         onClose();
+         onLoad();
       } else {
          toast.error(`${data.result}`, {
             position: toast.POSITION.TOP_CENTER,

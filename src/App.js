@@ -37,17 +37,35 @@ import PaymentInfo from './Page/PaymentInfo';
 import PasswordAccount from './Page/PasswordAccount';
 import Rating from './Component/Rating';
 import { RenewToken } from './Axios/web';
+import PermissionDenied from './Component/Body/PermissionDenied ';
 
 function App() {
    const [isUserReady, setIsUserReady] = useState(false);
-   const [{ user, loading }, dispatch] = useStateProvider();
+   const [{ user }, dispatch] = useStateProvider();
+
+   const UserRoute = (props) => {
+      console.log('props', props);
+      if (user) {
+         return props.children;
+      } else {
+         return <PermissionDenied />;
+      }
+   };
+
+   const AdminRoute = (props) =>
+      user && user?.role.toLowerCase() === 'admin' ? (
+         props.children
+      ) : (
+         <PermissionDenied />
+      );
+
    const fetchData = async () => {
       const userLocal = JSON.parse(localStorage.getItem('webbanbalo_user'));
       if (userLocal) {
          const token = JSON.parse(
             localStorage.getItem('webbanbalo_user')
          ).token;
-         const renewToken = await RenewToken(token);
+         const renewToken = await checkAndRenewToken(token);
          console.log(renewToken, ' renewToken');
          if (
             JSON.stringify(userLocal) !== JSON.stringify(user) &&
@@ -64,7 +82,6 @@ function App() {
    useEffect(() => {
       fetchData();
    }, [user]);
-   // "https://localhost:44301/messageHub"
    useEffect(() => {
       let connectionHub;
       const connectToSignalRHub = async () => {
@@ -115,14 +132,9 @@ function App() {
    }, [user]);
 
    return (
-      <>
-         {loading === true ? (
-            <div className="loading">
-               <AiOutlineLoading3Quarters />
-            </div>
-         ) : null}
-         <Container>
-            {isUserReady ? (
+      <Container>
+         {isUserReady ? (
+            <>
                <Routes>
                   <Route path="/" element={<Slide child={<Home />} />}></Route>
                   <Route
@@ -134,14 +146,10 @@ function App() {
                      element={<Slide child={<ProductDetail />} />}
                   ></Route>
                   <Route
-                     path="/collections/:categoryName"
+                     path="/collections/:id"
                      element={<Slide child={<Home />} />}
                   ></Route>
 
-                  <Route
-                     path="/pay"
-                     element={<Slide child={<PayPage />} />}
-                  ></Route>
                   <Route
                      path="/pay-method"
                      element={<Slide child={<PaymentInfo />} />}
@@ -149,8 +157,21 @@ function App() {
 
                   <Route
                      path="/cart"
-                     element={<Slide child={<Cart />} />}
+                     element={
+                        <UserRoute>
+                           <Slide child={<Cart />} />
+                        </UserRoute>
+                     }
                   ></Route>
+                  <Route
+                     path="/pay"
+                     element={
+                        <UserRoute>
+                           <PayPage />
+                        </UserRoute>
+                     }
+                  ></Route>
+
                   <Route
                      path="/about-us"
                      element={<Slide child={<About />} />}
@@ -174,69 +195,137 @@ function App() {
                         <>{user ? <Navigate to="/" /> : <RegistrationPage />}</>
                      }
                   />
-                  <Route path="/account/address" element={<AddressAccount />} />
-                  <Route path="/account/profile" element={<ProfileAccount />} />
-                  <Route path="/account/order" element={<OrderAccount />} />
-                  <Route path="/account/rating/:id" element={<Rating />} />
+                  <Route
+                     path="/account/address"
+                     element={
+                        <UserRoute>
+                           <AddressAccount />
+                        </UserRoute>
+                     }
+                  />
+                  <Route
+                     path="/account/profile"
+                     element={
+                        <UserRoute>
+                           <ProfileAccount />
+                        </UserRoute>
+                     }
+                  />
+                  <Route
+                     path="/account/order"
+                     element={
+                        <UserRoute>
+                           <OrderAccount />
+                        </UserRoute>
+                     }
+                  />
 
                   <Route
                      path="/account/change-password"
-                     element={<PasswordAccount />}
+                     element={
+                        <UserRoute>
+                           <PasswordAccount />
+                        </UserRoute>
+                     }
                   />
 
                   <Route
                      path="/chat"
-                     element={<Slide child={<WebSocket />} />}
+                     element={
+                        <UserRoute>
+                           <Slide child={<WebSocket />} />
+                        </UserRoute>
+                     }
                   />
 
                   <Route
                      path="/admin"
-                     element={<Slide child={<ProductListPage />} />}
+                     element={
+                        <AdminRoute>
+                           <Slide child={<ProductListPage />} />
+                        </AdminRoute>
+                     }
                   />
                   <Route
                      path="/admin/chat"
-                     element={<Slide child={<ChatPage />} />}
+                     element={
+                        <AdminRoute>
+                           <Slide child={<ChatPage />} />
+                        </AdminRoute>
+                     }
                   />
                   <Route
                      path="/admin/order-list"
-                     element={<Slide child={<OrderListPage />} />}
+                     element={
+                        <AdminRoute>
+                           <Slide child={<OrderListPage />} />
+                        </AdminRoute>
+                     }
                   />
                   <Route
                      path="/admin/category-list"
-                     element={<Slide child={<CategoryListPage />} />}
+                     element={
+                        <AdminRoute>
+                           <Slide child={<CategoryListPage />} />
+                        </AdminRoute>
+                     }
                   />
                   <Route
                      path="/admin/user-list"
-                     element={<Slide child={<UserListPage />} />}
+                     element={
+                        <AdminRoute>
+                           <Slide child={<UserListPage />} />
+                        </AdminRoute>
+                     }
                   />
                   <Route
                      path="/admin/customer-list"
-                     element={<Slide child={<CustomerListPage />} />}
+                     element={
+                        <AdminRoute>
+                           <Slide child={<CustomerListPage />} />
+                        </AdminRoute>
+                     }
                   />
 
                   <Route
                      path="/admin/add-product/:id"
-                     element={<Slide child={<AddProductPage />} />}
+                     element={
+                        <AdminRoute>
+                           <Slide child={<AddProductPage />} />
+                        </AdminRoute>
+                     }
                   />
                   <Route
                      path="/admin/customer-detail/:id"
-                     element={<Slide child={<CustomerDetailPage />} />}
+                     element={
+                        <AdminRoute>
+                           <Slide child={<CustomerDetailPage />} />
+                        </AdminRoute>
+                     }
                   />
                   <Route
                      path="/admin/order-detail/:id"
-                     element={<Slide child={<DetailOrderPage />} />}
+                     element={
+                        <AdminRoute>
+                           <Slide child={<DetailOrderPage />} />
+                        </AdminRoute>
+                     }
                   />
                   <Route path="/test123" element={<Test />} />
 
                   <Route
                      path="/admin/account-detail/:id"
-                     element={<Slide child={<AccountDetailPage />} />}
+                     element={
+                        <AdminRoute>
+                           <Slide child={<AccountDetailPage />} />
+                        </AdminRoute>
+                     }
                   />
                   <Route path="*" element={<Slide child={<NotFound />} />} />
                </Routes>
-            ) : null}
-         </Container>
-      </>
+            </>
+         ) : null}
+      </Container>
    );
 }
 const Container = styled.div``;

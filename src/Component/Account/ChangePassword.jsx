@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { ChangePasswordApi } from '../../Axios/web';
+import { ToastContainer, toast } from 'react-toastify';
 
 const ChangePassword = () => {
    const [oldPassword, setOldPassword] = useState('');
@@ -10,7 +12,6 @@ const ChangePassword = () => {
    const handleChange = (e) => {
       const { name, value } = e.target;
 
-      // Cập nhật state tương ứng với ô input được thay đổi
       if (name === 'oldPassword') {
          setOldPassword(value);
       } else if (name === 'newPassword') {
@@ -20,28 +21,40 @@ const ChangePassword = () => {
       }
    };
 
-   const handleSubmit = (e) => {
+   const handleSubmit = async (e) => {
       e.preventDefault();
 
       // Kiểm tra xác nhận mật khẩu mới
-      if (newPassword !== confirmPassword) {
+      console.log(oldPassword, 'oldPassword');
+      console.log(confirmPassword, 'confirmPassword');
+
+      if (JSON.stringify(oldPassword) !== JSON.stringify(confirmPassword)) {
          setMessage('Mật khẩu mới và xác nhận mật khẩu không khớp');
          return;
       }
 
-      // Gửi thông tin đổi mật khẩu đến server (giả sử là một hàm async)
-      // const success = await changePassword(oldPassword, newPassword);
-
-      // Xử lý kết quả từ server
-      // if (success) {
-      //   setMessage('Đổi mật khẩu thành công');
-      // } else {
-      //   setMessage('Đổi mật khẩu không thành công. Mật khẩu cũ không đúng.');
-      // }
+      const data = await ChangePasswordApi({
+         password: oldPassword,
+         rePassword: confirmPassword,
+         newPassword: newPassword,
+      });
+      if (data?.status === true) {
+         toast.info(`Thay dổi thông tin thành công`, {
+            position: toast.POSITION.TOP_CENTER,
+            autoClose: 1000,
+         });
+      } else {
+         toast.error(`${data.result}`, {
+            position: toast.POSITION.TOP_CENTER,
+            autoClose: 3000,
+         });
+      }
+      console.log(data);
    };
 
    return (
       <Container>
+         <ToastContainer />
          <h2>Đổi mật khẩu</h2>
          <form onSubmit={handleSubmit}>
             <div>
@@ -55,6 +68,16 @@ const ChangePassword = () => {
                />
             </div>
             <div>
+               <label htmlFor="confirmPassword">Xác nhận mật khẩu cũ:</label>
+               <input
+                  type="password"
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  value={confirmPassword}
+                  onChange={handleChange}
+               />
+            </div>
+            <div>
                <label htmlFor="newPassword">Mật khẩu mới:</label>
                <input
                   type="password"
@@ -64,16 +87,7 @@ const ChangePassword = () => {
                   onChange={handleChange}
                />
             </div>
-            <div>
-               <label htmlFor="confirmPassword">Xác nhận mật khẩu mới:</label>
-               <input
-                  type="password"
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  value={confirmPassword}
-                  onChange={handleChange}
-               />
-            </div>
+
             <button type="submit">Đổi mật khẩu</button>
          </form>
          {message && <p>{message}</p>}

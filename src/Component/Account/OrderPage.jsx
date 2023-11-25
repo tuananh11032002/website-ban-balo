@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
-import { GetOrderDone } from '../../Axios/web';
+import { CancelOrder, GetOrderDone } from '../../Axios/web';
 import processApiImagePath from '../../Helper/EditLinkImage';
 import Pagination from '../../AdminPage/Component/Pagination';
 import { useNavigate } from 'react-router-dom';
 import Rating from '../Rating';
+import ConfirmationDialog from '../../Sharing/MessageBox';
 
 const OrderPage = () => {
    const navigate = useNavigate();
@@ -77,11 +78,25 @@ const OrderPage = () => {
       },
    ]);
    const [pageNow, setPageNow] = useState(1);
-
+   const [status, setStatus] = useState('');
    const [activeItem, setActiveItem] = useState(0);
    const [totalOrder, setTotalOrder] = useState(100);
    const [isOpenRating, setIsOpenRating] = useState(false);
    const [productEdit, setProductEdit] = useState({ orderId: null });
+   const [orderIdEdit, setOrderIdEdit] = useState();
+   const messageBoxRef = useRef();
+
+   const handleYes = () => {
+      handleCancelOrder();
+   };
+
+   const handleNo = () => {
+      console.log('User clicked No');
+   };
+
+   const showConfirmationDialog = () => {
+      messageBoxRef.current.show();
+   };
    const handleItemClick = (index) => {
       setActiveItem(index);
    };
@@ -89,8 +104,14 @@ const OrderPage = () => {
       setIsOpenRating(true);
       setProductEdit({ ...item, orderId: orderId });
    };
+   const handleCancelOrder = async () => {
+      const data = await CancelOrder(orderIdEdit);
+      if (data?.status) {
+         fetchData();
+      }
+   };
    const fetchData = async () => {
-      const dataApi = await GetOrderDone({ pageNow, pageSize: 3 });
+      const dataApi = await GetOrderDone({ status, pageNow, pageSize: 3 });
       if (dataApi?.status === true) {
          if (JSON.stringify(dataApi.result.data) !== JSON.stringify(data)) {
             setData(dataApi.result.data);
@@ -101,38 +122,58 @@ const OrderPage = () => {
    };
    useEffect(() => {
       fetchData();
-   }, [pageNow]);
+   }, [pageNow, status]);
    console.log('data', data);
    return (
       <Container>
+         <ConfirmationDialog
+            ref={messageBoxRef}
+            onYesClick={handleYes}
+            onNoClick={handleNo}
+         />
          <div className="navbar">
             <div
                className={`nav-item ${activeItem === 0 ? 'active' : ''}`}
-               onClick={() => handleItemClick(0)}
+               onClick={() => {
+                  handleItemClick(0);
+                  setStatus('');
+               }}
             >
                Tất cả
             </div>
             <div
                className={`nav-item ${activeItem === 1 ? 'active' : ''}`}
-               onClick={() => handleItemClick(1)}
+               onClick={() => {
+                  handleItemClick(1);
+                  setStatus('Paid');
+               }}
             >
                Chờ thanh toán
             </div>
             <div
                className={`nav-item ${activeItem === 2 ? 'active' : ''}`}
-               onClick={() => handleItemClick(2)}
+               onClick={() => {
+                  handleItemClick(2);
+                  setStatus('Dispatched');
+               }}
             >
                Đang giao
             </div>
             <div
                className={`nav-item ${activeItem === 3 ? 'active' : ''}`}
-               onClick={() => handleItemClick(3)}
+               onClick={() => {
+                  handleItemClick(3);
+                  setStatus('Delivered');
+               }}
             >
                Hoàn thành
             </div>
             <div
                className={`nav-item ${activeItem === 4 ? 'active' : ''}`}
-               onClick={() => handleItemClick(4)}
+               onClick={() => {
+                  handleItemClick(4);
+                  setStatus('Cancelled');
+               }}
             >
                Đã hủy
             </div>
@@ -172,12 +213,14 @@ const OrderPage = () => {
                                     Đánh giá
                                  </button>
                               ) : null}
+
                               {isOpenRating ? (
                                  <Rating
                                     product={{
                                        ...productEdit,
                                     }}
                                     onClose={() => setIsOpenRating(false)}
+                                    onLoad={() => fetchData()}
                                  />
                               ) : null}
                            </div>
@@ -185,37 +228,54 @@ const OrderPage = () => {
                      })}
                   </div>
                   <div className="footer">
-                     <div className="price">
-                        <div className="price-total">
-                           <div>Tổng tiền: </div>
-                           <div className="price-label">
-                              {da?.totalAmount.toLocaleString()}đ
-                           </div>
-                        </div>
-                        <div className="price-total">
-                           <div>Phí vận chuyển:</div>
-                           <div className="price-label">
-                              {da?.feeShip.toLocaleString()}đ
-                           </div>
-                        </div>
-                        <div className="price-total">
-                           <div>Giảm giá:</div>
-                           <div className="price-label">
-                              {da?.discount?.toLocaleString()}đ
-                           </div>
-                        </div>
-                        <div className="price-total">
-                           <div>Thành tiền: </div>
-                           <div className="price-label">
-                              {da?.grandTotal.toLocaleString()}đ
-                           </div>
-                        </div>
+                     <div>
+                        <p>Địa chỉ giao hàng: {da?.shippingAddress}</p>
+                        <p>
+                           Phương thức thanh toán:
+                           {da?.paymentMethod === 'Momo'
+                              ? 'VNPAY'
+                              : da?.paymentMethod}
+                        </p>
                      </div>
-
-                     {/* <div className="button">
-                    <div>Liên hệ người bán</div>
-                    <div>Mua lại</div>
-                  </div> */}
+                     <div>
+                        <div className="price">
+                           <div className="price-total">
+                              <div>Tổng tiền: </div>
+                              <div className="price-label">
+                                 {da?.totalAmount.toLocaleString()}đ
+                              </div>
+                           </div>
+                           <div className="price-total">
+                              <div>Phí vận chuyển:</div>
+                              <div className="price-label">
+                                 {da?.feeShip.toLocaleString()}đ
+                              </div>
+                           </div>
+                           <div className="price-total">
+                              <div>Giảm giá:</div>
+                              <div className="price-label">
+                                 {da?.discount?.toLocaleString()}đ
+                              </div>
+                           </div>
+                           <div className="price-total">
+                              <div>Thành tiền: </div>
+                              <div className="price-label">
+                                 {da?.grandTotal.toLocaleString()}đ
+                              </div>
+                           </div>
+                        </div>
+                        {da.orderStatus === 'ReadytoPickup' ? (
+                           <button
+                              className="cancel-button"
+                              onClick={() => {
+                                 setOrderIdEdit(da.orderId);
+                                 showConfirmationDialog();
+                              }}
+                           >
+                              Hủy đơn
+                           </button>
+                        ) : null}
+                     </div>
                   </div>
                </div>
             );
@@ -288,6 +348,7 @@ const Container = styled.div`
          button.product-review:hover {
             background-color: #2980b9;
          }
+
          .item {
             display: flex;
             align-items: center;
@@ -314,11 +375,27 @@ const Container = styled.div`
       }
       .footer {
          display: flex;
-         flex-direction: column;
-         justify-content: flex-end;
+         flex-direction: row;
+         justify-content: space-between;
          padding-top: 10px;
-         align-items: flex-end;
+         align-items: flex-start;
+         div:last-child {
+            text-align: right;
+         }
+         button.cancel-button {
+            padding: 10px 20px;
+            background-color: #dc3545;
+            color: #fff;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 14px;
+            max-height: 50px;
+         }
 
+         button.cancel-button:hover {
+            background-color: #c82333;
+         }
          button {
             padding: 5px 10px;
             background-color: #007bff;
